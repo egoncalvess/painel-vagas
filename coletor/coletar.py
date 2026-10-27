@@ -100,6 +100,8 @@ def fonte_gupy():
     for _, termo in todos_termos():
         for api in ([api_ok] if api_ok else GUPY_APIS):
             r = get(api, params={"jobName": termo, "limit": 100, "offset": 0})
+            if not api_ok:
+                log("  gupy api", api, r and r.status_code, (r.text[:150] if r else "").replace("\n", " "))
             if r and r.status_code == 200 and "data" in r.text[:200]:
                 api_ok = api
                 for j in r.json().get("data", []):
@@ -114,12 +116,15 @@ def fonte_gupy():
     for portal in CFG.get("gupy_portais", []):
         r = get(portal)
         if not r or r.status_code != 200:
+            log("  portal falhou", portal, r and r.status_code)
             continue
         m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.S)
         if not m:
+            log("  portal sem __NEXT_DATA__", portal, r.text[:120].replace("\n", " "))
             continue
         achadas = []
         _achar_vagas(json.loads(m.group(1)), achadas)
+        log("  portal", portal, len(achadas), "vagas")
         empresa = re.sub(r"https?://|\.gupy\.io/?", "", portal)
         for j in achadas:
             v = _gupy_item(j, empresa)
