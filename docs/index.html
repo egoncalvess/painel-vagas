@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Painel de Vagas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: uma coluna de leitura; funil em barras no topo, filtros, depois a lista como um cronograma, cada vaga com sua régua de score 0-100 */
+:root{
+  --papel:#eef2f1; --folha:#ffffff; --tinta:#14232a; --suave:#56666d; --linha:#d5dddc;
+  --petroleo:#0b6a73; --petroleo-fundo:#dcecec;
+  --bom:#2a7a4c; --bom-fundo:#dff0e5; --medio:#9a6a00; --medio-fundo:#f6ead0; --fraco:#9aa6aa; --perigo:#b23a2e;
+  --trilho:#e2e8e7;
+  --f-titulo:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-texto:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --papel:#0e1618; --folha:#152023; --tinta:#e2eaea; --suave:#93a3a7; --linha:#253338;
+  --petroleo:#58bcc4; --petroleo-fundo:#163437;
+  --bom:#6fd197; --bom-fundo:#173726; --medio:#e7b54e; --medio-fundo:#3a2f14; --fraco:#617075; --perigo:#ff8a7a;
+  --trilho:#22302f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --papel:#0e1618; --folha:#152023; --tinta:#e2eaea; --suave:#93a3a7; --linha:#253338;
+  --petroleo:#58bcc4; --petroleo-fundo:#163437;
+  --bom:#6fd197; --bom-fundo:#173726; --medio:#e7b54e; --medio-fundo:#3a2f14; --fraco:#617075; --perigo:#ff8a7a;
+  --trilho:#22302f; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.5 var(--f-texto)}
+[hidden]{display:none!important}
+main{max-width:860px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+a{color:var(--petroleo)}
+:focus-visible{outline:2px solid var(--petroleo);outline-offset:2px}
+
+header{display:grid;gap:6px}
+h1{font:700 clamp(2.2rem,6vw,3.2rem)/1 var(--f-titulo);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.quem{margin:0;color:var(--suave);max-width:60ch}
+.atual{margin:0;font-size:.85rem;color:var(--suave)}
+
+.funil{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.funil li{display:grid;grid-template-columns:9.5rem 2.6rem 1fr;align-items:center;gap:10px}
+.funil .rot{color:var(--suave);font-size:.9rem}
+.funil .num{font:600 1.35rem/1 var(--f-titulo);text-align:right;font-variant-numeric:tabular-nums}
+.funil .barra{height:14px;background:var(--trilho);border-radius:2px;overflow:hidden}
+.funil .barra i{display:block;height:100%;background:var(--petroleo);border-radius:2px;transition:width .5s ease}
+.funil li:last-child .barra i{background:var(--bom)}
+
+.controles{display:grid;gap:12px}
+.linha-busca{display:flex;flex-wrap:wrap;gap:10px}
+.busca{flex:1 1 240px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta)}
+select{font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta);min-width:0;max-width:100%}
+.selects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.selects label{display:grid;gap:4px;font-size:.82rem;color:var(--suave)}
+.filtros{display:flex;flex-wrap:wrap;gap:6px}
+.filtros button{font:inherit;font-size:.92rem;padding:6px 12px;border:1px solid var(--linha);border-radius:6px;background:transparent;color:var(--tinta);cursor:pointer}
+.filtros button span{color:var(--suave);font-variant-numeric:tabular-nums;margin-left:4px}
+.filtros button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:var(--papel)}
+.filtros button[aria-pressed="true"] span{color:inherit;opacity:.7}
+.limpar{justify-self:start;font:inherit;font-size:.85rem;background:none;border:0;padding:0;color:var(--petroleo);text-decoration:underline;cursor:pointer}
+
+#lista{display:grid;gap:4px}
+h2{font:600 1.15rem/1.2 var(--f-titulo);margin:22px 0 4px;color:var(--suave)}
+h2:first-child{margin-top:0}
+.vaga{display:grid;grid-template-columns:120px minmax(0,1fr);gap:18px;padding:16px 0;border-top:1px solid var(--linha)}
+.vaga.feita .titulo a{color:var(--suave)}
+.regua{display:grid;gap:6px;align-content:start;padding-top:3px}
+.regua b{font:700 2rem/1 var(--f-titulo);font-variant-numeric:tabular-nums}
+.regua b small{font-size:.55em;font-weight:500;color:var(--suave);margin-left:1px}
+.regua .trilho{position:relative;height:8px;background:var(--trilho);border-radius:2px}
+.regua .trilho i{position:absolute;inset:0 auto 0 0;border-radius:2px;background:var(--fraco)}
+.regua .trilho::before,.regua .trilho::after{content:"";position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--suave);opacity:.55}
+.regua .trilho::before{left:70%}.regua .trilho::after{left:80%}
+.alto b{color:var(--bom)}.alto .trilho i{background:var(--bom)}
+.medio b{color:var(--medio)}.medio .trilho i{background:var(--medio)}
+.sem b{color:var(--fraco);font-size:1.2rem}
+.corpo{display:grid;gap:6px;min-width:0}
+.titulo{font:600 1.3rem/1.2 var(--f-titulo);margin:0;text-wrap:balance}
+.titulo a{color:var(--tinta);text-decoration:none}
+.titulo a:hover{color:var(--petroleo);text-decoration:underline}
+.onde{color:var(--suave);margin:0;font-size:.95rem}
+.motivo{margin:0;font-size:.95rem;max-width:68ch}
+.selos{display:flex;flex-wrap:wrap;gap:6px}
+.selo{font-size:.8rem;padding:1px 8px;border-radius:4px;background:var(--trilho);color:var(--tinta)}
+.selo.area{background:var(--petroleo-fundo);color:var(--petroleo)}
+.selo.ok{background:var(--bom-fundo);color:var(--bom)}
+.acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.acoes button{font:inherit;font-size:.9rem;padding:6px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--linha);background:var(--folha);color:var(--tinta)}
+.acoes .cand[aria-pressed="true"]{background:var(--bom-fundo);border-color:var(--bom);color:var(--bom)}
+.acoes .desc{background:transparent;color:var(--suave)}
+.acoes .desc:hover,.acoes .desc.armado{color:var(--perigo);border-color:var(--perigo)}
+.acoes button:disabled{opacity:.6;cursor:default}
+.aviso{color:var(--suave);padding:28px 0;border-top:1px solid var(--linha);margin:0}
+.erro{color:var(--perigo)}
+
+details.conta{border-top:1px solid var(--linha);padding-top:16px;color:var(--suave);font-size:.92rem}
+details.conta summary{cursor:pointer;color:var(--tinta)}
+details.conta form{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+details.conta input{flex:1 1 260px;min-width:0;font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta)}
+details.conta button{font:inherit;padding:8px 12px;border-radius:6px;border:1px solid var(--tinta);background:var(--tinta);color:var(--papel);cursor:pointer}
+details.conta button.sec{background:transparent;color:var(--tinta);border-color:var(--linha)}
+.estado-conta{margin:8px 0 0}
+
+@media (max-width:640px){.selects{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){
+  .funil li{grid-template-columns:7.5rem 2.2rem 1fr}
+  .vaga{grid-template-columns:1fr;gap:10px}
+  .regua{grid-template-columns:auto 1fr;align-items:center;gap:12px}
+}
+@media (prefers-reduced-motion:reduce){.funil .barra i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Painel de Vagas</h1>
+    <p class="quem">Vagas de planejamento, projetos e manutenção para o Erick, remotas ou em Salvador e RMS. Um robô no GitHub busca e avalia todo dia às 17h55.</p>
+    <p class="atual" id="atual"></p>
+  </header>
+
+  <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
+
+  <section class="controles" aria-label="Filtros">
+    <div class="linha-busca">
+      <input class="busca" id="busca" type="search" placeholder="Buscar por cargo, empresa ou motivo" aria-label="Buscar vagas">
+      <select id="ordem" aria-label="Ordenar">
+        <option value="data">Mais recentes primeiro</option>
+        <option value="score">Maior score primeiro</option>
+      </select>
+    </div>
+    <div class="selects">
+      <label>Site<select id="f-fonte"></select></label>
+      <label>Área<select id="f-area"></select></label>
+      <label>Modalidade<select id="f-mod"></select></label>
+      <label>Score mínimo<select id="f-score">
+        <option value="0">Qualquer</option><option value="50">50</option><option value="60">60</option><option value="70">70</option><option value="80">80</option>
+      </select></label>
+    </div>
+    <div class="filtros" id="filtros"></div>
+    <button class="limpar" id="limpar" type="button" hidden>Limpar filtros</button>
+  </section>
+
+  <section id="lista" aria-live="polite"><p class="aviso">Carregando as vagas.</p></section>
+
+  <details class="conta" id="conta">
+    <summary>Salvar marcações em todos os aparelhos</summary>
+    <p>Sem isso, o que você marca fica só neste navegador. Cole um token do GitHub com permissão de escrita em <b>Contents</b> deste repositório. Ele fica guardado só neste navegador.</p>
+    <form id="form-token">
+      <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">
+      <button type="submit">Salvar token</button>
+      <button type="button" class="sec" id="tirar-token">Remover</button>
+    </form>
+    <p class="estado-conta" id="estado-conta"></p>
+  </details>
+</main>
+
+<script>
+const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const STATUS=[["todas","Todas"],["pendentes","Para me candidatar"],["feitas","Me candidatei"],["retorno","Com retorno"]];
+const $=id=>document.getElementById(id);
+const ler=(k,p)=>{try{const v=localStorage.getItem(k);return v==null?p:JSON.parse(v)}catch(e){return p}};
+const gravar=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const hoje=()=>new Date().toISOString().slice(0,10);
+const dataLonga=d=>{const[a,m,dd]=d.split("-");return `${+dd} de ${MESES[+m-1]} de ${a}`};
+const dataCurta=d=>{const[,m,dd]=(d||"").split("-");return dd?`${dd}/${m}`:""};
+const sc=v=>v.score??-1;
+
+// Repositório: deduzido do endereço do GitHub Pages (usuario.github.io/repo)
+const REPO=(()=>{const h=location.hostname.match(/^([^.]+)\.github\.io$/);const r=location.pathname.split("/").filter(Boolean)[0];
+  return h&&r?`${h[1]}/${r}`:"egoncalvess/painel-vagas"})();
+const API=`https://api.github.com/repos/${REPO}/contents/docs/estado.json`;
+
+let todas=[], estado={candidatei:{},descartadas:[]}, sha=null;
+let token=ler("token",""), meta={};
+let f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"},ler("filtros",{})), busca="";
+
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+const visiveis=()=>todas.filter(v=>!estado.descartadas.includes(v.id)).map(v=>({...v,candidatei:!!estado.candidatei[v.id],candidatei_em:estado.candidatei[v.id]||null}));
+
+const regras={todas:()=>true,pendentes:v=>!v.candidatei&&sc(v)>=70,feitas:v=>v.candidatei,retorno:v=>!!v.retorno};
+
+// ---------- estado: GitHub (com token) ou navegador
+const b64=s=>btoa(unescape(encodeURIComponent(s)));
+const de64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,""))));
+async function lerEstadoGitHub(){
+  const r=await fetch(API+"?ref=main&t="+Date.now(),{headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"}});
+  if(!r.ok)throw new Error(r.status);
+  const j=await r.json();sha=j.sha;return JSON.parse(de64(j.content));
+}
+// Cada mudança é uma função aplicada ao estado; em conflito relê o GitHub e reaplica.
+async function mudar(msg,fn){
+  fn(estado);
+  if(!token){gravar("estado-local",estado);return}
+  for(let t=0;t<3;t++){
+    const r=await fetch(API,{method:"PUT",headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
+      body:JSON.stringify({message:msg,content:b64(JSON.stringify(estado,null,1)),sha,branch:"main"})});
+    if(r.ok){sha=(await r.json()).content.sha;return}
+    if(r.status===409||r.status===422){estado=await lerEstadoGitHub();fn(estado);continue}
+    throw new Error(r.status);
+  }
+  throw new Error("conflito");
+}
+
+// ---------- desenho
+function funil(vs){
+  const n=fn=>vs.filter(fn).length,total=vs.length||1;
+  const F=$("funil");F.textContent="";
+  for(const[r,q]of[["No painel",vs.length],["Score 70 ou mais",n(v=>sc(v)>=70)],["Candidaturas",n(v=>v.candidatei)],["Com retorno",n(v=>v.retorno)]]){
+    const li=el("li"),b=el("span","barra"),i=el("i");i.style.width=(q/total*100)+"%";b.append(i);
+    li.append(el("span","rot",r),el("span","num",q),b);F.append(li);
+  }
+}
+function opcoes(sel,valores,atual,todosTxt){
+  const s=$(sel);s.textContent="";s.append(new Option(todosTxt,""));
+  for(const[v,q]of valores)s.append(new Option(`${v} (${q})`,v));
+  s.value=valores.some(([v])=>v===atual)?atual:"";
+}
+function contar(vs,campo){const m=new Map();for(const v of vs){const k=v[campo]||"Não informado";m.set(k,(m.get(k)||0)+1)}return[...m].sort((a,b)=>b[1]-a[1])}
+const modDe=v=>/remot/i.test(v.modalidade)?"Remoto":/h[ií]brid/i.test(v.modalidade)?"Híbrido":"A confirmar";
+
+function passa(v,ignorarStatus){
+  if(!ignorarStatus&&!regras[f.status](v))return false;
+  if(f.fonte&&v.fonte!==f.fonte)return false;
+  if(f.area&&(v.area||"Não informado")!==f.area)return false;
+  if(f.mod&&modDe(v)!==f.mod)return false;
+  if(sc(v)<+f.score&&+f.score>0)return false;
+  const q=busca.trim().toLowerCase();
+  return !q||[v.titulo,v.empresa,v.motivo,v.local].join(" ").toLowerCase().includes(q);
+}
+
+function linha(v){
+  const art=el("article","vaga"+(v.candidatei?" feita":""));
+  const nivel=v.score==null?"sem":v.score>=80?"alto":v.score>=70?"medio":"";
+  const reg=el("div","regua "+nivel);
+  const b=el("b",null,v.score==null?"sem nota":v.score);if(v.score!=null)b.append(el("small",null,"/100"));
+  const tr=el("div","trilho");tr.title="Linhas em 70 e 80";const i=el("i");i.style.width=Math.max(0,Math.min(100,v.score||0))+"%";tr.append(i);
+  reg.append(b,tr);
+  const c=el("div","corpo");
+  const h=el("h3","titulo"),a=el("a",null,v.titulo);a.href=v.link||"#";a.target="_blank";a.rel="noopener";h.append(a);
+  c.append(h,el("p","onde",[v.empresa,v.local].filter(Boolean).join(", ")));
+  if(v.motivo)c.append(el("p","motivo",v.motivo));
+  const s=el("div","selos");
+  if(v.area)s.append(el("span","selo area",v.area));
+  if(v.modalidade)s.append(el("span","selo",v.modalidade));
+  if(v.fonte)s.append(el("span","selo",v.fonte));
+  if(v.prazo)s.append(el("span","selo","Inscrição até "+dataCurta(v.prazo)));
+  if(v.curriculo)s.append(el("span","selo","Currículo pronto"));
+  if(v.retorno)s.append(el("span","selo ok","Retorno: "+v.retorno));
+  c.append(s);
+  const ac=el("div","acoes");
+  const bc=el("button","cand",v.candidatei?`Me candidatei${v.candidatei_em?" em "+dataCurta(v.candidatei_em):""}`:"Marcar que me candidatei");
+  bc.type="button";bc.setAttribute("aria-pressed",v.candidatei);
+  bc.onclick=async()=>{bc.disabled=true;const copia=JSON.stringify(estado),marcar=!v.candidatei;
+    try{await mudar((marcar?"Candidatura: ":"Desmarca: ")+v.titulo,e=>{if(marcar)e.candidatei[v.id]=hoje();else delete e.candidatei[v.id]});render()}
+    catch(err){estado=JSON.parse(copia);bc.disabled=false;bc.textContent="Não salvou. Confira o token e tente de novo."}};
+  const bd=el("button","desc","Descartar");bd.type="button";let armado=false;
+  bd.onclick=async()=>{
+    if(!armado){armado=true;bd.classList.add("armado");bd.textContent="Confirmar descarte";
+      setTimeout(()=>{if(armado&&bd.isConnected){armado=false;bd.classList.remove("armado");bd.textContent="Descartar"}},4000);return}
+    bd.disabled=true;const copia=JSON.stringify(estado);
+    try{await mudar("Descarta: "+v.titulo,e=>{if(!e.descartadas.includes(v.id))e.descartadas.push(v.id)});render()}
+    catch(err){estado=JSON.parse(copia);bd.disabled=false;bd.textContent="Não descartou. Tente de novo."}};
+  ac.append(bc,bd);c.append(ac);
+  art.append(reg,c);return art;
+}
+
+function render(){
+  const vs=visiveis();
+  funil(vs);
+  const base=vs.filter(v=>passa(v,true));
+  const F=$("filtros");F.textContent="";
+  for(const[k,nome]of STATUS){const b=el("button",null,nome);b.type="button";b.setAttribute("aria-pressed",k===f.status);
+    b.append(el("span",null,base.filter(regras[k]).length));b.onclick=()=>{f.status=k;salvarFiltros();render()};F.append(b)}
+  opcoes("f-fonte",contar(vs,"fonte"),f.fonte,"Todos os sites");
+  opcoes("f-area",contar(vs,"area"),f.area,"Todas as áreas");
+  opcoes("f-mod",contar(vs.map(v=>({m:modDe(v)})),"m"),f.mod,"Todas");
+  $("f-score").value=f.score;$("ordem").value=f.ordem;
+  $("limpar").hidden=!(f.fonte||f.area||f.mod||f.score!=="0"||f.status!=="todas"||busca);
+
+  const L=$("lista");L.textContent="";
+  let lista=vs.filter(v=>passa(v,false));
+  lista.sort(f.ordem==="score"?(a,b)=>sc(b)-sc(a)||b.data.localeCompare(a.data):(a,b)=>b.data.localeCompare(a.data)||sc(b)-sc(a));
+  if(!lista.length){
+    L.append(el("p","aviso",!vs.length?"Ainda não há vagas. O robô adiciona as novas todo dia às 17h55."
+      :"Nenhuma vaga com esses filtros. Use Limpar filtros para ver todas."));return}
+  let dia="";
+  for(const v of lista){if(f.ordem==="data"&&v.data!==dia){dia=v.data;L.append(el("h2",null,dataLonga(dia)))}L.append(linha(v))}
+}
+function salvarFiltros(){gravar("filtros",{status:f.status,ordem:f.ordem,fonte:f.fonte,area:f.area,mod:f.mod,score:f.score})}
+for(const[id,campo]of[["f-fonte","fonte"],["f-area","area"],["f-mod","mod"],["f-score","score"],["ordem","ordem"]])
+  $(id).addEventListener("change",e=>{f[campo]=e.target.value;salvarFiltros();render()});
+$("busca").addEventListener("input",e=>{busca=e.target.value;render()});
+$("limpar").onclick=()=>{f={...f,status:"todas",fonte:"",area:"",mod:"",score:"0"};busca="";$("busca").value="";salvarFiltros();render()};
+
+function mostrarConta(){$("estado-conta").textContent=token?`Conectado. As marcações vão para ${REPO}.`:"Não conectado. As marcações ficam só neste navegador."}
+$("form-token").onsubmit=async e=>{e.preventDefault();const t=$("token").value.trim();if(!t)return;
+  token=t;try{const remoto=await lerEstadoGitHub();
+    const local=ler("estado-local",null);
+    estado=remoto;
+    if(local)await mudar("Marcações deste navegador",e=>{Object.assign(e.candidatei,local.candidatei);for(const id of local.descartadas)if(!e.descartadas.includes(id))e.descartadas.push(id)});
+    gravar("token",t);gravar("estado-local",null);$("token").value="";mostrarConta();render()}
+  catch(err){token=ler("token","");$("estado-conta").textContent="Esse token não conseguiu ler o repositório. Confira a permissão Contents (leitura e escrita).";$("estado-conta").className="estado-conta erro"}};
+$("tirar-token").onclick=()=>{token="";gravar("token","");mostrarConta()};
+
+(async()=>{
+  mostrarConta();
+  try{
+    const r=await fetch("vagas.json?t="+Date.now());const dados=await r.json();todas=dados.vagas||[];meta=dados;
+    if(dados.atualizado_em){const d=new Date(dados.atualizado_em);
+      const fontes=Object.entries(dados.fontes||{}).map(([n,x])=>`${n} ${x.novas}`).join(", ");
+      $("atual").textContent=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontes?` Novas por site: ${fontes}.`:"")}
+    if(token){try{estado=await lerEstadoGitHub()}catch(e){token="";mostrarConta()}}
+    if(!token){try{const r2=await fetch("estado.json?t="+Date.now());if(r2.ok)estado=await r2.json()}catch(e){}
+      const local=ler("estado-local",null);
+      if(local){estado.candidatei={...estado.candidatei,...local.candidatei};estado.descartadas=[...new Set([...estado.descartadas,...local.descartadas])]}}
+    estado.candidatei=estado.candidatei||{};estado.descartadas=estado.descartadas||[];
+    render();
+  }catch(e){$("lista").replaceChildren(el("p","aviso erro","As vagas não carregaram. Se abriu o arquivo direto do PC, rode um servidor local (veja o README)."))}
+})();
+</script>
+</body>
+</html>

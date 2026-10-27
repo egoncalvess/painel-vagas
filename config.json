@@ -1,0 +1,20 @@
+{
+  "termos": {
+    "1": ["analista de planejamento", "engenheiro de planejamento", "planejamento e controle", "PMO", "analista de projetos", "controle de obras", "planejador", "analista de custos"],
+    "2": ["engenheiro de projetos", "coordenador de projetos", "gestão de projetos", "engenheiro eletricista", "projetos elétricos", "gerente de contrato"],
+    "3": ["engenheiro de manutenção", "analista de manutenção", "PCM", "planejamento de manutenção"],
+    "trainee": ["trainee engenharia"]
+  },
+  "cidades_rms": ["salvador", "lauro de freitas", "camaçari", "camacari", "candeias", "simões filho", "simoes filho", "são francisco do conde", "sao francisco do conde", "dias d'ávila", "dias d'avila", "madre de deus", "vera cruz", "itaparica", "mata de são joão", "mata de sao joao", "pojuca", "são sebastião do passé", "sao sebastiao do passe"],
+  "areas": [
+    ["Trainee", ["trainee"]],
+    ["Planejamento e controle", ["planejamento", "planejador", "pmo", "controle", "custos", "cronograma", "orçament", "orcament"]],
+    ["Manutenção", ["manutenção", "manutencao", "pcm", "confiabilidade"]],
+    ["Gestão de projetos", ["projeto", "implantação", "implantacao", "contrato", "obras", "capex"]],
+    ["Engenharia elétrica", ["elétric", "eletric", "eletrotécnic", "eletrotecnic", "energia"]]
+  ],
+  "fora_da_area": ["software", "desenvolvedor", "developer", "dados", "data ", "marketing", "vendas", "comercial", "financeiro", "contábil", "contabil", "fiscal de loja", "rh ", "recursos humanos", "jurídic", "juridic", "ti ", " ti", "scrum", "produto digital", "ux", "ui ", "estágio", "estagio", "estagiário", "estagiario", "jovem aprendiz", "aprendiz", "auxiliar", "eletricista de manutenção", "eletricista predial", "mecânico", "mecanico"],
+  "formacao_excluida": ["engenheiro civil", "engenheira civil", "engenharia civil", "eng. civil", "eng civil", "engenheiro mecânico", "engenheiro mecanico", "engenheira mecânica", "engenheiro químico", "engenheiro quimico", "engenheiro de petróleo", "engenheiro de petroleo", "engenheiro de minas", "arquiteto", "arquiteta", "engenheiro ambiental", "engenheiro agrônomo", "engenheiro florestal", "engenheiro de software", "engenheiro de dados", "engenheiro de computação"],
+  "mobilidade": ["metrô", "metro", "ccr", "motiva", "aeroporto", "airport", "porto", "portuári", "ferrovi", "trilhos", "trens", "brt", "vlt", "rodovia", "concessionária", "concessionaria", "mobilidade"],
+  "max_dias": 30
+}

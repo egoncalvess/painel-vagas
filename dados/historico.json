@@ -1,0 +1,1202 @@
+{
+"engenheiro-eletricista|sl-process-via-jobbol": {
+"titulo": "Engenheiro Eletricista",
+"empresa": "SL Process (via Jobbol)",
+"fonte": null,
+"status": "Descartada (<80)",
+"score": 72,
+"visto_em": "2026-10-13"
+},
+"engenheiro-eletricista-de-manutencao|eqs-engenharia": {
+"titulo": "Engenheiro Eletricista de Manutenção",
+"empresa": "EQS Engenharia",
+"fonte": null,
+"status": "Modalidade a confirmar",
+"score": 62,
+"visto_em": "2026-10-13"
+},
+"analista-de-engenharia|msb-medical-system": {
+"titulo": "Analista de Engenharia",
+"empresa": "MSB Medical System",
+"fonte": null,
+"status": "Modalidade a confirmar",
+"score": 70,
+"visto_em": "2026-10-13"
+},
+"analista-de-pcm|petrobahia": {
+"titulo": "Analista de PCM",
+"empresa": "Petrobahia",
+"fonte": null,
+"status": "Modalidade a confirmar",
+"score": 78,
+"visto_em": "2026-10-13"
+},
+"analista-de-energia|hi-engenharia": {
+"titulo": "Analista de Energia",
+"empresa": "HI Engenharia",
+"fonte": null,
+"status": "Descartada (<80)",
+"score": 55,
+"visto_em": "2026-10-13"
+},
+"engenheiro-eletricista|actemium-vinci-energies": {
+"titulo": "Engenheiro Eletricista",
+"empresa": "Actemium (VINCI Energies)",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": 45,
+"visto_em": "2026-10-13"
+},
+"analista-de-projetos|tqc-engenharia-via-jobbol": {
+"titulo": "Analista de Projetos",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-13"
+},
+"analista-de-projetos|petrobahia": {
+"titulo": "Analista de Projetos",
+"empresa": "Petrobahia",
+"fonte": null,
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-13"
+},
+"analista-de-engenharia-controle-de-obras|makasi": {
+"titulo": "Analista de Engenharia | Controle de Obras",
+"empresa": "Makasí",
+"fonte": null,
+"status": "Currículo gerado",
+"score": 82,
+"visto_em": "2026-10-13"
+},
+"coordenador-de-planejamento-e-controle-de-projetos-paineis-eletricos|recriarh-cliente-nao-informado": {
+"titulo": "Coordenador de Planejamento e Controle de Projetos – Painéis Elétricos",
+"empresa": "Recriarh (cliente não informado)",
+"fonte": null,
+"status": "Modalidade a confirmar",
+"score": 84,
+"visto_em": "2026-10-13"
+},
+"engenheiro-de-projetos-iii|intertechne": {
+"titulo": "Engenheiro de Projetos III",
+"empresa": "Intertechne",
+"fonte": null,
+"status": "Modalidade a confirmar",
+"score": 70,
+"visto_em": "2026-10-13"
+},
+"integrador-engenheira-o-de-planejamento|qualidados": {
+"titulo": "Integrador - Engenheira(o) de Planejamento",
+"empresa": "Qualidados",
+"fonte": null,
+"status": "Descartada (eliminatório)",
+"score": 70,
+"visto_em": "2026-10-13"
+},
+"analista-de-manutencao-senior-pcm-brasil|natura-co": {
+"titulo": "Analista de Manutenção Sênior | PCM Brasil",
+"empresa": "Natura & Co",
+"fonte": null,
+"status": "Descartada (<80)",
+"score": 68,
+"visto_em": "2026-10-13"
+},
+"profissional-analista-de-power-bi|radix": {
+"titulo": "Profissional Analista de Power BI",
+"empresa": "Radix",
+"fonte": null,
+"status": "Descartada (<80)",
+"score": 40,
+"visto_em": "2026-10-13"
+},
+"trilhos-especialista-de-manutencao|motiva": {
+"titulo": "Trilhos | Especialista de Manutenção",
+"empresa": "Motiva",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-13"
+},
+"analista-de-engenharia-jr-gestao-de-obras|metodo-grupo": {
+"titulo": "Analista de Engenharia Jr. | Gestão de Obras",
+"empresa": "Metodo Grupo",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-13"
+},
+"engenheiro-de-planejamento|capco-via-jobbol": {
+"titulo": "Engenheiro de Planejamento",
+"empresa": "Capco (via Jobbol)",
+"fonte": null,
+"status": "Currículo gerado",
+"score": 85,
+"visto_em": "2026-10-14"
+},
+"analista-de-pmo-pleno|ninecon-consultores": {
+"titulo": "Analista de PMO | Pleno",
+"empresa": "Ninecon Consultores",
+"fonte": null,
+"status": "Currículo gerado",
+"score": 82,
+"visto_em": "2026-10-14"
+},
+"analista-de-planejamento-e-controle|alves-da-cunha-engenharia": {
+"titulo": "Analista de Planejamento e Controle",
+"empresa": "Alves da Cunha Engenharia",
+"fonte": null,
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-14"
+},
+"especialista-de-planejamento|qualidados": {
+"titulo": "Especialista de Planejamento",
+"empresa": "Qualidados",
+"fonte": null,
+"status": "Descartada (eliminatório)",
+"score": 65,
+"visto_em": "2026-10-14"
+},
+"pessoa-engenheira-de-planejamento|timenow": {
+"titulo": "Pessoa Engenheira de Planejamento",
+"empresa": "timenow",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-14"
+},
+"pessoa-engenheira-de-confiabilidade|timenow": {
+"titulo": "Pessoa Engenheira de Confiabilidade",
+"empresa": "timenow",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-14"
+},
+"analista-de-pmo-parque-bela-vista-de-brotas|tqc-engenharia-via-jobbol": {
+"titulo": "ANALISTA DE PMO - Parque Bela Vista de Brotas",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-14"
+},
+"analista-de-planejamento|tqc-engenharia-via-jobbol": {
+"titulo": "ANALISTA DE PLANEJAMENTO",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": null,
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-14"
+},
+"analista-de-planejamento|amara-nzero": {
+"titulo": "Analista de Planejamento",
+"empresa": "Amara NZero",
+"fonte": null,
+"status": "Descartada (<80)",
+"score": 40,
+"visto_em": "2026-10-14"
+},
+"supervisor-a-de-planejamento|confidencial-vagas-com-br": {
+"titulo": "Supervisor(a) de Planejamento",
+"empresa": "Confidencial (Vagas.com.br)",
+"fonte": "Vagas.com.br",
+"status": "Modalidade a confirmar",
+"score": 70,
+"visto_em": "2026-10-15"
+},
+"analista-de-projetos|j-t-express": {
+"titulo": "Analista de Projetos",
+"empresa": "J&T Express",
+"fonte": "Vagas.com.br",
+"status": "Modalidade a confirmar",
+"score": 64,
+"visto_em": "2026-10-15"
+},
+"tecnico-de-planejamento-manutencao|cetrel": {
+"titulo": "Técnico de Planejamento - Manutenção",
+"empresa": "CETREL",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"coordenador-de-manutencao|bomix": {
+"titulo": "Coordenador de Manutenção",
+"empresa": "BOMIX",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"engenheiro-de-processos|byd": {
+"titulo": "Engenheiro de Processos",
+"empresa": "BYD",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"gerente-de-obras-parque-bela-vista-de-brotas|tqc-engenharia-via-jobbol": {
+"titulo": "GERENTE DE OBRAS - Parque Bela Vista de Brotas",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"coordenador-de-engenharia-civil-parque-bela-vista-de-brotas|tqc-engenharia-via-jobbol": {
+"titulo": "COORDENADOR DE ENGENHARIA CIVIL - Parque Bela Vista de Brotas",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"engenheiro-clinico|fapex": {
+"titulo": "Engenheiro Clínico",
+"empresa": "fapex",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"assistente-de-pcm|greentech-locacao-intralogistica": {
+"titulo": "Assistente de PCM",
+"empresa": "Greentech Locação Intralogística",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"analista-de-planejamento|iniestarh-cliente-nao-informado": {
+"titulo": "Analista de Planejamento",
+"empresa": "IniestaRH (cliente não informado)",
+"fonte": "BNE",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"engenheiro-a-de-automacao-salvador-ba|kempetro": {
+"titulo": "Engenheiro(a) de Automação | SALVADOR/BA",
+"empresa": "Kempetro",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"analista-de-projetos-mecanica|petrobahia": {
+"titulo": "Analista de Projetos (Mecânica)",
+"empresa": "PETROBAHIA",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"engenheiro-de-processos-transporte-automatizado|byd": {
+"titulo": "Engenheiro de Processos (Transporte Automatizado)",
+"empresa": "BYD",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"mso-engenheiro-a-de-integridade|ocyan": {
+"titulo": "MSO - Engenheiro(a) de Integridade",
+"empresa": "Ocyan",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"acelen-pessoa-tecnica-de-planejamento-mecanica|qualidados": {
+"titulo": "ACELEN - Pessoa Técnica de Planejamento - Mecânica",
+"empresa": "Qualidados",
+"fonte": "Gupy",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-15"
+},
+"engenheiro-implementador-de-projetos|solutic-via-jobbol": {
+"titulo": "Engenheiro Implementador de Projetos",
+"empresa": "Solutic (via Jobbol)",
+"fonte": "Indeed",
+"status": "Currículo gerado",
+"score": 87,
+"visto_em": "2026-10-16"
+},
+"analista-administrativo-de-projetos|l8-group": {
+"titulo": "Analista Administrativo de Projetos",
+"empresa": "L8 GROUP",
+"fonte": "Indeed",
+"status": "Descartada (<70)",
+"score": 60,
+"visto_em": "2026-10-16"
+},
+"lider-de-manutencao|rh-em-acao-cliente-nao-informado": {
+"titulo": "LÍDER DE MANUTENÇÃO",
+"empresa": "RH em Ação (cliente não informado)",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 55,
+"visto_em": "2026-10-16"
+},
+"pessoa-engenheira|qualidados": {
+"titulo": "PESSOA ENGENHEIRA",
+"empresa": "Qualidados",
+"fonte": "Indeed",
+"status": "Descartada (fora da área)",
+"score": 45,
+"visto_em": "2026-10-16"
+},
+"analista-de-gestao-estrategica-salvador-ba|petrobahia": {
+"titulo": "Analista de Gestão Estratégica | Salvador/BA",
+"empresa": "Petrobahia",
+"fonte": "Gupy",
+"status": "Descartada (fora da área)",
+"score": 40,
+"visto_em": "2026-10-16"
+},
+"pessoa-engenheira-especialista-de-planejamento|timenow": {
+"titulo": "Pessoa Engenheira Especialista de Planejamento",
+"empresa": "timenow",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"analista-de-instalacoes-grupo-tqc|tqc-engenharia-via-jobbol": {
+"titulo": "ANALISTA DE INSTALAÇÕES (Grupo TQC)",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"analista-de-custos-grupo-tqc|tqc-engenharia-via-jobbol": {
+"titulo": "ANALISTA DE CUSTOS (Grupo TQC)",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"tecnico-orcamentista-de-instalacoes-eletricas|stamz-engenharia-via-jobbol": {
+"titulo": "TÉCNICO ORÇAMENTISTA DE INSTALAÇÕES ELÉTRICAS",
+"empresa": "Stamz Engenharia (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"engenheiro-eletricista|tic-mobile-solucoes": {
+"titulo": "Engenheiro Eletricista",
+"empresa": "Tic Mobile Soluções",
+"fonte": "BNE",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"engenheiro-a-de-projetos-pleno|tronox-brasil": {
+"titulo": "Engenheiro(a) de Projetos Pleno",
+"empresa": "Tronox Brasil",
+"fonte": "Gupy",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"auxiliar-de-engenharia-orcamentista-de-obras|macedo-rh": {
+"titulo": "AUXILIAR DE ENGENHARIA / ORÇAMENTISTA DE OBRAS",
+"empresa": "Macêdo RH",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"engenheiro-mecanico-home-office|capco": {
+"titulo": "Engenheiro Mecânico - Home Office",
+"empresa": "Capco",
+"fonte": "Greenhouse",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-16"
+},
+"engenheiro-de-processos|tecservice-engenharia": {
+"titulo": "Engenheiro de Processos",
+"empresa": "TECSERVICE ENGENHARIA",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-17"
+},
+"analista-de-equipamentos|byd-brasil": {
+"titulo": "Analista de Equipamentos",
+"empresa": "BYD Brasil",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-17"
+},
+"auxiliar-de-engenharia-fundos-imobiliarios|fast": {
+"titulo": "Auxiliar de Engenharia | Fundos Imobiliários",
+"empresa": "FAST",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-17"
+},
+"analista-orcamento-planejamento-e-controle-de-obras|spl-engenharia": {
+"titulo": "Analista Orçamento, Planejamento E Controle de Obras",
+"empresa": "SPL Engenharia",
+"fonte": "Gupy",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-17"
+},
+"analista-de-projetos-pmo-iii|brisanet": {
+"titulo": "Analista de Projetos (PMO) III",
+"empresa": "Brisanet",
+"fonte": "Gupy",
+"status": "Modalidade a confirmar",
+"score": 80,
+"visto_em": "2026-10-18"
+},
+"assistente-de-planejamento-6a47|priner-servicos-industriais": {
+"titulo": "ASSISTENTE DE PLANEJAMENTO (6a47)",
+"empresa": "Priner Serviços Industriais",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 66,
+"visto_em": "2026-10-18"
+},
+"supervisor-a-de-planejamento-pcm|csn-cimentos": {
+"titulo": "Supervisor(a) de Planejamento (PCM)",
+"empresa": "CSN Cimentos",
+"fonte": "Vagas.com.br",
+"status": "Modalidade a confirmar",
+"score": 59,
+"visto_em": "2026-10-18"
+},
+"profissional-gerente-de-projetos-ot-automacao|radix-engenharia-e-software": {
+"titulo": "Profissional Gerente de projetos OT (Automação)",
+"empresa": "Radix Engenharia e Software",
+"fonte": "Indeed",
+"status": "Avaliada",
+"score": 55,
+"visto_em": "2026-10-18"
+},
+"analista-de-pcm|sisa-industrial-sa": {
+"titulo": "Analista de PCM",
+"empresa": "Sisa Industrial SA",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"tecnico-em-planejamento|concreta-tecnologia-em-engenharia": {
+"titulo": "Técnico em Planejamento",
+"empresa": "Concreta tecnologia em engenharia",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"analista-de-engenharia-jr-vaga-afirmativa-pcd|metodo-grupo": {
+"titulo": "Analista de Engenharia Jr. | Vaga Afirmativa PcD",
+"empresa": "Metodo Grupo",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"gerente-predial|innova-property-management": {
+"titulo": "Gerente Predial",
+"empresa": "Innova Property Management",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"especialista-i-manutencao-e-confiabilidade|grupo-boticario": {
+"titulo": "Especialista I - Manutenção e Confiabilidade",
+"empresa": "Grupo Boticário",
+"fonte": "Glassdoor",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"engenheiro-risoterm-isolantes-termicos|risoterm": {
+"titulo": "Engenheiro (Risoterm Isolantes Térmicos)",
+"empresa": "Risoterm",
+"fonte": "Glassdoor",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"tecnico-de-planejamento-grupo-andre-guimaraes|grupo-andre-guimaraes": {
+"titulo": "Técnico de Planejamento (Grupo André Guimarães)",
+"empresa": "Grupo André Guimarães",
+"fonte": "Glassdoor",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"trainee-engenheiro-trainee|intera-brazil": {
+"titulo": "Trainee - Engenheiro Trainee",
+"empresa": "Intera (Brazil)",
+"fonte": "Glassdoor",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"trainee-mottu|mottu": {
+"titulo": "Trainee Mottu",
+"empresa": "Mottu",
+"fonte": "Site da empresa",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-18"
+},
+"analista-de-manutencao-iii|salvador-airport-vinci-airports": {
+"titulo": "Analista de Manutenção III",
+"empresa": "Salvador Airport (VINCI Airports)",
+"fonte": "Wizbii (VINCI)",
+"status": "Modalidade a confirmar",
+"score": 76,
+"visto_em": "2026-10-19"
+},
+"analista-de-produtividade-junior|yara": {
+"titulo": "Analista de Produtividade Junior",
+"empresa": "Yara",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 67,
+"visto_em": "2026-10-19"
+},
+"analista-de-planejamento-custos|qualidados": {
+"titulo": "ANALISTA DE PLANEJAMENTO (CUSTOS)",
+"empresa": "Qualidados",
+"fonte": "Glassdoor",
+"status": "Modalidade a confirmar",
+"score": 64,
+"visto_em": "2026-10-19"
+},
+"a31c-ass-de-planejamento|priner-servicos-industriais": {
+"titulo": "a31c ASS DE PLANEJAMENTO",
+"empresa": "Priner Serviços Industriais",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 64,
+"visto_em": "2026-10-19"
+},
+"pessoa-engenheira-de-planejamento|qualidados": {
+"titulo": "Pessoa Engenheira de Planejamento",
+"empresa": "Qualidados",
+"fonte": "Indeed",
+"status": "Avaliada",
+"score": 48,
+"visto_em": "2026-10-19"
+},
+"engenheiro-de-processos-controle-de-fluido|byd": {
+"titulo": "Engenheiro de Processos (Controle de Fluído)",
+"empresa": "BYD",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-19"
+},
+"analista-de-planejamento|construtora-stanza-confidencial": {
+"titulo": "Analista de Planejamento",
+"empresa": "Construtora Stanza (Confidencial)",
+"fonte": "Trabalha Brasil",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-19"
+},
+"analista-de-planejamento-e-orcamento-iii|instituto-euvaldo-lodi-iel": {
+"titulo": "Analista de Planejamento e Orçamento III",
+"empresa": "Instituto Euvaldo Lodi (IEL)",
+"fonte": "InfoJobs",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-19"
+},
+"tecnico-de-planejamento-construcao-naval|belov-engenharia": {
+"titulo": "Técnico de Planejamento - Construção Naval",
+"empresa": "Belov Engenharia",
+"fonte": "InfoJobs",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-19"
+},
+"analista-de-engenharia-iii|solar-coca-cola": {
+"titulo": "Analista de Engenharia III",
+"empresa": "Solar Coca-Cola",
+"fonte": "Gupy",
+"status": "Descartada (eliminatório)",
+"score": null,
+"visto_em": "2026-10-19"
+},
+"trainee-supermix-2027|supermix": {
+"titulo": "Trainee Supermix 2027",
+"empresa": "Supermix",
+"fonte": "Seja Trainee",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-19"
+},
+"assistente-de-pcm|binatural": {
+"titulo": "Assistente de PCM",
+"empresa": "BINATURAL",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 66,
+"visto_em": "2026-10-20"
+},
+"analista-projetos|bernoulli-educacao-multitude": {
+"titulo": "Analista Projetos",
+"empresa": "Bernoulli Educação (Multitude)",
+"fonte": "Indeed",
+"status": "Avaliada",
+"score": 55,
+"visto_em": "2026-10-20"
+},
+"gerente-de-pmo-e-portfolio-corporativo|confidencial-vagas-com-br": {
+"titulo": "Gerente de PMO e Portfólio Corporativo",
+"empresa": "Confidencial (Vagas.com.br)",
+"fonte": "Vagas.com.br",
+"status": "Avaliada",
+"score": 52,
+"visto_em": "2026-10-20"
+},
+"engenheiro-de-planejamento-sao-francisco-do-conde-ba-banco-de-talentos|qualidados": {
+"titulo": "Engenheiro de Planejamento - São Francisco do Conde/BA - Banco de Talentos",
+"empresa": "Qualidados",
+"fonte": "Gupy",
+"status": "Descartada (anúncio antigo)",
+"score": null,
+"visto_em": "2026-10-20"
+},
+"analista-de-orcamentos-grupo-tqc|tqc-engenharia-via-jobbol": {
+"titulo": "ANALISTA DE ORÇAMENTOS (Grupo TQC)",
+"empresa": "TQC Engenharia (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-20"
+},
+"planejista|internacional-travessias": {
+"titulo": "Planejista",
+"empresa": "Internacional Travessias",
+"fonte": "BNE",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-20"
+},
+"engenheiro-civil-divisao-logistica-de-construcao|byd": {
+"titulo": "Engenheiro Civil | Divisão Logística de Construção",
+"empresa": "BYD",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-20"
+},
+"banco-consultor-de-capex-bahia|phd-engenharia": {
+"titulo": "Banco - Consultor de CAPEX - Bahia",
+"empresa": "PHD Engenharia",
+"fonte": "Gupy",
+"status": "Modalidade a confirmar",
+"score": 68,
+"visto_em": "2026-10-21"
+},
+"trilhos-i-analista-engenharia-processos-jr|motiva-trilhos": {
+"titulo": "TRILHOS I ANALISTA ENGENHARIA PROCESSOS JR",
+"empresa": "Motiva (Trilhos)",
+"fonte": "Gupy",
+"status": "Modalidade a confirmar",
+"score": 55,
+"visto_em": "2026-10-21"
+},
+"gerente-de-contratos-de-montagem-e-manutencao-multidisciplinar|conorte": {
+"titulo": "Gerente de Contratos de Montagem e Manutenção Multidisciplinar",
+"empresa": "Conorte",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-21"
+},
+"engenheiro-a-de-planejamento-pleno-implantacao-transmissao|alupar": {
+"titulo": "Engenheiro(a) de Planejamento Pleno - Implantação Transmissão",
+"empresa": "Alupar",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-21"
+},
+"engenheiro-eletricista-pleno|confidencial-trabalha-brasil": {
+"titulo": "Engenheiro Eletricista (pleno)",
+"empresa": "Confidencial (Trabalha Brasil)",
+"fonte": "Trabalha Brasil",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-21"
+},
+"profissional-de-coordenacao-de-projetos-ot|radix-engenharia-e-software": {
+"titulo": "Profissional de Coordenação de projetos OT",
+"empresa": "Radix Engenharia e Software",
+"fonte": "Indeed",
+"status": "Avaliada",
+"score": 66,
+"visto_em": "2026-10-22"
+},
+"engenheiro-de-planejamento-de-fertilizante|tecservice-engenharia": {
+"titulo": "Engenheiro de Planejamento de Fertilizante",
+"empresa": "TECSERVICE ENGENHARIA",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-22"
+},
+"coordenador-a-de-obra-acabamento-salvador-ba|construtora-stanza": {
+"titulo": "Coordenador(a) de Obra - Acabamento - Salvador/BA",
+"empresa": "Construtora Stanza",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-22"
+},
+"analista-de-contratos|tecnosonda": {
+"titulo": "Analista de Contratos",
+"empresa": "Tecnosonda",
+"fonte": "Gupy",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-22"
+},
+"analista-de-projetos-iii-pmo|grupo-srm": {
+"titulo": "Analista De Projetos III - PMO",
+"empresa": "Grupo SRM",
+"fonte": "InfoJobs",
+"status": "Avaliada",
+"score": 76,
+"visto_em": "2026-10-23"
+},
+"gerente-manutencao|bridgestone-americas": {
+"titulo": "Gerente Manutencao",
+"empresa": "Bridgestone Americas",
+"fonte": "Indeed",
+"status": "Descartada (score baixo)",
+"score": 48,
+"visto_em": "2026-10-23"
+},
+"analista-de-wcm|verzani-sandrini": {
+"titulo": "Analista de WCM",
+"empresa": "Verzani & Sandrini",
+"fonte": "Indeed",
+"status": "Descartada (score baixo)",
+"score": 45,
+"visto_em": "2026-10-23"
+},
+"supervisor-de-eletrica-simm-solucoes|simm-solucoes-via-jobbol": {
+"titulo": "SUPERVISOR DE ELÉTRICA (Simm Soluções)",
+"empresa": "Simm Soluções (via Jobbol)",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-23"
+},
+"coordenador-a-de-manutencao-vaga-mista|continental": {
+"titulo": "COORDENADOR(A) DE MANUTENÇÃO (vaga mista)",
+"empresa": "Continental",
+"fonte": "Glassdoor",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-23"
+},
+"analista-de-engenharia-jr-gestao-integrada|metodo": {
+"titulo": "Analista de Engenharia Jr. | Gestão Integrada",
+"empresa": "Método",
+"fonte": "Gupy",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-23"
+},
+"engenheiro-eletrico|paraguacu-engenharia": {
+"titulo": "Engenheiro Elétrico",
+"empresa": "Paraguaçu Engenharia",
+"fonte": "Trabalha Brasil",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-23"
+},
+"gerente-de-contrato-junior-construcao-civil|txt-build": {
+"titulo": "Gerente de Contrato Junior - Construção Civil",
+"empresa": "TXT Build",
+"fonte": "Glassdoor",
+"status": "Modalidade a confirmar",
+"score": 66,
+"visto_em": "2026-10-24"
+},
+"assistente-pcm|erb-energias-renovaveis-do-brasil": {
+"titulo": "Assistente PCM",
+"empresa": "ERB - Energias Renováveis do Brasil",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 64,
+"visto_em": "2026-10-24"
+},
+"analista-de-projetos-industriais-junior-sao-francisco-do-conde-ba|infotec-brasil": {
+"titulo": "Analista de Projetos Industriais Junior - São Francisco do Conde / BA",
+"empresa": "Infotec Brasil",
+"fonte": "Indeed",
+"status": "Modalidade a confirmar",
+"score": 60,
+"visto_em": "2026-10-24"
+},
+"gerente-de-contrato-pleno-construcao-civil|txt-build": {
+"titulo": "Gerente de Contrato Pleno - Construção Civil",
+"empresa": "TXT Build",
+"fonte": "Glassdoor",
+"status": "Descartada (score baixo)",
+"score": 58,
+"visto_em": "2026-10-24"
+},
+"supervisor-de-planejamento-junior-regiao-industrial|oggi-rh-via-jobbol": {
+"titulo": "Supervisor de Planejamento Júnior - Região Industrial",
+"empresa": "OGGI RH (via Jobbol)",
+"fonte": "Glassdoor",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-24"
+},
+"tecnico-de-planejamento|instituto-euvaldo-lodi-iel": {
+"titulo": "Técnico de Planejamento",
+"empresa": "Instituto Euvaldo Lodi (IEL)",
+"fonte": "InfoJobs",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-24"
+},
+"engenheiro-eletricista|confidencial-catho-infojobs": {
+"titulo": "Engenheiro Eletricista",
+"empresa": "Confidencial (Catho/InfoJobs)",
+"fonte": "InfoJobs",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-24"
+},
+"engenheiro-eletricista-trainee-setor-de-projetos|3p-energia": {
+"titulo": "Engenheiro Eletricista (trainee, setor de projetos)",
+"empresa": "3P Energia",
+"fonte": "BNE",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-24"
+},
+"analista-facilities-i-camacari-ba|grupo-boticario": {
+"titulo": "Analista Facilities I | Camaçari/BA",
+"empresa": "Grupo Boticário",
+"fonte": "Indeed",
+"status": "Descartada (score baixo)",
+"score": 50,
+"visto_em": "2026-10-25"
+},
+"engenheiro-a-de-planejamento-e-custo|effico-saneamento": {
+"titulo": "Engenheiro(a) de Planejamento e Custo",
+"empresa": "EFFICO Saneamento",
+"fonte": "Catho",
+"status": "Descartada (anúncio antigo)",
+"score": null,
+"visto_em": "2026-10-25"
+},
+"engenheiro-eletricista-pleno-ou-senior|gpce": {
+"titulo": "Engenheiro Eletricista (pleno ou sênior)",
+"empresa": "GPCE",
+"fonte": "BNE",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-25"
+},
+"engenheiro-eletrico|sesc-bahia": {
+"titulo": "Engenheiro Elétrico",
+"empresa": "Sesc Bahia",
+"fonte": "BNE",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-25"
+},
+"engenheiro-civil-salvador-ba|intertechne": {
+"titulo": "Engenheiro Civil - Salvador/BA",
+"empresa": "Intertechne",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-25"
+},
+"engenheiro-da-qualidade|afry": {
+"titulo": "Engenheiro da Qualidade",
+"empresa": "AFRY",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"administrador-de-ativos-divisao-11|byd": {
+"titulo": "Administrador de Ativos - Divisão 11",
+"empresa": "BYD",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"analista-de-pcm|industria-alimenticia-sao-braz": {
+"titulo": "Analista de PCM",
+"empresa": "Indústria Alimentícia São Braz",
+"fonte": "Indeed",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-a-de-pocos-junior|brava-energia": {
+"titulo": "Engenheiro(a) de Poços Júnior",
+"empresa": "Brava Energia",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-residente-de-obras-junior-pleno-c58|ligajobs": {
+"titulo": "Engenheiro Residente de Obras Júnior / Pleno - C58",
+"empresa": "LigaJobs",
+"fonte": "Indeed",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"tecnico-de-planejamento-camacari-ba|priner-servicos-industriais": {
+"titulo": "TÉCNICO DE PLANEJAMENTO | CAMAÇARI-BA",
+"empresa": "Priner Serviços Industriais",
+"fonte": "Indeed",
+"status": "Descartada (anúncio antigo)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"trainee-de-engenharia-orcamentos|alves-da-cunha-engenharia": {
+"titulo": "Trainee de Engenharia - Orçamentos",
+"empresa": "Alves da Cunha Engenharia",
+"fonte": "Indeed",
+"status": "Descartada (anúncio antigo)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"analista-de-contratos-e-custos-iv|afry": {
+"titulo": "Analista de Contratos e Custos IV",
+"empresa": "AFRY",
+"fonte": "Indeed",
+"status": "Descartada (anúncio antigo)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"fiscal-de-construcao-de-rede-optica-bahia|weservice": {
+"titulo": "Fiscal de Construção de Rede Óptica - Bahia",
+"empresa": "WeService",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"especialista-de-engenharia-planejamento-de-obras-rodovia|motiva-engenharia": {
+"titulo": "Especialista de Engenharia Planejamento de Obras (Rodovia)",
+"empresa": "Motiva Engenharia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-a-de-planejamento-de-projetos|planit": {
+"titulo": "Engenheiro(a) de Planejamento de Projetos",
+"empresa": "Planit",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-a-de-projetos-eletricos-e-automacao-industrial|planit": {
+"titulo": "Engenheiro(a) de Projetos Elétricos e Automação Industrial",
+"empresa": "Planit",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-especialista-em-planejamento|enerwatt": {
+"titulo": "Engenheiro Especialista em Planejamento",
+"empresa": "Enerwatt",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-de-planejamento|grupo-ser-engenharia": {
+"titulo": "Engenheiro de Planejamento",
+"empresa": "Grupo SER Engenharia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"analista-de-planejamento-e-controle|aegea": {
+"titulo": "Analista de Planejamento e Controle",
+"empresa": "Aegea",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-a-de-planejamento-senior|jirau-energia": {
+"titulo": "Engenheiro(a) de Planejamento Sênior",
+"empresa": "Jirau Energia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-de-planejamento|confidencial-catho": {
+"titulo": "Engenheiro de Planejamento",
+"empresa": "Confidencial (Catho)",
+"fonte": "Catho",
+"status": "Descartada (anúncio antigo)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"trainee-programa-trainee-gruposolvi|grupo-solvi": {
+"titulo": "Trainee - Programa Trainee #GrupoSolví",
+"empresa": "Grupo Solví",
+"fonte": "Gupy",
+"status": "Descartada (formação)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"trainee-programa-trainee-construcap|construcap": {
+"titulo": "Trainee - Programa Trainee Construcap",
+"empresa": "Construcap",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-26"
+},
+"engenheiro-eletricista-projetos|engeplanti-projetos-e-supervisao": {
+"titulo": "Engenheiro Eletricista - Projetos",
+"empresa": "Engeplanti Projetos e Supervisão",
+"fonte": "Indeed",
+"status": "Descartada (score baixo)",
+"score": 58,
+"visto_em": "2026-10-27"
+},
+"projetista-eletrico-home-office|exponent-engenharia": {
+"titulo": "Projetista Elétrico | Home Office",
+"empresa": "Exponent Engenharia",
+"fonte": "Sólides",
+"status": "Descartada (score baixo)",
+"score": 52,
+"visto_em": "2026-10-27"
+},
+"projetista-revit-bim-sistemas-eletronicos-prediais-c09|ligajobs": {
+"titulo": "Projetista Revit (BIM) - Sistemas Eletrônicos Prediais - C09",
+"empresa": "LigaJobs",
+"fonte": "InfoJobs",
+"status": "Descartada (score baixo)",
+"score": 45,
+"visto_em": "2026-10-27"
+},
+"gerente-de-manutencao-terminais-de-onibus-cs-mobi-leste|cs-infra-grupo-simpar": {
+"titulo": "Gerente de Manutenção (terminais de ônibus CS Mobi Leste)",
+"empresa": "CS Infra (Grupo Simpar)",
+"fonte": "Gupy",
+"status": "Descartada (score baixo)",
+"score": 45,
+"visto_em": "2026-10-27"
+},
+"analista-de-planejamento-instalacoes-eletricas|engbras": {
+"titulo": "Analista de Planejamento - Instalações Elétricas",
+"empresa": "Engbras",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"analista-de-planejamento|grupo-ser-engenharia": {
+"titulo": "Analista de Planejamento",
+"empresa": "Grupo SER Engenharia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"pessoa-analista-de-planejamento|timenow": {
+"titulo": "Pessoa Analista de Planejamento",
+"empresa": "timenow",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"analista-planejamento-e-controle-i|way-brasil": {
+"titulo": "Analista Planejamento e Controle I",
+"empresa": "Way Brasil",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"coordenador-a-planejamento-e-controle-de-custos-sr|trivia-trens": {
+"titulo": "Coordenador(a) Planejamento e Controle de Custos SR",
+"empresa": "Trivia Trens",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"planejador-de-manutencao|grupo-urca-energia": {
+"titulo": "Planejador de Manutenção",
+"empresa": "Grupo Urca Energia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"analista-de-planejamento-e-controle-de-manutencao-iii|solar-coca-cola": {
+"titulo": "Analista de Planejamento e Controle de Manutenção III",
+"empresa": "Solar Coca-Cola",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"analista-de-controladoria-de-projetos-pleno|casa-dos-ventos": {
+"titulo": "Analista de Controladoria de Projetos Pleno",
+"empresa": "Casa dos Ventos",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"analista-de-engenharia-jr-engenharia-de-planejamento-e-monitoramentos-oaes|arteris-engenharia": {
+"titulo": "Analista de Engenharia JR - Engenharia de Planejamento e Monitoramentos (OAEs)",
+"empresa": "Arteris Engenharia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+},
+"trainee-rottas|rottas": {
+"titulo": "Trainee Rottas",
+"empresa": "Rottas",
+"fonte": "Seja Trainee",
+"status": "Descartada (modalidade)",
+"score": null,
+"visto_em": "2026-10-27"
+}
+}
