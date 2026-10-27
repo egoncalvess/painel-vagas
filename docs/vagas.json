@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-27T23:50+00:00",
+ "atualizado_em": "2026-10-27T23:55+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 0,
+   "lidas": 3258,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 301,
-   "novas": 0
+   "lidas": 304,
+   "novas": 2
   },
   "Vagas.com.br": {
-   "lidas": 423,
+   "lidas": 427,
    "novas": 0
   }
  },
@@ -793,6 +793,36 @@
    "area": "Planejamento e controle",
    "link": "https://www.vagas.com.br/vagas/v2838253/supervisor-a-de-planejamento",
    "publicada": "2026-10-06",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-27-escola-bahiana-de-medicina-e-s-gestor-de-orcamento-e-desempenho",
+   "data": "2026-10-27",
+   "titulo": "Gestor de Orçamento e Desempenho",
+   "empresa": "Escola Bahiana de Medicina e Saúde Pública",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 66,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/gestor-de-or%C3%A7amento-e-desempenho-at-escola-bahiana-de-medicina-e-sa%C3%BAde-p%C3%BAblica-4482253532",
+   "publicada": "2026-10-27",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-27-solvi-trainee-operacoes",
+   "data": "2026-10-27",
+   "titulo": "Trainee | Operações",
+   "empresa": "Solví",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Trainee, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Trainee",
+   "link": "https://br.linkedin.com/jobs/view/trainee-opera%C3%A7%C3%B5es-at-solv%C3%AD-solu%C3%A7%C3%B5es-para-a-vida-4482261297",
+   "publicada": "2026-10-27",
    "prazo": null
   }
  ]
