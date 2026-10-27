@@ -66,7 +66,7 @@ def todos_termos():
 # ---------------------------------------------------------------- fontes
 # Cada fonte devolve dicts: titulo, empresa, local, modalidade (remoto|hibrido|presencial|?), data (AAAA-MM-DD ou None), link, fonte
 
-GUPY_APIS = ["https://employability-portal.gupy.io/api/v1/jobs", "https://portal.api.gupy.io/api/v1/jobs"]
+GUPY_APIS = ["https://portal.api.gupy.io/api/job", "https://employability-portal.gupy.io/api/v1/jobs", "https://portal.api.gupy.io/api/v1/jobs"]
 
 
 def _gupy_item(j, empresa=""):
@@ -85,7 +85,7 @@ def _gupy_item(j, empresa=""):
 def _achar_vagas(no, saida):
     """Procura listas de vagas dentro do JSON da página da empresa."""
     if isinstance(no, dict):
-        if ("name" in no or "title" in no) and ("workplaceType" in no or "jobUrl" in no or "publishedDate" in no):
+        if ("name" in no or "title" in no) and "id" in no and any(k in no for k in ("workplaceType", "jobUrl", "publishedDate", "addressCity", "workplace", "department", "type")):
             saida.append(no)
         for v in no.values():
             _achar_vagas(v, saida)
@@ -99,7 +99,7 @@ def fonte_gupy():
     api_ok = None
     for _, termo in todos_termos():
         for api in ([api_ok] if api_ok else GUPY_APIS):
-            r = get(api, params={"jobName": termo, "limit": 100, "offset": 0})
+            r = get(api, params={"name": termo, "jobName": termo, "limit": 100, "offset": 0})
             if not api_ok:
                 log("  gupy api", api, r and r.status_code, (r.text[:150] if r else "").replace("\n", " "))
             if r and r.status_code == 200 and "data" in r.text[:200]:
@@ -123,7 +123,12 @@ def fonte_gupy():
             log("  portal sem __NEXT_DATA__", portal, r.text[:120].replace("\n", " "))
             continue
         achadas = []
-        _achar_vagas(json.loads(m.group(1)), achadas)
+        nd = json.loads(m.group(1))
+        _achar_vagas(nd, achadas)
+        if not achadas and not getattr(fonte_gupy, "_mostrou", False):
+            fonte_gupy._mostrou = True
+            pp = nd.get("props", {}).get("pageProps", {})
+            log("  estrutura gupy:", list(pp.keys())[:20], json.dumps(pp, ensure_ascii=False)[:1500])
         log("  portal", portal, len(achadas), "vagas")
         empresa = re.sub(r"https?://|\.gupy\.io/?", "", portal)
         for j in achadas:
