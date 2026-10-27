@@ -128,7 +128,7 @@ def fonte_gupy():
         if not achadas and not getattr(fonte_gupy, "_mostrou", False):
             fonte_gupy._mostrou = True
             pp = nd.get("props", {}).get("pageProps", {})
-            log("  estrutura gupy:", list(pp.keys())[:20], json.dumps(pp, ensure_ascii=False)[:1500])
+            log("  estrutura gupy:", list(pp.keys())[:20])
         log("  portal", portal, len(achadas), "vagas")
         empresa = re.sub(r"https?://|\.gupy\.io/?", "", portal)
         for j in achadas:
@@ -372,7 +372,7 @@ def main():
                     continue
                 status, score, motivo = avaliar(v)
                 hist[k] = {"titulo": v["titulo"], "empresa": v["empresa"], "fonte": v["fonte"],
-                           "status": status or "No painel", "score": score, "visto_em": HOJE.isoformat(), "link": v["link"]}
+                           "status": status or "No painel", "score": score, "local": v.get("local", ""), "modalidade": v.get("modalidade"), "visto_em": HOJE.isoformat(), "link": v["link"]}
                 if status:
                     continue
                 vid = f"{HOJE.isoformat()}-{slug(v['empresa'])[:30]}-{slug(v['titulo'])[:40]}"
