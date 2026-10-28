@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Painel de Vagas</title>
+<script src="supabase-config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
@@ -108,6 +109,12 @@ details.conta input{flex:1 1 260px;min-width:0;font:inherit;padding:8px 10px;bor
 details.conta button{font:inherit;padding:8px 12px;border-radius:6px;border:1px solid var(--tinta);background:var(--tinta);color:var(--papel);cursor:pointer}
 details.conta button.sec{background:transparent;color:var(--tinta);border-color:var(--linha)}
 .estado-conta{margin:8px 0 0}
+#app{display:contents}
+.entrar{display:grid;gap:14px;justify-items:start;padding:28px 0;border-top:1px solid var(--linha)}
+.entrar p{margin:0;max-width:52ch;color:var(--suave)}
+.google{display:inline-flex;align-items:center;gap:10px;font:inherit;font-weight:700;padding:10px 18px;border-radius:6px;border:1px solid var(--linha);background:var(--folha);color:var(--tinta);cursor:pointer}
+.google svg{width:18px;height:18px}
+.sair{font:inherit;font-size:.85rem;background:none;border:0;padding:0;color:var(--petroleo);text-decoration:underline;cursor:pointer}
 
 @media (max-width:640px){.selects{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){
@@ -124,11 +131,19 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
     <h1>Painel de Vagas</h1>
     <p class="quem">Vagas de planejamento, projetos e manutenção para o Erick, remotas ou em Salvador e RMS. Um robô no GitHub busca e avalia todo dia às 17h55.</p>
     <p class="atual" id="atual"></p>
-    <div class="barra-atual">
+    <div class="barra-atual" id="barra-atual">
       <button class="atualizar" id="atualizar" type="button">Buscar vagas agora</button>
       <p class="msg-atual" id="msg-atual" aria-live="polite"></p>
     </div>
+    <p class="atual" id="usuario" hidden><span id="email"></span> · <button class="sair" id="sair" type="button">Sair</button></p>
   </header>
+
+  <section class="entrar" id="login" hidden>
+    <p id="msg-login">Entre com a sua conta Google para ver as vagas e as suas marcações.</p>
+    <button class="google" id="entrar" type="button"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Entrar com Google</button>
+  </section>
+
+  <div id="app">
 
   <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
 
@@ -164,6 +179,7 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
     </form>
     <p class="estado-conta" id="estado-conta"></p>
   </details>
+  </div>
 </main>
 
 <script>
@@ -181,6 +197,9 @@ const sc=v=>v.score??-1;
 const REPO=(()=>{const h=location.hostname.match(/^([^.]+)\.github\.io$/);const r=location.pathname.split("/").filter(Boolean)[0];
   return h&&r?`${h[1]}/${r}`:"egoncalvess/painel-vagas"})();
 const API=`https://api.github.com/repos/${REPO}/contents/docs/estado.json`;
+
+// Supabase: ligado quando docs/supabase-config.js existe (criado pelo workflow Configurar Supabase)
+let sb=null, usuario=null;
 
 let todas=[], estado={candidatei:{},descartadas:[]}, sha=null;
 let token=ler("token",""), meta={};
@@ -200,8 +219,9 @@ async function lerEstadoGitHub(){
   const j=await r.json();sha=j.sha;return JSON.parse(de64(j.content));
 }
 // Cada mudança é uma função aplicada ao estado; em conflito relê o GitHub e reaplica.
-async function mudar(msg,fn){
+async function mudar(msg,fn,vid){
   fn(estado);
+  if(sb){const{error}=await sb.from("marcacoes").upsert(linhaMarca(vid));if(error)throw error;return}
   if(!token){gravar("estado-local",estado);return}
   for(let t=0;t<3;t++){
     const r=await fetch(API,{method:"PUT",headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
@@ -211,6 +231,23 @@ async function mudar(msg,fn){
     throw new Error(r.status);
   }
   throw new Error("conflito");
+}
+
+const linhaMarca=id=>({user_id:usuario.id,vaga_id:id,candidatei_em:estado.candidatei[id]||null,descartada:estado.descartadas.includes(id),atualizado_em:new Date().toISOString()});
+async function lerEstadoSupabase(){
+  const{data,error}=await sb.from("marcacoes").select("vaga_id,candidatei_em,descartada");if(error)throw error;
+  const e={candidatei:{},descartadas:[]};
+  for(const m of data){if(m.candidatei_em)e.candidatei[m.vaga_id]=m.candidatei_em;if(m.descartada)e.descartadas.push(m.vaga_id)}
+  // Primeira entrada: traz as marcações antigas (estado.json do repositório e deste navegador)
+  if(!data.length){
+    try{const r=await fetch("estado.json?t="+Date.now());if(r.ok){const x=await r.json();Object.assign(e.candidatei,x.candidatei||{});e.descartadas.push(...(x.descartadas||[]))}}catch(err){}
+    const local=ler("estado-local",null);
+    if(local){Object.assign(e.candidatei,local.candidatei||{});e.descartadas.push(...(local.descartadas||[]))}
+    e.descartadas=[...new Set(e.descartadas)];estado=e;
+    const ids=[...new Set([...Object.keys(e.candidatei),...e.descartadas])];
+    if(ids.length){const{error:er}=await sb.from("marcacoes").upsert(ids.map(linhaMarca));if(er)throw er}
+  }
+  return e;
 }
 
 // ---------- desenho
@@ -263,14 +300,14 @@ function linha(v){
   const bc=el("button","cand",v.candidatei?`Me candidatei${v.candidatei_em?" em "+dataCurta(v.candidatei_em):""}`:"Marcar que me candidatei");
   bc.type="button";bc.setAttribute("aria-pressed",v.candidatei);
   bc.onclick=async()=>{bc.disabled=true;const copia=JSON.stringify(estado),marcar=!v.candidatei;
-    try{await mudar((marcar?"Candidatura: ":"Desmarca: ")+v.titulo,e=>{if(marcar)e.candidatei[v.id]=hoje();else delete e.candidatei[v.id]});render()}
+    try{await mudar((marcar?"Candidatura: ":"Desmarca: ")+v.titulo,e=>{if(marcar)e.candidatei[v.id]=hoje();else delete e.candidatei[v.id]},v.id);render()}
     catch(err){estado=JSON.parse(copia);bc.disabled=false;bc.textContent="Não salvou. Confira o token e tente de novo."}};
   const bd=el("button","desc","Descartar");bd.type="button";let armado=false;
   bd.onclick=async()=>{
     if(!armado){armado=true;bd.classList.add("armado");bd.textContent="Confirmar descarte";
       setTimeout(()=>{if(armado&&bd.isConnected){armado=false;bd.classList.remove("armado");bd.textContent="Descartar"}},4000);return}
     bd.disabled=true;const copia=JSON.stringify(estado);
-    try{await mudar("Descarta: "+v.titulo,e=>{if(!e.descartadas.includes(v.id))e.descartadas.push(v.id)});render()}
+    try{await mudar("Descarta: "+v.titulo,e=>{if(!e.descartadas.includes(v.id))e.descartadas.push(v.id)},v.id);render()}
     catch(err){estado=JSON.parse(copia);bd.disabled=false;bd.textContent="Não descartou. Tente de novo."}};
   ac.append(bc,bd);c.append(ac);
   art.append(reg,c);return art;
@@ -307,7 +344,13 @@ $("limpar").onclick=()=>{f={...f,status:"todas",fonte:"",area:"",mod:"",score:"0
 // Lê vagas.json: direto do repositório quando há token (sem cache do Pages), senão do site
 async function carregarVagas(){
   let dados=null;
-  if(token){try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/docs/vagas.json?ref=main&t=${Date.now()}`,
+  if(sb){
+    const[{data:vs,error},{data:bs}]=await Promise.all([sb.from("vagas").select("*").range(0,9999),sb.from("buscas").select("*").eq("id",1)]);
+    if(error)throw error;
+    for(const v of vs)for(const k in v)if(v[k]==null)delete v[k];
+    dados={vagas:vs,...(bs&&bs[0]||{})};
+  }
+  else if(token){try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/docs/vagas.json?ref=main&t=${Date.now()}`,
     {headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github.raw+json"}});if(r.ok)dados=await r.json()}catch(e){}}
   if(!dados){const r=await fetch("vagas.json?t="+Date.now());dados=await r.json()}
   todas=dados.vagas||[];meta=dados;
@@ -320,13 +363,16 @@ async function carregarVagas(){
 // Botão: dispara o robô no GitHub Actions e espera o resultado
 $("atualizar").onclick=async()=>{
   const b=$("atualizar"),m=$("msg-atual");
-  if(!token){m.textContent="Para buscar agora, conecte o token do GitHub no fim da página.";$("conta").open=true;return}
-  b.disabled=true;m.textContent="Iniciando a busca.";
+  if(sb){b.disabled=true;m.textContent="Iniciando a busca.";
+    const{error}=await sb.functions.invoke("buscar-agora");
+    if(error){b.disabled=false;m.textContent="Não deu para iniciar a busca. Tente de novo daqui a pouco.";return}}
+  else if(!token){m.textContent="Para buscar agora, conecte o token do GitHub no fim da página.";$("conta").open=true;return}
+  else{b.disabled=true;m.textContent="Iniciando a busca.";
   try{
     const r=await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/coletar.yml/dispatches`,{method:"POST",
       headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},body:JSON.stringify({ref:"main"})});
     if(r.status!==204)throw new Error(r.status);
-  }catch(e){b.disabled=false;m.textContent="Não deu para iniciar. Confira se o token tem permissão de escrita em Actions.";return}
+  }catch(e){b.disabled=false;m.textContent="Não deu para iniciar. Confira se o token tem permissão de escrita em Actions.";return}}
   const antes=meta.atualizado_em;m.textContent="Busca iniciada. Leva uns 5 minutos; a lista atualiza sozinha.";
   for(let i=0;i<15;i++){
     await new Promise(ok=>setTimeout(ok,60000));
@@ -345,7 +391,27 @@ $("form-token").onsubmit=async e=>{e.preventDefault();const t=$("token").value.t
   catch(err){token=ler("token","");$("estado-conta").textContent="Esse token não conseguiu ler o repositório. Confira a permissão Contents (leitura e escrita).";$("estado-conta").className="estado-conta erro"}};
 $("tirar-token").onclick=()=>{token="";gravar("token","");mostrarConta()};
 
+function carregarScript(src){return new Promise((ok,erro)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=erro;document.head.append(s)})}
+
+// Com Supabase: só mostra o painel depois do login com Google
+async function iniciarSupabase(){
+  await carregarScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js");
+  sb=window.supabase.createClient(window.SUPABASE.url,window.SUPABASE.anon);
+  $("conta").hidden=true;
+  $("entrar").onclick=()=>sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
+  $("sair").onclick=async()=>{await sb.auth.signOut();location.reload()};
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){$("app").hidden=true;$("barra-atual").hidden=true;$("login").hidden=false;return}
+  usuario=session.user;$("email").textContent=usuario.email;$("usuario").hidden=false;
+  const{data:pode}=await sb.rpc("permitido");
+  if(!pode){$("app").hidden=true;$("barra-atual").hidden=true;$("login").hidden=false;$("entrar").hidden=true;
+    $("msg-login").textContent=`A conta ${usuario.email} não tem acesso a este painel.`;return}
+  try{await carregarVagas();estado=await lerEstadoSupabase();render()}
+  catch(e){$("lista").replaceChildren(el("p","aviso erro","As vagas não carregaram do banco. Recarregue a página."))}
+}
+
 (async()=>{
+  if(window.SUPABASE&&window.SUPABASE.url)return iniciarSupabase();
   mostrarConta();
   try{
     await carregarVagas();

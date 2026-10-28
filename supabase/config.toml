@@ -1,0 +1,4 @@
+project_id = "painel-vagas"
+
+[functions.buscar-agora]
+verify_jwt = true

@@ -14,6 +14,8 @@ import unicodedata
 import requests
 from bs4 import BeautifulSoup
 
+import supa
+
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CFG = json.load(open(os.path.join(RAIZ, "config.json"), encoding="utf-8"))
 ARQ_VAGAS = os.path.join(RAIZ, "docs", "vagas.json")
@@ -343,6 +345,14 @@ def main():
     estado = ler(ARQ_ESTADO, {"candidatei": {}, "descartadas": []})
     hist = ler(ARQ_HIST, {})
     fora = set(estado.get("descartadas", []))
+    rest = None
+    if supa.ativo:
+        try:
+            rest = supa.Rest(supa.chaves()[1])
+            fora |= {m["vaga_id"] for m in rest.get("marcacoes", "select=vaga_id&descartada=eq.true")}
+        except Exception as e:  # noqa: BLE001
+            log("Supabase indisponível:", e)
+            rest = None
     vagas = [v for v in painel["vagas"] if v["id"] not in fora]
     ids = {v["id"] for v in vagas}
     chaves = {chave(v["titulo"], v["empresa"]) for v in vagas}
@@ -380,6 +390,15 @@ def main():
     os.makedirs(os.path.dirname(ARQ_HIST), exist_ok=True)
     json.dump({"atualizado_em": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "fontes": resumo, "vagas": vagas},
               open(ARQ_VAGAS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    if rest:
+        try:
+            campos = ["id", "data", "titulo", "empresa", "local", "modalidade", "score", "motivo", "fonte", "area", "link",
+                      "publicada", "prazo", "curriculo", "retorno"]
+            rest.upsert("vagas", [{c: v.get(c) for c in campos} for v in vagas])
+            rest.upsert("buscas", [{"id": 1, "atualizado_em": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"), "fontes": resumo}])
+            log(f"Supabase: {len(vagas)} vagas gravadas")
+        except Exception as e:  # noqa: BLE001
+            log("Supabase não gravou:", e)
     json.dump(hist, open(ARQ_HIST, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
     if not os.path.exists(ARQ_ESTADO):
         json.dump(estado, open(ARQ_ESTADO, "w", encoding="utf-8"), ensure_ascii=False, indent=1)

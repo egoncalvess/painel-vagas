@@ -1,0 +1,60 @@
+name: Configurar Supabase
+
+# Rode pela aba Actions depois de criar os secrets (ver README). Pode rodar de novo quando quiser.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: painel
+  cancel-in-progress: false
+
+jobs:
+  configurar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    env:
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tabelas, login e vagas atuais
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        run: python coletor/configurar_supabase.py
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Função do botão Buscar vagas agora
+        env:
+          PAINEL_GH_TOKEN: ${{ secrets.PAINEL_GH_TOKEN }}
+        run: |
+          if [ -n "$PAINEL_GH_TOKEN" ]; then
+            supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" PAINEL_GH_TOKEN="$PAINEL_GH_TOKEN" PAINEL_REPO="$GITHUB_REPOSITORY"
+          else
+            echo "Sem PAINEL_GH_TOKEN: o botão Buscar vagas agora não vai funcionar pelo login Google."
+          fi
+          supabase functions deploy buscar-agora --project-ref "$SUPABASE_PROJECT_REF" --use-api
+      - name: Salvar configuração do painel
+        run: |
+          git config user.name "robo-vagas"
+          git config user.email "robo-vagas@users.noreply.github.com"
+          git add docs/supabase-config.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Liga o painel ao Supabase"
+          git pull --rebase origin main
+          git push
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - uses: actions/deploy-pages@v4
