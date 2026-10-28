@@ -130,6 +130,9 @@ def fonte_gupy():
             pp = nd.get("props", {}).get("pageProps", {})
             log("  estrutura gupy:", list(pp.keys())[:20])
         log("  portal", portal, len(achadas), "vagas")
+        if achadas and not getattr(fonte_gupy, "_amostra", False):
+            fonte_gupy._amostra = True
+            log("  amostra gupy:", json.dumps(achadas[0], ensure_ascii=False)[:1500])
         empresa = re.sub(r"https?://|\.gupy\.io/?", "", portal)
         for j in achadas:
             v = _gupy_item(j, empresa)
