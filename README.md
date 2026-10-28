@@ -13,7 +13,7 @@ Robô que busca vagas todo dia às 17h55 (horário de Salvador) no GitHub Action
 ## Marcar candidaturas em qualquer aparelho
 
 No fim do painel, em "Salvar marcações em todos os aparelhos", cole um token do GitHub:
-GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Repositório: só `painel-vagas`. Permissão: **Contents: Read and write**.
+GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Repositório: só `painel-vagas`. Permissões: **Contents: Read and write** e **Actions: Read and write** (para o botão "Buscar vagas agora").
 Sem token, as marcações ficam só no navegador.
 
 ## Retornos do Gmail (opcional)

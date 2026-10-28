@@ -61,6 +61,10 @@ select{font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius
 .filtros button span{color:var(--suave);font-variant-numeric:tabular-nums;margin-left:4px}
 .filtros button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:var(--papel)}
 .filtros button[aria-pressed="true"] span{color:inherit;opacity:.7}
+.barra-atual{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.atualizar{font:inherit;font-size:.9rem;padding:6px 12px;border-radius:6px;border:1px solid var(--petroleo);background:var(--petroleo);color:var(--folha);cursor:pointer}
+.atualizar:disabled{opacity:.6;cursor:default}
+.msg-atual{margin:0;font-size:.85rem;color:var(--suave)}
 .limpar{justify-self:start;font:inherit;font-size:.85rem;background:none;border:0;padding:0;color:var(--petroleo);text-decoration:underline;cursor:pointer}
 
 #lista{display:grid;gap:4px}
@@ -120,6 +124,10 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
     <h1>Painel de Vagas</h1>
     <p class="quem">Vagas de planejamento, projetos e manutenção para o Erick, remotas ou em Salvador e RMS. Um robô no GitHub busca e avalia todo dia às 17h55.</p>
     <p class="atual" id="atual"></p>
+    <div class="barra-atual">
+      <button class="atualizar" id="atualizar" type="button">Buscar vagas agora</button>
+      <p class="msg-atual" id="msg-atual" aria-live="polite"></p>
+    </div>
   </header>
 
   <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
@@ -148,7 +156,7 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
 
   <details class="conta" id="conta">
     <summary>Salvar marcações em todos os aparelhos</summary>
-    <p>Sem isso, o que você marca fica só neste navegador. Cole um token do GitHub com permissão de escrita em <b>Contents</b> deste repositório. Ele fica guardado só neste navegador.</p>
+    <p>Sem isso, o que você marca fica só neste navegador. Cole um token do GitHub deste repositório com permissão de leitura e escrita em <b>Contents</b> e em <b>Actions</b> (Actions é para o botão Buscar vagas agora). Ele fica guardado só neste navegador.</p>
     <form id="form-token">
       <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">
       <button type="submit">Salvar token</button>
@@ -296,6 +304,37 @@ for(const[id,campo]of[["f-fonte","fonte"],["f-area","area"],["f-mod","mod"],["f-
 $("busca").addEventListener("input",e=>{busca=e.target.value;render()});
 $("limpar").onclick=()=>{f={...f,status:"todas",fonte:"",area:"",mod:"",score:"0"};busca="";$("busca").value="";salvarFiltros();render()};
 
+// Lê vagas.json: direto do repositório quando há token (sem cache do Pages), senão do site
+async function carregarVagas(){
+  let dados=null;
+  if(token){try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/docs/vagas.json?ref=main&t=${Date.now()}`,
+    {headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github.raw+json"}});if(r.ok)dados=await r.json()}catch(e){}}
+  if(!dados){const r=await fetch("vagas.json?t="+Date.now());dados=await r.json()}
+  todas=dados.vagas||[];meta=dados;
+  if(dados.atualizado_em){const d=new Date(dados.atualizado_em);
+    const fontes=Object.entries(dados.fontes||{}).map(([n,x])=>`${n} ${x.novas}`).join(", ");
+    $("atual").textContent=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontes?` Novas por site: ${fontes}.`:"")}
+  return dados.atualizado_em;
+}
+
+// Botão: dispara o robô no GitHub Actions e espera o resultado
+$("atualizar").onclick=async()=>{
+  const b=$("atualizar"),m=$("msg-atual");
+  if(!token){m.textContent="Para buscar agora, conecte o token do GitHub no fim da página.";$("conta").open=true;return}
+  b.disabled=true;m.textContent="Iniciando a busca.";
+  try{
+    const r=await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/coletar.yml/dispatches`,{method:"POST",
+      headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},body:JSON.stringify({ref:"main"})});
+    if(r.status!==204)throw new Error(r.status);
+  }catch(e){b.disabled=false;m.textContent="Não deu para iniciar. Confira se o token tem permissão de escrita em Actions.";return}
+  const antes=meta.atualizado_em;m.textContent="Busca iniciada. Leva uns 5 minutos; a lista atualiza sozinha.";
+  for(let i=0;i<15;i++){
+    await new Promise(ok=>setTimeout(ok,60000));
+    try{if(await carregarVagas()!==antes){render();m.textContent="Vagas atualizadas.";b.disabled=false;return}}catch(e){}
+  }
+  b.disabled=false;m.textContent="A busca está demorando. Recarregue a página daqui a pouco.";
+};
+
 function mostrarConta(){$("estado-conta").textContent=token?`Conectado. As marcações vão para ${REPO}.`:"Não conectado. As marcações ficam só neste navegador."}
 $("form-token").onsubmit=async e=>{e.preventDefault();const t=$("token").value.trim();if(!t)return;
   token=t;try{const remoto=await lerEstadoGitHub();
@@ -309,10 +348,7 @@ $("tirar-token").onclick=()=>{token="";gravar("token","");mostrarConta()};
 (async()=>{
   mostrarConta();
   try{
-    const r=await fetch("vagas.json?t="+Date.now());const dados=await r.json();todas=dados.vagas||[];meta=dados;
-    if(dados.atualizado_em){const d=new Date(dados.atualizado_em);
-      const fontes=Object.entries(dados.fontes||{}).map(([n,x])=>`${n} ${x.novas}`).join(", ");
-      $("atual").textContent=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontes?` Novas por site: ${fontes}.`:"")}
+    await carregarVagas();
     if(token){try{estado=await lerEstadoGitHub()}catch(e){token="";mostrarConta()}}
     if(!token){try{const r2=await fetch("estado.json?t="+Date.now());if(r2.ok)estado=await r2.json()}catch(e){}
       const local=ler("estado-local",null);
