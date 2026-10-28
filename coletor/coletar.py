@@ -70,16 +70,18 @@ GUPY_APIS = ["https://portal.api.gupy.io/api/job", "https://employability-portal
 
 
 def _gupy_item(j, empresa=""):
-    wt = (j.get("workplaceType") or j.get("workplace_type") or "").lower()
+    wp = j.get("workplace") if isinstance(j.get("workplace"), dict) else {}
+    end = wp.get("address") or j.get("address") or {}
+    wt = (wp.get("workplaceType") or j.get("workplaceType") or "").lower()
     mod = "remoto" if wt == "remote" or j.get("isRemoteWork") else "hibrido" if wt == "hybrid" else "presencial" if wt in ("on-site", "onsite") else "?"
-    end = j.get("address") or {}
-    cidade = j.get("city") or (end.get("city") if isinstance(end, dict) else "") or j.get("addressCity") or ""
-    estado = j.get("state") or (end.get("state") if isinstance(end, dict) else "") or j.get("addressState") or ""
-    return dict(titulo=j.get("name") or j.get("title") or "", empresa=j.get("careerPageName") or empresa,
-                local=", ".join(x for x in [cidade, estado] if x), modalidade=mod,
+    cidade = j.get("city") or end.get("city") or j.get("addressCity") or ""
+    estado = j.get("state") or end.get("stateShortName") or end.get("state") or j.get("addressState") or ""
+    return dict(titulo=(j.get("name") or j.get("title") or "").strip(), empresa=j.get("careerPageName") or empresa,
+                local=", ".join(x for x in [cidade, estado] if x) or ("Brasil" if mod == "remoto" else ""), modalidade=mod,
                 data=(j.get("publishedDate") or j.get("publishedAt") or "")[:10] or None,
                 link=j.get("jobUrl") or j.get("url") or "", fonte="Gupy",
-                prazo=(j.get("applicationDeadline") or "")[:10] or None)
+                prazo=(j.get("applicationDeadline") or "")[:10] or None,
+                banco=("talent_pool" in (j.get("type") or "")))
 
 
 def _achar_vagas(no, saida):
@@ -96,22 +98,6 @@ def _achar_vagas(no, saida):
 
 def fonte_gupy():
     vistos = set()
-    api_ok = None
-    for _, termo in todos_termos():
-        for api in ([api_ok] if api_ok else GUPY_APIS):
-            r = get(api, params={"name": termo, "jobName": termo, "limit": 100, "offset": 0})
-            if not api_ok:
-                log("  gupy api", api, r and r.status_code, (r.text[:150] if r else "").replace("\n", " "))
-            if r and r.status_code == 200 and "data" in r.text[:200]:
-                api_ok = api
-                for j in r.json().get("data", []):
-                    if j.get("id") not in vistos:
-                        vistos.add(j.get("id"))
-                        yield _gupy_item(j)
-                break
-        else:
-            log("  gupy api sem resposta para", termo)
-        time.sleep(0.5)
     # Portais das empresas (lista em config.json)
     for portal in CFG.get("gupy_portais", []):
         r = get(portal)
@@ -125,17 +111,13 @@ def fonte_gupy():
         achadas = []
         nd = json.loads(m.group(1))
         _achar_vagas(nd, achadas)
-        if not achadas and not getattr(fonte_gupy, "_mostrou", False):
-            fonte_gupy._mostrou = True
-            pp = nd.get("props", {}).get("pageProps", {})
-            log("  estrutura gupy:", list(pp.keys())[:20])
-        log("  portal", portal, len(achadas), "vagas")
-        if achadas and not getattr(fonte_gupy, "_amostra", False):
-            fonte_gupy._amostra = True
-            log("  amostra gupy:", json.dumps(achadas[0], ensure_ascii=False)[:1500])
         empresa = re.sub(r"https?://|\.gupy\.io/?", "", portal)
         for j in achadas:
             v = _gupy_item(j, empresa)
+            if v.pop("banco"):
+                continue  # banco de talentos não é vaga aberta
+            if isinstance(j.get("id"), int) and j["id"] < CFG.get("gupy_id_minimo", 12300000):
+                continue  # a Gupy não mostra a data; id baixo = anúncio antigo
             if not v["link"] and j.get("id"):
                 v["link"] = portal.rstrip("/") + "/jobs/" + str(j["id"])
             if v["link"] not in vistos:
