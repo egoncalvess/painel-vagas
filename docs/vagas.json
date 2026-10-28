@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-27T23:55+00:00",
+ "atualizado_em": "2026-10-28T00:00+00:00",
  "fontes": {
   "Gupy": {
    "lidas": 3258,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 304,
-   "novas": 2
+   "lidas": 297,
+   "novas": 1
   },
   "Vagas.com.br": {
-   "lidas": 427,
+   "lidas": 428,
    "novas": 0
   }
  },
@@ -823,6 +823,21 @@
    "area": "Trainee",
    "link": "https://br.linkedin.com/jobs/view/trainee-opera%C3%A7%C3%B5es-at-solv%C3%AD-solu%C3%A7%C3%B5es-para-a-vida-4482261297",
    "publicada": "2026-10-27",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-27-cisviver-assistente-de-manutencao",
+   "data": "2026-10-27",
+   "titulo": "Assistente de manutenção",
+   "empresa": "CISVIVER",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 43,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/assistente-de-manuten%C3%A7%C3%A3o-at-cisviver-4480651567",
+   "publicada": "2026-10-23",
    "prazo": null
   }
  ]
