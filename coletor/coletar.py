@@ -111,7 +111,8 @@ def fonte_gupy():
         achadas = []
         nd = json.loads(m.group(1))
         _achar_vagas(nd, achadas)
-        empresa = re.sub(r"https?://|\.gupy\.io/?", "", portal)
+        cp = nd.get("props", {}).get("pageProps", {}).get("careerPage") or {}
+        empresa = cp.get("name") or re.sub(r"https?://|\.gupy\.io/?", "", portal)
         for j in achadas:
             v = _gupy_item(j, empresa)
             if v.pop("banco"):

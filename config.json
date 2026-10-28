@@ -158,7 +158,12 @@
   "eletricista |",
   "ndt",
   "it ",
-  "enterprise"
+  "enterprise",
+  "vaga afirmativa",
+  "exclusiva para pcd",
+  "exclusivo para pcd",
+  "exclusiva pcd",
+  "recruta smart"
  ],
  "formacao_excluida": [
   "engenheiro civil",
@@ -181,7 +186,8 @@
   "engenheiro florestal",
   "engenheiro de software",
   "engenheiro de dados",
-  "engenheiro de computação"
+  "engenheiro de computação",
+  "arquitetura"
  ],
  "mobilidade": [
   "metrô",
