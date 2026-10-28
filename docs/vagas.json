@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-28T00:05+00:00",
+ "atualizado_em": "2026-10-28T00:10+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3258,
-   "novas": 0
+   "lidas": 2525,
+   "novas": 5
   },
   "LinkedIn": {
    "lidas": 297,
    "novas": 0
   },
   "Vagas.com.br": {
-   "lidas": 426,
+   "lidas": 425,
    "novas": 0
   }
  },
@@ -838,6 +838,81 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/assistente-de-manuten%C3%A7%C3%A3o-at-cisviver-4480651567",
    "publicada": "2026-10-23",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-28-time-now-pessoa-engenheira-de-confiabilidade",
+   "data": "2026-10-28",
+   "titulo": "Pessoa Engenheira de Confiabilidade",
+   "empresa": "time-now",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 62,
+   "motivo": "Manutenção, remoto",
+   "fonte": "Gupy",
+   "area": "Manutenção",
+   "link": "https://time-now.gupy.io/jobs/12634223",
+   "publicada": null,
+   "prazo": null
+  },
+  {
+   "id": "2026-10-28-vinci-energies-engenheiro-eletricista",
+   "data": "2026-10-28",
+   "titulo": "Engenheiro Eletricista",
+   "empresa": "vinci-energies",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 63,
+   "motivo": "Engenharia elétrica, remoto, elétrica",
+   "fonte": "Gupy",
+   "area": "Engenharia elétrica",
+   "link": "https://vinci-energies.gupy.io/jobs/12634589",
+   "publicada": null,
+   "prazo": null
+  },
+  {
+   "id": "2026-10-28-vinci-energies-projetista-eletrico",
+   "data": "2026-10-28",
+   "titulo": "PROJETISTA ELETRICO",
+   "empresa": "vinci-energies",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 63,
+   "motivo": "Engenharia elétrica, remoto, elétrica",
+   "fonte": "Gupy",
+   "area": "Engenharia elétrica",
+   "link": "https://vinci-energies.gupy.io/jobs/12780930",
+   "publicada": null,
+   "prazo": null
+  },
+  {
+   "id": "2026-10-28-metodo-analista-de-orcamentos-jr-vaga-afirmativ",
+   "data": "2026-10-28",
+   "titulo": "Analista de Orçamentos Jr. | Vaga afirmativa para Pessoas com Deficiência (PcD)",
+   "empresa": "metodo",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 80,
+   "motivo": "Planejamento e controle, remoto",
+   "fonte": "Gupy",
+   "area": "Planejamento e controle",
+   "link": "https://metodo.gupy.io/jobs/12545991",
+   "publicada": null,
+   "prazo": null
+  },
+  {
+   "id": "2026-10-28-metodo-recruta-smart-especialista-de-projetos-d",
+   "data": "2026-10-28",
+   "titulo": "Recruta Smart | Especialista de Projetos de Arquitetura",
+   "empresa": "metodo",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://metodo.gupy.io/jobs/12683415",
+   "publicada": null,
    "prazo": null
   }
  ]
