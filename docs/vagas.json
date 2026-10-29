@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-29T00:31+00:00",
+ "atualizado_em": "2026-10-29T23:10+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2571,
-   "novas": 2
-  },
-  "LinkedIn": {
-   "lidas": 305,
+   "lidas": 2567,
    "novas": 1
   },
+  "LinkedIn": {
+   "lidas": 303,
+   "novas": 2
+  },
   "Vagas.com.br": {
-   "lidas": 431,
+   "lidas": 430,
    "novas": 0
   }
  },
@@ -398,6 +398,51 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-manuten%C3%A7%C3%A3o-s%C3%AAnior-caldeiraria-e-complementar-at-braskem-4481915003",
    "publicada": "2026-10-26",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-29-metodo-grupo-especialista-projetos-de-hidraulica",
+   "data": "2026-10-29",
+   "titulo": "Especialista | Projetos de Hidráulica",
+   "empresa": "Método Grupo",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://metodo.gupy.io/jobs/12769579",
+   "publicada": null,
+   "prazo": null
+  },
+  {
+   "id": "2026-10-29-saint-gobain-brasil-analista-de-pcm-jr",
+   "data": "2026-10-29",
+   "titulo": "Analista de PCM Jr",
+   "empresa": "Saint-Gobain Brasil",
+   "local": "Camaçari, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 58,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-pcm-jr-at-saint-gobain-brasil-4485204054",
+   "publicada": "2026-10-29",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-29-erb-energias-renovaveis-do-bra-assistente-pcm-extensiva-para-pessoas-co",
+   "data": "2026-10-29",
+   "titulo": "Assistente PCM - Extensiva para Pessoas com Deficiência",
+   "empresa": "ERB - Energias Renováveis do Brasil",
+   "local": "Candeias, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 43,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/assistente-pcm-extensiva-para-pessoas-com-defici%C3%AAncia-at-erb-energias-renov%C3%A1veis-do-brasil-4482761376",
+   "publicada": "2026-10-22",
    "prazo": null
   }
  ]
