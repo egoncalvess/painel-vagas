@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-29T23:10+00:00",
+ "atualizado_em": "2026-10-30T00:31+00:00",
  "fontes": {
   "Gupy": {
    "lidas": 2567,
-   "novas": 1
+   "novas": 0
   },
   "LinkedIn": {
-   "lidas": 303,
+   "lidas": 299,
    "novas": 2
   },
   "Vagas.com.br": {
-   "lidas": 430,
+   "lidas": 433,
    "novas": 0
   }
  },
@@ -356,66 +356,6 @@
    "prazo": null
   },
   {
-   "id": "2026-10-29-qualidados-pessoa-tecnica-de-projetos-i",
-   "data": "2026-10-29",
-   "titulo": "Pessoa Técnica de Projetos I",
-   "empresa": "Qualidados",
-   "local": "Brasil",
-   "modalidade": "Remoto",
-   "score": 63,
-   "motivo": "Gestão de projetos, remoto, nível técnico",
-   "fonte": "Gupy",
-   "area": "Gestão de projetos",
-   "link": "https://qualidados.gupy.io/jobs/12800148",
-   "publicada": null,
-   "prazo": null
-  },
-  {
-   "id": "2026-10-29-bip-brasil-pessoa-consultora-de-energy-utilities-es",
-   "data": "2026-10-29",
-   "titulo": "Pessoa Consultora de Energy & Utilities (Estudos e Grid Elétrico)",
-   "empresa": "BIP Brasil",
-   "local": "Brasil",
-   "modalidade": "Remoto",
-   "score": 63,
-   "motivo": "Engenharia elétrica, remoto, elétrica",
-   "fonte": "Gupy",
-   "area": "Engenharia elétrica",
-   "link": "https://vemprabip.gupy.io/jobs/12789197",
-   "publicada": null,
-   "prazo": null
-  },
-  {
-   "id": "2026-10-29-braskem-tecnico-de-manutencao-senior-caldeiraria",
-   "data": "2026-10-29",
-   "titulo": "Técnico de Manutenção Sênior - Caldeiraria e Complementar",
-   "empresa": "Braskem",
-   "local": "Camaçari, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 28,
-   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível acima do perfil, nível técnico",
-   "fonte": "LinkedIn",
-   "area": "Manutenção",
-   "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-manuten%C3%A7%C3%A3o-s%C3%AAnior-caldeiraria-e-complementar-at-braskem-4481915003",
-   "publicada": "2026-10-26",
-   "prazo": null
-  },
-  {
-   "id": "2026-10-29-metodo-grupo-especialista-projetos-de-hidraulica",
-   "data": "2026-10-29",
-   "titulo": "Especialista | Projetos de Hidráulica",
-   "empresa": "Método Grupo",
-   "local": "Brasil",
-   "modalidade": "Remoto",
-   "score": 53,
-   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
-   "fonte": "Gupy",
-   "area": "Gestão de projetos",
-   "link": "https://metodo.gupy.io/jobs/12769579",
-   "publicada": null,
-   "prazo": null
-  },
-  {
    "id": "2026-10-29-saint-gobain-brasil-analista-de-pcm-jr",
    "data": "2026-10-29",
    "titulo": "Analista de PCM Jr",
@@ -431,18 +371,33 @@
    "prazo": null
   },
   {
-   "id": "2026-10-29-erb-energias-renovaveis-do-bra-assistente-pcm-extensiva-para-pessoas-co",
-   "data": "2026-10-29",
-   "titulo": "Assistente PCM - Extensiva para Pessoas com Deficiência",
-   "empresa": "ERB - Energias Renováveis do Brasil",
-   "local": "Candeias, BA",
+   "id": "2026-10-30-austra-vias-fiscal-de-conserva-e-obras-iii-bahia",
+   "data": "2026-10-30",
+   "titulo": "Fiscal de Conserva e Obras III - Bahia",
+   "empresa": "Austra Vias",
+   "local": "Salvador, BA",
    "modalidade": "Modalidade a confirmar",
-   "score": 43,
-   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "score": 54,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
    "fonte": "LinkedIn",
-   "area": "Manutenção",
-   "link": "https://br.linkedin.com/jobs/view/assistente-pcm-extensiva-para-pessoas-com-defici%C3%AAncia-at-erb-energias-renov%C3%A1veis-do-brasil-4482761376",
-   "publicada": "2026-10-22",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/fiscal-de-conserva-e-obras-iii-bahia-at-austra-vias-4476676809",
+   "publicada": "2026-10-14",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-30-jobbol-analista-de-controle",
+   "data": "2026-10-30",
+   "titulo": "Analista de Controle",
+   "empresa": "Jobbol",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 66,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-controle-at-jobbol-4483526315",
+   "publicada": "2026-10-26",
    "prazo": null
   }
  ]
