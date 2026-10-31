@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-30T00:31+00:00",
+ "atualizado_em": "2026-10-31T00:15+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2567,
+   "lidas": 2628,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 299,
-   "novas": 2
+   "lidas": 301,
+   "novas": 6
   },
   "Vagas.com.br": {
-   "lidas": 433,
+   "lidas": 434,
    "novas": 0
   }
  },
@@ -398,6 +398,96 @@
    "area": "Planejamento e controle",
    "link": "https://br.linkedin.com/jobs/view/analista-de-controle-at-jobbol-4483526315",
    "publicada": "2026-10-26",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-moura-dubeux-analista-de-planejamento-senior-ba-mdne",
+   "data": "2026-10-31",
+   "titulo": "Analista de Planejamento Sênior - BA | MDNE",
+   "empresa": "Moura Dubeux",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 51,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-planejamento-s%C3%AAnior-ba-mdne-at-moura-dubeux-4485283053",
+   "publicada": "2026-10-30",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-oficial-atakarejo-coordenador-de-projetos-e-melhorias",
+   "data": "2026-10-31",
+   "titulo": "Coordenador de Projetos e Melhorias",
+   "empresa": "Oficial Atakarejo",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 44,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/coordenador-de-projetos-e-melhorias-at-oficial-atakarejo-4473654789",
+   "publicada": "2026-10-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-dnata-ssa-manutencao-gse",
+   "data": "2026-10-31",
+   "titulo": "SSA- Manutenção (GSE)",
+   "empresa": "dnata",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 53,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/ssa-manuten%C3%A7%C3%A3o-gse-at-dnata-4463592811",
+   "publicada": "2026-10-22",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-somar-recursos-humanos-servico-eletricista-industrial-ba",
+   "data": "2026-10-31",
+   "titulo": "Eletricista Industrial - BA",
+   "empresa": "Somar Recursos Humanos & Serviços Terceirizados",
+   "local": "Camaçari, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 54,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/eletricista-industrial-ba-at-somar-recursos-humanos-servi%C3%A7os-terceirizados-4481838322",
+   "publicada": "2026-10-27",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-drillgeo-geologia-e-sondagens--supervisor-de-manutencao-i",
+   "data": "2026-10-31",
+   "titulo": "SUPERVISOR DE MANUTENCAO I",
+   "empresa": "DRILLGEO GEOLOGIA E SONDAGENS S.A",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 43,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/supervisor-de-manutencao-i-at-drillgeo-geologia-e-sondagens-s-a-4483715261",
+   "publicada": "2026-10-26",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-mills-tecnico-de-manutencao-i-plataformas-elev",
+   "data": "2026-10-31",
+   "titulo": "Técnico de Manutenção I (Plataformas Elevatórias)",
+   "empresa": "Mills",
+   "local": "Camaçari, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 48,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-manuten%C3%A7%C3%A3o-i-plataformas-elevat%C3%B3rias-at-mills-4474864294",
+   "publicada": "2026-10-08",
    "prazo": null
   }
  ]
