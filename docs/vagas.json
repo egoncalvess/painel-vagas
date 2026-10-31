@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-31T00:15+00:00",
+ "atualizado_em": "2026-10-31T23:52+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2628,
+   "lidas": 2473,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 301,
-   "novas": 6
+   "lidas": 298,
+   "novas": 1
   },
   "Vagas.com.br": {
-   "lidas": 434,
+   "lidas": 423,
    "novas": 0
   }
  },
@@ -488,6 +488,21 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-manuten%C3%A7%C3%A3o-i-plataformas-elevat%C3%B3rias-at-mills-4474864294",
    "publicada": "2026-10-08",
+   "prazo": null
+  },
+  {
+   "id": "2026-10-31-jobbol-mestre-de-obras-ii",
+   "data": "2026-10-31",
+   "titulo": "Mestre de Obras II",
+   "empresa": "Jobbol",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 64,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/mestre-de-obras-ii-at-jobbol-4479096184",
+   "publicada": "2026-10-13",
    "prazo": null
   }
  ]

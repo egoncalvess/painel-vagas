@@ -47080,5 +47080,137 @@
 "modalidade": "?",
 "visto_em": "2026-10-31",
 "link": "https://www.vagas.com.br/vagas/v2841491/tecnico-de-engenharia-clinica"
+},
+"analista-de-qse-i|solar-coca-cola": {
+"titulo": "Analista de QSE I",
+"empresa": "Solar Coca-Cola",
+"fonte": "Gupy",
+"status": "fora da área",
+"score": null,
+"local": "Maracanaú, CE",
+"modalidade": "presencial",
+"visto_em": "2026-10-31",
+"link": "https://solarcocacola.gupy.io/jobs/12820246"
+},
+"analista-suporte-negocio-pleno-contratos|raizen": {
+"titulo": "Analista Suporte Negócio Pleno | Contratos",
+"empresa": "Raízen",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"local": "Piracicaba, SP",
+"modalidade": "presencial",
+"visto_em": "2026-10-31",
+"link": "https://genteraizen.gupy.io/jobs/12721940"
+},
+"supervisor-a-de-operacoes-administrativas-e-facilities-unidade-barra|raizen": {
+"titulo": "Supervisor(a) de Operações Administrativas e Facilities | Unidade Barra",
+"empresa": "Raízen",
+"fonte": "Gupy",
+"status": "fora da área",
+"score": null,
+"local": "Barra Bonita, SP",
+"modalidade": "presencial",
+"visto_em": "2026-10-31",
+"link": "https://genteraizen.gupy.io/jobs/12794185"
+},
+"mestre-de-obras-ii|jobbol": {
+"titulo": "Mestre de Obras II",
+"empresa": "Jobbol",
+"fonte": "LinkedIn",
+"status": "No painel",
+"score": 64,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-10-31",
+"link": "https://br.linkedin.com/jobs/view/mestre-de-obras-ii-at-jobbol-4479096184"
+},
+"senior-cost-control-analyst-with-security-clearance|teledyne-brown-engineering": {
+"titulo": "Senior Cost Control Analyst with Security Clearance",
+"empresa": "Teledyne Brown Engineering",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Huntsville, Alabama, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-10-31",
+"link": "https://www.linkedin.com/jobs/view/senior-cost-control-analyst-with-security-clearance-at-teledyne-brown-engineering-4481099527"
+},
+"tecnico-especializado-ii|abler-vagas": {
+"titulo": "Técnico Especializado II",
+"empresa": "abler Vagas",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-10-31",
+"link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-especializado-ii-at-abler-vagas-4482119714"
+},
+"contracts-manager-with-security-clearance|nightwing": {
+"titulo": "Contracts Manager with Security Clearance",
+"empresa": "Nightwing",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Sterling, Virgínia, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-10-31",
+"link": "https://www.linkedin.com/jobs/view/contracts-manager-with-security-clearance-at-nightwing-4485918013"
+},
+"e-i-multicraft|packaging-corporation-of-america": {
+"titulo": "E&I MULTICRAFT",
+"empresa": "Packaging Corporation of America",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Touchet, Washington, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-10-31",
+"link": "https://www.linkedin.com/jobs/view/e-i-multicraft-at-packaging-corporation-of-america-4485647675"
+},
+"tecnico-de-seguranca-do-trabalho|aspil-aspiracao-e-servicos-industriais-ltda": {
+"titulo": "Técnico de Segurança do Trabalho",
+"empresa": "ASPIL Aspiração e Serviços Industriais LTDA",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Camaçari, BA",
+"modalidade": "?",
+"visto_em": "2026-10-31",
+"link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-seguran%C3%A7a-do-trabalho-at-aspil-aspira%C3%A7%C3%A3o-e-servi%C3%A7os-industriais-ltda-4478627527"
+},
+"tecnico-de-automacao|group-indigo-brasil": {
+"titulo": "TECNICO DE AUTOMAÇÃO",
+"empresa": "Group Indigo Brasil",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Salvador e Região",
+"modalidade": "?",
+"visto_em": "2026-10-31",
+"link": "https://br.linkedin.com/jobs/view/tecnico-de-automa%C3%A7%C3%A3o-at-park-indigo-brasil-4479207365"
+},
+"analista-de-supply-chain-sr|the-adecco-group": {
+"titulo": "Analista de Supply Chain Sr",
+"empresa": "The Adecco Group",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "Jundiaí / SP",
+"modalidade": "?",
+"visto_em": "2026-10-31",
+"link": "https://www.vagas.com.br/vagas/v2841611/analista-de-supply-chain-sr"
+},
+"auxiliar-de-producao-pardini|grupo-fleury": {
+"titulo": "Auxiliar de Produção - Pardini",
+"empresa": "Grupo Fleury",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "Porto Alegre / RS",
+"modalidade": "?",
+"visto_em": "2026-10-31",
+"link": "https://www.vagas.com.br/vagas/v2841613/auxiliar-de-producao-pardini"
 }
 }
