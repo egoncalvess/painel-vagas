@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-10-31T23:52+00:00",
+ "atualizado_em": "2026-11-02T00:10+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2473,
+   "lidas": 2310,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 298,
+   "lidas": 228,
    "novas": 1
   },
   "Vagas.com.br": {
-   "lidas": 423,
+   "lidas": 417,
    "novas": 0
   }
  },
@@ -503,6 +503,21 @@
    "area": "Gestão de projetos",
    "link": "https://br.linkedin.com/jobs/view/mestre-de-obras-ii-at-jobbol-4479096184",
    "publicada": "2026-10-13",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-01-abler-vagas-analista-de-controles-gestao-de-ativos",
+   "data": "2026-11-01",
+   "titulo": "Analista de Controles – Gestão de Ativos",
+   "empresa": "abler Vagas",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 66,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-controles-%E2%80%93-gest%C3%A3o-de-ativos-at-abler-vagas-4483347538",
+   "publicada": "2026-10-24",
    "prazo": null
   }
  ]
