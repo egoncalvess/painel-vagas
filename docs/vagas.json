@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-02T00:10+00:00",
+ "atualizado_em": "2026-11-03T02:46+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2310,
+   "lidas": 2272,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 228,
-   "novas": 1
+   "lidas": 299,
+   "novas": 3
   },
   "Vagas.com.br": {
-   "lidas": 417,
+   "lidas": 406,
    "novas": 0
   }
  },
@@ -518,6 +518,51 @@
    "area": "Planejamento e controle",
    "link": "https://br.linkedin.com/jobs/view/analista-de-controles-%E2%80%93-gest%C3%A3o-de-ativos-at-abler-vagas-4483347538",
    "publicada": "2026-10-24",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-03-mfx-do-brasil-tecnico-de-planejamento-sr",
+   "data": "2026-11-03",
+   "titulo": "Técnico de Planejamento SR",
+   "empresa": "MFX do Brasil",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 41,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível acima do perfil, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-sr-at-mfx-do-brasil-4485461048",
+   "publicada": "2026-11-02",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-03-jobbol-gerente-de-projetos-sap-senior",
+   "data": "2026-11-03",
+   "titulo": "Gerente de Projetos SAP Sênior",
+   "empresa": "Jobbol",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 48,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/gerente-de-projetos-sap-s%C3%AAnior-at-jobbol-4486446840",
+   "publicada": "2026-11-02",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-03-vibra-tecnico-a-de-manutencao-jr",
+   "data": "2026-11-03",
+   "titulo": "Técnico(a) de Manutenção Jr",
+   "empresa": "Vibra",
+   "local": "São Francisco do Conde, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 48,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-a-de-manuten%C3%A7%C3%A3o-jr-at-vibra-4479180339",
+   "publicada": "2026-10-15",
    "prazo": null
   }
  ]
