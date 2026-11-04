@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-03T02:46+00:00",
+ "atualizado_em": "2026-11-04T00:59+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2272,
+   "lidas": 2254,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 299,
+   "lidas": 297,
    "novas": 3
   },
   "Vagas.com.br": {
-   "lidas": 406,
+   "lidas": 410,
    "novas": 0
   }
  },
@@ -563,6 +563,51 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-a-de-manuten%C3%A7%C3%A3o-jr-at-vibra-4479180339",
    "publicada": "2026-10-15",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-04-volkswagen-group-services-sout-analista-de-projetos-sr-salvador-ba",
+   "data": "2026-11-04",
+   "titulo": "Analista de Projetos Sr. (Salvador/BA)",
+   "empresa": "Volkswagen Group Services - South America",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 44,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-projetos-sr-salvador-ba-at-volkswagen-group-services-south-america-4485040205",
+   "publicada": "2026-11-03",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-04-volkswagen-group-services-sout-analista-de-projetos-jr-salvador-ba",
+   "data": "2026-11-04",
+   "titulo": "Analista de Projetos Jr. (Salvador/BA)",
+   "empresa": "Volkswagen Group Services - South America",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 64,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-projetos-jr-salvador-ba-at-volkswagen-group-services-south-america-4485044092",
+   "publicada": "2026-11-03",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-04-bridgestone-do-brasil-analista-custos-ativo-fixo-projetos",
+   "data": "2026-11-04",
+   "titulo": "Analista Custos (Ativo fixo / Projetos)",
+   "empresa": "Bridgestone do Brasil",
+   "local": "Camaçari, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 66,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/analista-custos-ativo-fixo-projetos-at-bridgestone-do-brasil-4486088847",
+   "publicada": "2026-11-03",
    "prazo": null
   }
  ]
