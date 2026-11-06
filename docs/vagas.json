@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-05T01:12+00:00",
+ "atualizado_em": "2026-11-06T01:13+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2302,
+   "lidas": 2398,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 295,
-   "novas": 2
+   "lidas": 298,
+   "novas": 7
   },
   "Vagas.com.br": {
-   "lidas": 418,
+   "lidas": 409,
    "novas": 0
   }
  },
@@ -443,6 +443,111 @@
    "area": "Trainee",
    "link": "https://br.linkedin.com/jobs/view/trainee-t%C3%A9cnico-de-equipamentos-biom%C3%A9dicos-hospital-metropolitano-at-santa-casa-ruy-barbosa-4485502897",
    "publicada": "2026-11-04",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-jobbol-gerente-de-projetos",
+   "data": "2026-11-06",
+   "titulo": "Gerente de Projetos",
+   "empresa": "Jobbol",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 44,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/gerente-de-projetos-at-jobbol-4487773966",
+   "publicada": "2026-11-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-petroeng-engenheiro-eletrico-de-campo",
+   "data": "2026-11-06",
+   "titulo": "Engenheiro elétrico de campo",
+   "empresa": "Petroeng",
+   "local": "Candeias, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 54,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/engenheiro-el%C3%A9trico-de-campo-at-petroeng-4485833466",
+   "publicada": "2026-11-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-acelen-renewables-engenheiro-a-lider-de-construcao-e-monta",
+   "data": "2026-11-06",
+   "titulo": "Engenheiro(a) Líder de Construção e Montagem – Elétrica, Instrumentação e Automação (EIA) Sênior",
+   "empresa": "Acelen Renewables",
+   "local": "São Francisco do Conde, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 39,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/engenheiro-a-l%C3%ADder-de-constru%C3%A7%C3%A3o-e-montagem-%E2%80%93-el%C3%A9trica-instrumenta%C3%A7%C3%A3o-e-automa%C3%A7%C3%A3o-eia-s%C3%AAnior-at-acelen-renewables-4485035352",
+   "publicada": "2026-11-03",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-acelen-renewables-supervisor-a-de-campo-eletrica-instrumen",
+   "data": "2026-11-06",
+   "titulo": "Supervisor(a) de Campo – Elétrica, Instrumentação e Automação",
+   "empresa": "Acelen Renewables",
+   "local": "São Francisco do Conde, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 39,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/supervisor-a-de-campo-%E2%80%93-el%C3%A9trica-instrumenta%C3%A7%C3%A3o-e-automa%C3%A7%C3%A3o-at-acelen-renewables-4485037141",
+   "publicada": "2026-11-03",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-somar-recursos-humanos-servico-eletricista-industrial",
+   "data": "2026-11-06",
+   "titulo": "Eletricista Industrial",
+   "empresa": "Somar Recursos Humanos & Serviços Terceirizados",
+   "local": "Camaçari, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 54,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/eletricista-industrial-at-somar-recursos-humanos-servi%C3%A7os-terceirizados-4485570537",
+   "publicada": "2026-11-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-m-dias-branco-assistente-de-pcm",
+   "data": "2026-11-06",
+   "titulo": "Assistente de PCM",
+   "empresa": "M. Dias Branco",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 43,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/assistente-de-pcm-at-m-dias-branco-4485883250",
+   "publicada": "2026-11-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-06-m-dias-branco-job-for-full-time-employee-assistente-de",
+   "data": "2026-11-06",
+   "titulo": "Job for Full-time employee:\nAssistente de PCM\nSalvador - BA\nFull-time employee",
+   "empresa": "M. Dias Branco",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 43,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aassistente-de-pcm%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4486922523",
+   "publicada": "2026-11-05",
    "prazo": null
   }
  ]
