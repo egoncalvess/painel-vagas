@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-06T01:13+00:00",
+ "atualizado_em": "2026-11-07T00:32+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2398,
+   "lidas": 2474,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 298,
-   "novas": 7
+   "lidas": 291,
+   "novas": 5
   },
   "Vagas.com.br": {
-   "lidas": 409,
+   "lidas": 406,
    "novas": 0
   }
  },
@@ -547,6 +547,81 @@
    "fonte": "LinkedIn",
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aassistente-de-pcm%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4486922523",
+   "publicada": "2026-11-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-07-neoenergia-engenheiro-a-de-planejamento-e-controle-",
+   "data": "2026-11-07",
+   "titulo": "Engenheiro(a) de Planejamento e Controle da Manutenção Pleno",
+   "empresa": "Neoenergia",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 71,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/engenheiro-a-de-planejamento-e-controle-da-manuten%C3%A7%C3%A3o-pleno-at-neoenergia-4488410257",
+   "publicada": "2026-11-06",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-07-neoenergia-analista-de-projetos-de-sistemas-senior",
+   "data": "2026-11-07",
+   "titulo": "Analista de Projetos de Sistemas Sênior",
+   "empresa": "Neoenergia",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 44,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-projetos-de-sistemas-s%C3%AAnior-at-neoenergia-4488192991",
+   "publicada": "2026-11-06",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-07-neoenergia-analista-de-projetos-de-sistemas-pleno",
+   "data": "2026-11-07",
+   "titulo": "Analista de Projetos de Sistemas Pleno",
+   "empresa": "Neoenergia",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 64,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-projetos-de-sistemas-pleno-at-neoenergia-4488420104",
+   "publicada": "2026-11-06",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-07-jobbol-apontador-de-obras",
+   "data": "2026-11-07",
+   "titulo": "Apontador de Obras",
+   "empresa": "Jobbol",
+   "local": "Simões Filho, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/apontador-de-obras-at-jobbol-4482110633",
+   "publicada": "2026-10-21",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-07-petroeng-engenheiro-eletricista-de-campo",
+   "data": "2026-11-07",
+   "titulo": "Engenheiro Eletricista de campo",
+   "empresa": "Petroeng",
+   "local": "Candeias, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 54,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/engenheiro-eletricista-de-campo-at-petroeng-4485833466",
    "publicada": "2026-11-05",
    "prazo": null
   }
