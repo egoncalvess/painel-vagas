@@ -55231,5 +55231,148 @@
 "modalidade": "?",
 "visto_em": "2026-11-07",
 "link": "https://www.vagas.com.br/vagas/v2842309/analista-jr-de-qualidade-gerenciamento-da-qualidade-regional"
+},
+"auxiliar-de-entrega-ribeira-do-pombal|solar-coca-cola": {
+"titulo": "Auxiliar de Entrega (Ribeira do Pombal)",
+"empresa": "Solar Coca-Cola",
+"fonte": "Gupy",
+"status": "fora da área",
+"score": null,
+"local": "Ribeira do Pombal, BA",
+"modalidade": "presencial",
+"visto_em": "2026-11-08",
+"link": "https://solarcocacola.gupy.io/jobs/12853008"
+},
+"auxiliar-de-expedicao-ribeira-do-pombal|solar-coca-cola": {
+"titulo": "Auxiliar de Expedição (Ribeira do Pombal)",
+"empresa": "Solar Coca-Cola",
+"fonte": "Gupy",
+"status": "fora da área",
+"score": null,
+"local": "Ribeira do Pombal, BA",
+"modalidade": "presencial",
+"visto_em": "2026-11-08",
+"link": "https://solarcocacola.gupy.io/jobs/12853031"
+},
+"motorista-de-entrega-ribeira-do-pombal|solar-coca-cola": {
+"titulo": "Motorista de Entrega (Ribeira do Pombal)",
+"empresa": "Solar Coca-Cola",
+"fonte": "Gupy",
+"status": "fora da área",
+"score": null,
+"local": "Ribeira do Pombal, BA",
+"modalidade": "presencial",
+"visto_em": "2026-11-08",
+"link": "https://solarcocacola.gupy.io/jobs/12853022"
+},
+"program-manager-pmo-director-strong-pmo|comtec-information-systems-it": {
+"titulo": "Program Manager (PMO)/ Director (Strong PMO)",
+"empresa": "ComTec Information Systems (IT)",
+"fonte": "LinkedIn",
+"status": "Descartada (fora do Brasil)",
+"score": null,
+"local": "Houston, Texas, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-11-08",
+"link": "https://www.linkedin.com/jobs/view/program-manager-pmo-director-strong-pmo-at-comtec-information-systems-it-4486633506"
+},
+"analista-de-projetos-salvador-ba-salvador-ba-full-time-employee|petrobahia-s-a": {
+"titulo": "Analista de Projetos | Salvador/BA Salvador - BA Full-time employee",
+"empresa": "Petrobahia S.A.",
+"fonte": "LinkedIn",
+"status": "No painel",
+"score": 59,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-11-08",
+"link": "https://br.linkedin.com/jobs/view/analista-de-projetos-salvador-ba-salvador-ba-full-time-employee-at-petrobahia-s-a-4486636273"
+},
+"sinaleiro-de-obras|jobbol": {
+"titulo": "Sinaleiro de Obras",
+"empresa": "Jobbol",
+"fonte": "LinkedIn",
+"status": "No painel",
+"score": 59,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-11-08",
+"link": "https://br.linkedin.com/jobs/view/sinaleiro-de-obras-at-jobbol-4483591310"
+},
+"planner-scheduler|flex": {
+"titulo": "Planner Scheduler",
+"empresa": "Flex",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Salt Lake City, Utah, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-11-08",
+"link": "https://www.linkedin.com/jobs/view/planner-scheduler-at-flex-4486550741"
+},
+"analista-de-marketing|uninassau": {
+"titulo": "Analista de Marketing",
+"empresa": "UNINASSAU",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-11-08",
+"link": "https://br.linkedin.com/jobs/view/analista-de-marketing-at-uninassau-4478638490"
+},
+"cost-accounting-analyst|curt-g-joa-inc": {
+"titulo": "Cost Accounting Analyst",
+"empresa": "CURT G. JOA INC.",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Sheboygan Falls, Wisconsin, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-11-08",
+"link": "https://www.linkedin.com/jobs/view/cost-accounting-analyst-at-curt-g-joa-inc-4486993703"
+},
+"electrical-estimator|gpac": {
+"titulo": "Electrical Estimator",
+"empresa": "gpac",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Albany, Nova York, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-11-08",
+"link": "https://www.linkedin.com/jobs/view/electrical-estimator-at-gpac-4486624083"
+},
+"maintenance-planner-scheduler-aerospace-materials|ppg": {
+"titulo": "Maintenance Planner & Scheduler – Aerospace Materials",
+"empresa": "PPG",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Shelby, Carolina do Norte, Estados Unidos",
+"modalidade": "remoto",
+"visto_em": "2026-11-08",
+"link": "https://www.linkedin.com/jobs/view/maintenance-planner-scheduler-%E2%80%93-aerospace-materials-at-ppg-4487594210"
+},
+"tecnico-reabilitacao-fisica-irlm|ffm": {
+"titulo": "Tecnico Reabilitação Física (IRLM)",
+"empresa": "FFM",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "São Paulo / SP",
+"modalidade": "?",
+"visto_em": "2026-11-08",
+"link": "https://www.vagas.com.br/vagas/v2842279/tecnico-reabilitacao-fisica-irlm"
+},
+"programador-de-manutencao|somar-diversidade": {
+"titulo": "Programador de Manutenção",
+"empresa": "Somar Diversidade",
+"fonte": "Vagas.com.br",
+"status": "Descartada (modalidade)",
+"score": null,
+"local": "Belo Horizonte / MG",
+"modalidade": "?",
+"visto_em": "2026-11-08",
+"link": "https://www.vagas.com.br/vagas/v2842327/programador-de-manutencao"
 }
 }

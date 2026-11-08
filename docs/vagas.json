@@ -1,13 +1,13 @@
 {
- "atualizado_em": "2026-11-07T00:32+00:00",
+ "atualizado_em": "2026-11-08T00:15+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2474,
+   "lidas": 2407,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 291,
-   "novas": 5
+   "lidas": 268,
+   "novas": 2
   },
   "Vagas.com.br": {
    "lidas": 406,
@@ -623,6 +623,36 @@
    "area": "Engenharia elétrica",
    "link": "https://br.linkedin.com/jobs/view/engenheiro-eletricista-de-campo-at-petroeng-4485833466",
    "publicada": "2026-11-05",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-08-petrobahia-s-a-analista-de-projetos-salvador-ba-salvado",
+   "data": "2026-11-08",
+   "titulo": "Analista de Projetos | Salvador/BA Salvador - BA Full-time employee",
+   "empresa": "Petrobahia S.A.",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/analista-de-projetos-salvador-ba-salvador-ba-full-time-employee-at-petrobahia-s-a-4486636273",
+   "publicada": "2026-11-07",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-08-jobbol-sinaleiro-de-obras",
+   "data": "2026-11-08",
+   "titulo": "Sinaleiro de Obras",
+   "empresa": "Jobbol",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/sinaleiro-de-obras-at-jobbol-4483591310",
+   "publicada": "2026-10-26",
    "prazo": null
   }
  ]
