@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-08T00:15+00:00",
+ "atualizado_em": "2026-11-09T00:14+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2407,
+   "lidas": 2377,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 268,
+   "lidas": 281,
    "novas": 2
   },
   "Vagas.com.br": {
-   "lidas": 406,
+   "lidas": 407,
    "novas": 0
   }
  },
@@ -653,6 +653,36 @@
    "area": "Gestão de projetos",
    "link": "https://br.linkedin.com/jobs/view/sinaleiro-de-obras-at-jobbol-4483591310",
    "publicada": "2026-10-26",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-09-oficial-atakarejo-gerente-de-planejamento-de-loja",
+   "data": "2026-11-09",
+   "titulo": "Gerente de Planejamento de Loja",
+   "empresa": "Oficial Atakarejo",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 51,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/gerente-de-planejamento-de-loja-at-oficial-atakarejo-4476499127",
+   "publicada": "2026-10-13",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-09-fridama-coordenador-a-de-obras-hvac-e-instalacoe",
+   "data": "2026-11-09",
+   "titulo": "Coordenador(a) de Obras – HVAC e Instalações Elétricas | Brasil",
+   "empresa": "Fridama",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 49,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, elétrica, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/coordenador-a-de-obras-%E2%80%93-hvac-e-instala%C3%A7%C3%B5es-el%C3%A9tricas-brasil-at-fridama-4487284551",
+   "publicada": "2026-11-04",
    "prazo": null
   }
  ]
