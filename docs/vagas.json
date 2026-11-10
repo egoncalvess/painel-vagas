@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-09T00:14+00:00",
+ "atualizado_em": "2026-11-10T00:13+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2377,
-   "novas": 0
+   "lidas": 2381,
+   "novas": 1
   },
   "LinkedIn": {
-   "lidas": 281,
-   "novas": 2
+   "lidas": 285,
+   "novas": 3
   },
   "Vagas.com.br": {
-   "lidas": 407,
+   "lidas": 406,
    "novas": 0
   }
  },
@@ -683,6 +683,66 @@
    "area": "Gestão de projetos",
    "link": "https://br.linkedin.com/jobs/view/coordenador-a-de-obras-%E2%80%93-hvac-e-instala%C3%A7%C3%B5es-el%C3%A9tricas-brasil-at-fridama-4487284551",
    "publicada": "2026-11-04",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-10-metodo-grupo-analista-de-engenharia-jr-gestao-de-obra",
+   "data": "2026-11-10",
+   "titulo": "Analista de Engenharia Jr. | Gestão de Obras - Curitiba/PR (Unidade Fast)",
+   "empresa": "Método Grupo",
+   "local": "Brasil",
+   "modalidade": "Remoto",
+   "score": 73,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://metodo.gupy.io/jobs/12809177",
+   "publicada": null,
+   "prazo": null
+  },
+  {
+   "id": "2026-11-10-acelen-especialista-de-planejamento-e-desempenh",
+   "data": "2026-11-10",
+   "titulo": "ESPECIALISTA DE PLANEJAMENTO E DESEMPENHO OPERACIONAL",
+   "empresa": "Acelen",
+   "local": "São Francisco do Conde, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 51,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/especialista-de-planejamento-e-desempenho-operacional-at-acelen-4487179471",
+   "publicada": "2026-11-09",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-10-simpress-analista-projetos-jr",
+   "data": "2026-11-10",
+   "titulo": "ANALISTA PROJETOS JR",
+   "empresa": "Simpress",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 64,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/analista-projetos-jr-at-simpress-4487424496",
+   "publicada": "2026-11-09",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-10-construtora-stanza-mestre-de-obras-salvador-ba",
+   "data": "2026-11-10",
+   "titulo": "Mestre de Obras - Salvador/BA",
+   "empresa": "Construtora Stanza",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/mestre-de-obras-salvador-ba-at-construtora-stanza-4487179585",
+   "publicada": "2026-11-09",
    "prazo": null
   }
  ]
