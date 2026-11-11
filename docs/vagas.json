@@ -1,16 +1,16 @@
 {
- "atualizado_em": "2026-11-10T03:04+00:00",
+ "atualizado_em": "2026-11-11T01:03+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2367,
+   "lidas": 2386,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 295,
-   "novas": 0
+   "lidas": 297,
+   "novas": 4
   },
   "Vagas.com.br": {
-   "lidas": 399,
+   "lidas": 383,
    "novas": 0
   }
  },
@@ -488,6 +488,66 @@
    "area": "Gestão de projetos",
    "link": "https://br.linkedin.com/jobs/view/mestre-de-obras-salvador-ba-at-construtora-stanza-4487179585",
    "publicada": "2026-11-09",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-11-m-dias-branco-job-for-full-time-employee-analista-de-p",
+   "data": "2026-11-11",
+   "titulo": "Job for Full-time employee:\nAnalista de PCM I\nSalvador - BA\nFull-time employee",
+   "empresa": "M. Dias Branco",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 58,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aanalista-de-pcm-i%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4488399539",
+   "publicada": "2026-11-10",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-11-qualidados-engenharia-pessoa-orcamentista",
+   "data": "2026-11-11",
+   "titulo": "PESSOA ORÇAMENTISTA",
+   "empresa": "Qualidados Engenharia",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 66,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/pessoa-or%C3%A7amentista-at-qualidados-engenharia-4487802769",
+   "publicada": "2026-11-10",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-11-florence-hospital-de-transicao-coordenador-a-de-obras-e-manutencao",
+   "data": "2026-11-11",
+   "titulo": "COORDENADOR(A) DE OBRAS E MANUTENÇÃO",
+   "empresa": "Florence Hospital de Transição",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 38,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/coordenador-a-de-obras-e-manuten%C3%A7%C3%A3o-at-florence-hospital-de-transi%C3%A7%C3%A3o-4487496992",
+   "publicada": "2026-11-10",
+   "prazo": null
+  },
+  {
+   "id": "2026-11-11-s3-gestao-em-saude-coordenador-a-apoiador-tecnico-a-projeto",
+   "data": "2026-11-11",
+   "titulo": "COORDENADOR(A) APOIADOR TÉCNICO(A) - PROJETO GIRASSÓIS",
+   "empresa": "S3 Gestão em Saúde",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 34,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/coordenador-a-apoiador-t%C3%A9cnico-a-projeto-girass%C3%B3is-at-s3-gest%C3%A3o-em-sa%C3%BAde-4487814286",
+   "publicada": "2026-11-10",
    "prazo": null
   }
  ]
