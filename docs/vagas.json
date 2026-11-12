@@ -1,13 +1,13 @@
 {
- "atualizado_em": "2026-11-12T02:05+00:00",
+ "atualizado_em": "2026-11-12T03:59+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2385,
+   "lidas": 2341,
    "novas": 0
   },
   "LinkedIn": {
-   "lidas": 295,
-   "novas": 4
+   "lidas": 292,
+   "novas": 2
   },
   "Vagas.com.br": {
    "lidas": 379,
@@ -446,63 +446,33 @@
    "prazo": null
   },
   {
-   "id": "2026-11-12-moura-dubeux-coordenador-a-de-planejamento-e-controle",
+   "id": "2026-11-12-jobbol-encarregado-administrativo-de-obras",
    "data": "2026-11-12",
-   "titulo": "Coordenador(a) de Planejamento e Controle - BA | MDNE",
-   "empresa": "Moura Dubeux",
+   "titulo": "Encarregado Administrativo de Obras",
+   "empresa": "Jobbol",
    "local": "Salvador, BA",
    "modalidade": "Modalidade a confirmar",
-   "score": 51,
-   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
-   "fonte": "LinkedIn",
-   "area": "Planejamento e controle",
-   "link": "https://br.linkedin.com/jobs/view/coordenador-a-de-planejamento-e-controle-ba-mdne-at-moura-dubeux-4490062956",
-   "publicada": "2026-11-12",
-   "prazo": null
-  },
-  {
-   "id": "2026-11-12-tqc-assistente-de-custos-e-orcamento",
-   "data": "2026-11-12",
-   "titulo": "Assistente de Custos e Orçamento",
-   "empresa": "TQC",
-   "local": "Salvador, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 56,
-   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível técnico",
-   "fonte": "LinkedIn",
-   "area": "Planejamento e controle",
-   "link": "https://br.linkedin.com/jobs/view/assistente-de-custos-e-or%C3%A7amento-at-tqc-4489029321",
-   "publicada": "2026-11-11",
-   "prazo": null
-  },
-  {
-   "id": "2026-11-12-tqc-gerente-de-contratos",
-   "data": "2026-11-12",
-   "titulo": "GERENTE DE CONTRATOS",
-   "empresa": "TQC",
-   "local": "Salvador, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 44,
-   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
    "fonte": "LinkedIn",
    "area": "Gestão de projetos",
-   "link": "https://br.linkedin.com/jobs/view/gerente-de-contratos-at-tqc-4489028476",
-   "publicada": "2026-11-11",
+   "link": "https://br.linkedin.com/jobs/view/encarregado-administrativo-de-obras-at-jobbol-4488883836",
+   "publicada": "2026-11-09",
    "prazo": null
   },
   {
-   "id": "2026-11-12-tronox-especialista-de-planejamento-de-manutenc",
+   "id": "2026-11-12-tecnogera-eletricista-i-simoes-filho-ba",
    "data": "2026-11-12",
-   "titulo": "Especialista de Planejamento de Manutenção",
-   "empresa": "Tronox",
-   "local": "Camaçari, BA",
+   "titulo": "Eletricista I | Simões Filho | BA",
+   "empresa": "Tecnogera",
+   "local": "Simões Filho, BA",
    "modalidade": "Modalidade a confirmar",
-   "score": 51,
-   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "score": 59,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica",
    "fonte": "LinkedIn",
-   "area": "Planejamento e controle",
-   "link": "https://br.linkedin.com/jobs/view/especialista-de-planejamento-de-manuten%C3%A7%C3%A3o-at-tronox-4489031354",
-   "publicada": "2026-11-11",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/eletricista-i-sim%C3%B5es-filho-ba-at-tecnogera-4487173831",
+   "publicada": "2026-11-09",
    "prazo": null
   }
  ]
