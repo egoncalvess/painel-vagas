@@ -1,17 +1,78 @@
 {
- "atualizado_em": "2026-11-12T03:59+00:00",
+ "atualizado_em": "2026-11-12T23:09+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 2341,
-   "novas": 0
+   "lidas": 3814,
+   "novas": 8,
+   "ja_no_painel": 4,
+   "ja_vistas": 2611,
+   "descartes": {
+    "fora da área": 1147,
+    "Descartada (modalidade)": 22,
+    "Descartada (anúncio antigo)": 20,
+    "Descartada (formação)": 2
+   },
+   "falhas": 0,
+   "erros": [],
+   "portais_sumidos": [
+    "https://grupoccr.gupy.io/",
+    "https://grupoccrengenharia.gupy.io/",
+    "https://stesa.gupy.io/",
+    "https://detenquimica.gupy.io/",
+    "https://petroreconcavocarreiras.gupy.io/"
+   ]
   },
-  "LinkedIn": {
-   "lidas": 292,
-   "novas": 2
+  "Sólides": {
+   "lidas": 275,
+   "novas": 6,
+   "ja_no_painel": 0,
+   "ja_vistas": 1,
+   "descartes": {
+    "fora da área": 249,
+    "Descartada (anúncio antigo)": 10,
+    "Descartada (modalidade)": 6,
+    "Descartada (exclusiva PcD)": 2,
+    "Descartada (encerrada)": 1
+   },
+   "falhas": 0,
+   "erros": []
+  },
+  "Empregos.com.br": {
+   "lidas": 276,
+   "novas": 7,
+   "ja_no_painel": 0,
+   "ja_vistas": 44,
+   "descartes": {
+    "fora da área": 211,
+    "Descartada (modalidade)": 10,
+    "Descartada (anúncio antigo)": 4
+   },
+   "falhas": 0,
+   "erros": []
   },
   "Vagas.com.br": {
-   "lidas": 379,
-   "novas": 0
+   "lidas": 391,
+   "novas": 0,
+   "ja_no_painel": 0,
+   "ja_vistas": 345,
+   "descartes": {
+    "fora da área": 38,
+    "Descartada (modalidade)": 8
+   },
+   "falhas": 0,
+   "erros": []
+  },
+  "LinkedIn": {
+   "lidas": 293,
+   "novas": 1,
+   "ja_no_painel": 5,
+   "ja_vistas": 276,
+   "descartes": {
+    "fora da área": 10,
+    "Descartada (fora do Brasil)": 1
+   },
+   "falhas": 0,
+   "erros": []
   }
  },
  "vagas": [
@@ -25,7 +86,8 @@
    "motivo": "'Remoto' é manutenção offshore",
    "link": "https://br.indeed.com/jobs?q=Engenheiro+Eletricista+Actemium&l=",
    "id": "2026-10-13-actemium-vinci-energies-engenheiro-eletricista",
-   "area": "Engenharia elétrica"
+   "area": "Engenharia elétrica",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -37,7 +99,8 @@
    "motivo": "Manutenção e subestações; pouco planejamento",
    "link": "https://br.indeed.com/jobs?q=Engenheiro+Eletricista+de+Manuten%C3%A7%C3%A3o+EQS+Engenharia&l=Salvador%2FBA",
    "id": "2026-10-13-eqs-engenharia-engenheiro-eletricista-de-manutencao",
-   "area": "Manutenção"
+   "area": "Manutenção",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -49,7 +112,8 @@
    "motivo": "Coordenação técnica, pede vivência petroquímica",
    "link": "https://br.indeed.com/jobs?q=Engenheiro+de+Projetos+III+Intertechne&l=Salvador",
    "id": "2026-10-13-intertechne-engenheiro-de-projetos-iii",
-   "area": "Gestão de projetos"
+   "area": "Gestão de projetos",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -62,7 +126,8 @@
    "link": "https://br.indeed.com/jobs?q=Analista+de+Engenharia+Controle+de+Obras+Makas%C3%AD&l=",
    "curriculo": "Curriculo_Erick_Goncalves_Makasi_Analista-de-Engenharia-Controle-de-Obras.docx",
    "id": "2026-10-13-makasi-analista-de-engenharia-controle-de-obras",
-   "area": "Planejamento e controle"
+   "area": "Planejamento e controle",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -73,7 +138,8 @@
    "motivo": "Presencial",
    "link": "https://br.indeed.com/jobs?q=Trilhos+Especialista+de+Manuten%C3%A7%C3%A3o+Motiva&l=Salvador",
    "id": "2026-10-13-motiva-trilhos-especialista-de-manutencao",
-   "area": "Manutenção"
+   "area": "Manutenção",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -85,7 +151,8 @@
    "motivo": "Gestão de projetos de produto médico",
    "link": "https://br.indeed.com/jobs?q=Analista+de+Engenharia+MSB+Medical+System&l=Lauro+de+Freitas%2FBA",
    "id": "2026-10-13-msb-medical-system-analista-de-engenharia",
-   "area": "Outras"
+   "area": "Outras",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -97,7 +164,8 @@
    "motivo": "Pede SAP PM, TPM e CREA ativo",
    "link": "https://br.indeed.com/jobs?q=Analista+de+Manuten%C3%A7%C3%A3o+S%C3%AAnior+PCM+Brasil+Natura+%26+Co&l=",
    "id": "2026-10-13-natura-co-analista-de-manutencao-senior-pcm-brasil",
-   "area": "Manutenção"
+   "area": "Manutenção",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -109,7 +177,8 @@
    "motivo": "PCM, SAP PM, Excel e Power BI; falta CMMS",
    "link": "https://br.indeed.com/jobs?q=Analista+de+PCM+Petrobahia&l=Salvador%2FBA",
    "id": "2026-10-13-petrobahia-analista-de-pcm",
-   "area": "Manutenção"
+   "area": "Manutenção",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -121,7 +190,8 @@
    "motivo": "Exige Python/R e machine learning",
    "link": "https://br.indeed.com/jobs?q=Profissional+Analista+de+Power+BI+Radix&l=",
    "id": "2026-10-13-radix-profissional-analista-de-power-bi",
-   "area": "Outras"
+   "area": "Outras",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-13",
@@ -133,7 +203,8 @@
    "motivo": "Engenharia de campo, pouco planejamento",
    "link": "https://br.indeed.com/jobs?q=Engenheiro+Eletricista+SL+Process&l=Sim%C3%B5es+Filho%2FBA",
    "id": "2026-10-13-sl-process-via-jobbol-engenheiro-eletricista",
-   "area": "Engenharia elétrica"
+   "area": "Engenharia elétrica",
+   "visto_em": "2026-10-13"
   },
   {
    "data": "2026-10-14",
@@ -145,7 +216,8 @@
    "motivo": "Função de compras/importação, fora do perfil",
    "link": "https://br.indeed.com/jobs?q=Analista+de+Planejamento+Amara+NZero&l=Salvador",
    "id": "2026-10-14-amara-nzero-analista-de-planejamento",
-   "area": "Planejamento e controle"
+   "area": "Planejamento e controle",
+   "visto_em": "2026-10-14"
   },
   {
    "data": "2026-10-14",
@@ -158,7 +230,8 @@
    "link": "https://br.indeed.com/jobs?q=Engenheiro+de+Planejamento+Capco&l=",
    "curriculo": "Curriculo_Erick_Goncalves_Capco_Engenheiro-de-Planejamento.docx",
    "id": "2026-10-14-capco-via-jobbol-engenheiro-de-planejamento",
-   "area": "Planejamento e controle"
+   "area": "Planejamento e controle",
+   "visto_em": "2026-10-14"
   },
   {
    "data": "2026-10-14",
@@ -169,7 +242,8 @@
    "motivo": "Presencial",
    "link": "https://br.indeed.com/jobs?q=ANALISTA+DE+PLANEJAMENTO+TQC+Engenharia&l=Salvador",
    "id": "2026-10-14-tqc-engenharia-via-jobbol-analista-de-planejamento",
-   "area": "Planejamento e controle"
+   "area": "Planejamento e controle",
+   "visto_em": "2026-10-14"
   },
   {
    "data": "2026-10-16",
@@ -183,7 +257,8 @@
    "link": "https://br.indeed.com/jobs?q=Engenheiro+Implementador+de+Projetos+Solutic&l=",
    "curriculo": "Curriculo_Erick_Goncalves_Solutic_Engenheiro-Implementador-de-Projetos.docx",
    "id": "2026-10-16-solutic-via-jobbol-engenheiro-implementador-de-projetos",
-   "area": "Gestão de projetos"
+   "area": "Gestão de projetos",
+   "visto_em": "2026-10-16"
   },
   {
    "data": "2026-10-18",
@@ -196,20 +271,8 @@
    "fonte": "Gupy",
    "link": "https://brisanet.gupy.io/jobs/12725973",
    "id": "2026-10-18-brisanet-analista-de-projetos-pmo-iii",
-   "area": "Planejamento e controle"
-  },
-  {
-   "data": "2026-10-18",
-   "titulo": "Supervisor(a) de Planejamento (PCM)",
-   "empresa": "CSN Cimentos",
-   "local": "Candeias, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 59,
-   "motivo": "Aceita Eng. Elétrica, SAP PM e Power BI; pede liderança e PCM de processo contínuo; talvez a mesma 'Supervisor(a) de Planejamento' de 15/10",
-   "fonte": "Vagas.com.br",
-   "link": "https://www.vagas.com.br/vagas/v2838253/supervisor-a-de-planejamento",
-   "id": "2026-10-18-csn-cimentos-supervisor-a-de-planejamento-pcm",
-   "area": "Planejamento e controle"
+   "area": "Planejamento e controle",
+   "visto_em": "2026-11-12"
   },
   {
    "data": "2026-10-19",
@@ -222,7 +285,8 @@
    "fonte": "Wizbii (VINCI)",
    "link": "https://en.wizbii.com/company/salvador-airport/job/analista-de-manutencao-iii",
    "id": "2026-10-19-salvador-airport-vinci-airports-analista-de-manutencao-iii",
-   "area": "Manutenção"
+   "area": "Manutenção",
+   "visto_em": "2026-10-19"
   },
   {
    "data": "2026-10-23",
@@ -235,20 +299,8 @@
    "fonte": "InfoJobs",
    "link": "https://www.infojobs.com.br/vaga-de-analista-projetos-iii-pmo-em-sao-paulo__12057508.aspx",
    "id": "2026-10-23-grupo-srm-analista-de-projetos-iii-pmo",
-   "area": "Planejamento e controle"
-  },
-  {
-   "data": "2026-10-24",
-   "titulo": "Analista de Projetos Industriais Junior - São Francisco do Conde / BA",
-   "empresa": "Infotec Brasil",
-   "local": "São Francisco do Conde, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 60,
-   "motivo": "Planos de execução, indicadores e Power BI em Oil&Gas; júnior, foco em supply chain",
-   "fonte": "Indeed",
-   "link": "https://br.indeed.com/jobs?q=Analista+de+Projetos+Industriais+Junior+S%C3%A3o+Francisco+do+Conde+%2F+BA+Infotec+Brasil&l=S%C3%A3o+Francisco+do+Conde",
-   "id": "2026-10-24-infotec-brasil-analista-de-projetos-industriais-junior-sao-francisco-",
-   "area": "Gestão de projetos"
+   "area": "Planejamento e controle",
+   "visto_em": "2026-10-23"
   },
   {
    "id": "2026-10-27-petrobahia-s-a-analista-de-pcm-salvador-ba",
@@ -263,7 +315,14 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/analista-de-pcm-salvador-ba-at-petrobahia-s-a-4474856515",
    "publicada": "2026-10-08",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-10-27",
+   "tambem_em": [
+    {
+     "fonte": "Gupy",
+     "link": "https://petrobahia.gupy.io/jobs/12697147"
+    }
+   ]
   },
   {
    "id": "2026-10-27-turbotech-engenharia-ltda-tecnico-de-planejamento",
@@ -278,7 +337,8 @@
    "area": "Planejamento e controle",
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-at-turbotech-engenharia-ltda-4481247777",
    "publicada": "2026-10-19",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-12"
   },
   {
    "id": "2026-10-27-intertechne-engenheiro-de-projetos-iii-salvador-ba",
@@ -293,7 +353,8 @@
    "area": "Gestão de projetos",
    "link": "https://br.linkedin.com/jobs/view/engenheiro-de-projetos-iii-salvador-ba-at-intertechne-4473379230",
    "publicada": "2026-10-02",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-10-27"
   },
   {
    "id": "2026-10-27-motiva-trilhos-l-especialista-de-manutencao",
@@ -308,7 +369,14 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-motiva-4458307905",
    "publicada": "2026-10-22",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "tambem_em": [
+    {
+     "fonte": "Gupy",
+     "link": "https://motiva.gupy.io/job/eyJqb2JJZCI6MTIzMDIxMTUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"
+    }
+   ]
   },
   {
    "id": "2026-10-27-grupo-ccr-trilhos-l-especialista-de-manutencao",
@@ -323,22 +391,8 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-grupo-ccr-4458375019",
    "publicada": "2026-10-22",
-   "prazo": null
-  },
-  {
-   "id": "2026-10-27-cisviver-assistente-de-manutencao",
-   "data": "2026-10-27",
-   "titulo": "Assistente de manutenção",
-   "empresa": "CISVIVER",
-   "local": "Salvador, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 43,
-   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
-   "fonte": "LinkedIn",
-   "area": "Manutenção",
-   "link": "https://br.linkedin.com/jobs/view/assistente-de-manuten%C3%A7%C3%A3o-at-cisviver-4480651567",
-   "publicada": "2026-10-23",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-12"
   },
   {
    "id": "2026-10-28-vinci-energies-engenheiro-eletricista",
@@ -353,7 +407,9 @@
    "area": "Engenharia elétrica",
    "link": "https://vinci-energies.gupy.io/jobs/12634589",
    "publicada": null,
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-10-28",
+   "sumiu": true
   },
   {
    "id": "2026-10-29-saint-gobain-brasil-analista-de-pcm-jr",
@@ -368,37 +424,8 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/analista-de-pcm-jr-at-saint-gobain-brasil-4485204054",
    "publicada": "2026-10-29",
-   "prazo": null
-  },
-  {
-   "id": "2026-10-30-jobbol-analista-de-controle",
-   "data": "2026-10-30",
-   "titulo": "Analista de Controle",
-   "empresa": "Jobbol",
-   "local": "Salvador, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 66,
-   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar",
-   "fonte": "LinkedIn",
-   "area": "Planejamento e controle",
-   "link": "https://br.linkedin.com/jobs/view/analista-de-controle-at-jobbol-4483526315",
-   "publicada": "2026-10-26",
-   "prazo": null
-  },
-  {
-   "id": "2026-11-03-vibra-tecnico-a-de-manutencao-jr",
-   "data": "2026-11-03",
-   "titulo": "Técnico(a) de Manutenção Jr",
-   "empresa": "Vibra",
-   "local": "São Francisco do Conde, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 48,
-   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível técnico",
-   "fonte": "LinkedIn",
-   "area": "Manutenção",
-   "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-a-de-manuten%C3%A7%C3%A3o-jr-at-vibra-4479180339",
-   "publicada": "2026-10-15",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-12"
   },
   {
    "id": "2026-11-04-volkswagen-group-services-sout-analista-de-projetos-jr-salvador-ba",
@@ -413,7 +440,8 @@
    "area": "Gestão de projetos",
    "link": "https://br.linkedin.com/jobs/view/analista-de-projetos-jr-salvador-ba-at-volkswagen-group-services-south-america-4485044092",
    "publicada": "2026-11-03",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-04"
   },
   {
    "id": "2026-11-06-petroeng-engenheiro-eletrico-de-campo",
@@ -428,7 +456,8 @@
    "area": "Engenharia elétrica",
    "link": "https://br.linkedin.com/jobs/view/engenheiro-el%C3%A9trico-de-campo-at-petroeng-4485833466",
    "publicada": "2026-11-05",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-06"
   },
   {
    "id": "2026-11-11-m-dias-branco-job-for-full-time-employee-analista-de-p",
@@ -443,37 +472,480 @@
    "area": "Manutenção",
    "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aanalista-de-pcm-i%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4488399539",
    "publicada": "2026-11-10",
-   "prazo": null
+   "prazo": null,
+   "visto_em": "2026-11-12"
   },
   {
-   "id": "2026-11-12-jobbol-encarregado-administrativo-de-obras",
+   "id": "2026-11-12-cogna-educacao-analista-planejamento-operacoes-pl-afirm",
    "data": "2026-11-12",
-   "titulo": "Encarregado Administrativo de Obras",
+   "titulo": "ANALISTA PLANEJAMENTO OPERACOES PL - AFIRMATIVA PARA PESSOAS NEGRAS",
+   "empresa": "Cogna Educação",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 80,
+   "motivo": "Planejamento e controle, remoto",
+   "fonte": "Gupy",
+   "area": "Planejamento e controle",
+   "link": "https://cogna.gupy.io/job/eyJqb2JJZCI6MTI4MTA1MjQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-03",
+   "prazo": "2026-12-01",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Power BI",
+     "Excel avançado"
+    ],
+    "conferir": [
+     "Pós-graduação"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-grupo-boticario-especialista-pmo-i-plataforma-cloud",
+   "data": "2026-11-12",
+   "titulo": "Especialista PMO I (Plataforma Cloud)",
+   "empresa": "Grupo Boticário",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 69,
+   "motivo": "Planejamento e controle, remoto, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Planejamento e controle",
+   "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI3NjI0NDksInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-10-26",
+   "prazo": "2026-11-26",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "conferir": [
+     "Inglês"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-attus-procuradoria-digital-analista-de-projetos-pleno",
+   "data": "2026-11-12",
+   "titulo": "Analista de Projetos Pleno",
+   "empresa": "Attus Procuradoria Digital",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 73,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://attus.gupy.io/job/eyJqb2JJZCI6MTI4NTE4ODQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-09",
+   "prazo": "2026-12-04",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos"
+    ],
+    "conferir": [
+     "Curva S / valor agregado"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-bernoulli-educacao-analista-projetos",
+   "data": "2026-11-12",
+   "titulo": "ANALISTA PROJETOS",
+   "empresa": "Bernoulli Educação",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://bernoullieducacao.gupy.io/job/eyJqb2JJZCI6MTI3MTcyODAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-10-13",
+   "prazo": "2026-11-30",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "conferir": [
+     "Pós-graduação"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-azul-linhas-aereas-brasileiras-coordenador-planejamento-e-programacao-m",
+   "data": "2026-11-12",
+   "titulo": "COORDENADOR PLANEJAMENTO E PROGRAMAÇAO MANUTENCAO - MTZ",
+   "empresa": "Azul Linhas Aéreas Brasileiras",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 60,
+   "motivo": "Planejamento e controle, remoto, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Planejamento e controle",
+   "link": "https://voeazul.gupy.io/job/eyJqb2JJZCI6MTI4MDkyMTUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-11",
+   "prazo": "2026-12-01",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "MS Project",
+     "Power BI"
+    ],
+    "conferir": [
+     "Inglês",
+     "Pós-graduação"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-cogna-educacao-gerente-planejamento",
+   "data": "2026-11-12",
+   "titulo": "GERENTE PLANEJAMENTO",
+   "empresa": "Cogna Educação",
+   "local": "Brasil, remoto (empresa em São Paulo, SP)",
+   "modalidade": "Remoto",
+   "score": 60,
+   "motivo": "Planejamento e controle, remoto, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Planejamento e controle",
+   "link": "https://cogna.gupy.io/job/eyJqb2JJZCI6MTI4NDEyNDQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-06",
+   "prazo": "2026-11-27",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos"
+    ],
+    "conferir": [
+     "Pós-graduação"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-almapbbdo-assistente-de-planejamento",
+   "data": "2026-11-12",
+   "titulo": "Assistente de Planejamento",
+   "empresa": "AlmapBBDO",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 65,
+   "motivo": "Planejamento e controle, remoto, nível técnico",
+   "fonte": "Gupy",
+   "area": "Planejamento e controle",
+   "link": "https://almapbbdo.gupy.io/job/eyJqb2JJZCI6MTI2MzQxNzUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-10-14",
+   "prazo": "2026-11-28",
+   "visto_em": "2026-11-12"
+  },
+  {
+   "id": "2026-11-12-vinci-energies-e-suas-marcas-d-projetista-eletrico",
+   "data": "2026-11-12",
+   "titulo": "PROJETISTA ELETRICO",
+   "empresa": "VINCI Energies e suas marcas de atuação: Actemium, Axians e Omexom",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 63,
+   "motivo": "Engenharia elétrica, remoto, elétrica",
+   "fonte": "Gupy",
+   "area": "Engenharia elétrica",
+   "link": "https://vinci-energies.gupy.io/job/eyJqb2JJZCI6MTI3ODA5MzAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-10-26",
+   "prazo": "2026-11-30",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "conferir": [
+     "AutoCAD",
+     "BIM / Revit"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-vermont-ti-e-call-center-ltda-analista-de-projetos-makeitsimple",
+   "data": "2026-11-12",
+   "titulo": "Analista de Projetos | MakeITSimple",
+   "empresa": "VERMONT TI E CALL CENTER LTDA.",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Sólides",
+   "area": "Gestão de projetos",
+   "link": "https://vermontxcenter.vagas.solides.com.br/vaga/951255",
+   "publicada": "2026-11-10",
+   "prazo": "2026-11-30",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-vr-software-analista-de-implantacao-pleno",
+   "data": "2026-11-12",
+   "titulo": "ANALISTA DE IMPLANTAÇÃO PLENO",
+   "empresa": "VR Software",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 73,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Sólides",
+   "area": "Gestão de projetos",
+   "link": "https://vrsoftware.vagas.solides.com.br/vaga/YhtjmrHx9w",
+   "publicada": "2026-11-09",
+   "prazo": null,
+   "visto_em": "2026-11-12"
+  },
+  {
+   "id": "2026-11-12-sandech-consultoria-em-engenha-engenheiro-de-projetos-processamento-de-",
+   "data": "2026-11-12",
+   "titulo": "ENGENHEIRO DE PROJETOS - PROCESSAMENTO DE NUVEM DE PONTOS - VITÓRIA/ES",
+   "empresa": "SANDECH CONSULTORIA EM ENGENHARIA E GESTAO LTDA",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Sólides",
+   "area": "Gestão de projetos",
+   "link": "https://sandech.vagas.solides.com.br/vaga/939566",
+   "publicada": "2026-10-16",
+   "prazo": "2026-12-31",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "CREA ativo"
+    ],
+    "conferir": [
+     "BIM / Revit"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-eureca-atitude-empreendedora-l-gestor-de-projetos-de-desenvolvimento",
+   "data": "2026-11-12",
+   "titulo": "GESTOR DE PROJETOS DE DESENVOLVIMENTO",
+   "empresa": "EURECA! - ATITUDE EMPREENDEDORA LTDA",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Sólides",
+   "area": "Gestão de projetos",
+   "link": "https://eureca.vagas.solides.com.br/vaga/946147",
+   "publicada": "2026-10-28",
+   "prazo": "2026-11-30",
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-ilimit-marketing-ltda-gestor-de-projetos",
+   "data": "2026-11-12",
+   "titulo": "Gestor de Projetos",
+   "empresa": "ILIMIT MARKETING LTDA",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Sólides",
+   "area": "Gestão de projetos",
+   "link": "https://iliimitmarketing.vagas.solides.com.br/vaga/942052",
+   "publicada": "2026-10-22",
+   "prazo": "2026-12-07",
+   "visto_em": "2026-11-12"
+  },
+  {
+   "id": "2026-11-12-mellro-servicos-de-ti-ltda-product-manager-senior-crescimento-de-co",
+   "data": "2026-11-12",
+   "titulo": "Product Manager Sênior — Crescimento de Contratos | PJ",
+   "empresa": "MELLRO SERVICOS DE TI LTDA",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Sólides",
+   "area": "Gestão de projetos",
+   "link": "https://mellro.vagas.solides.com.br/vaga/948310",
+   "publicada": "2026-11-04",
+   "prazo": "2026-11-20",
+   "visto_em": "2026-11-12"
+  },
+  {
+   "id": "2026-11-12-sicoob-central-ba-assistente-de-planejamento",
+   "data": "2026-11-12",
+   "titulo": "Assistente de Planejamento",
+   "empresa": "SICOOB CENTRAL BA",
+   "local": "Salvador, BA",
+   "modalidade": "Híbrido",
+   "score": 65,
+   "motivo": "Planejamento e controle, híbrido em Salvador/RMS, nível técnico",
+   "fonte": "Empregos.com.br",
+   "area": "Planejamento e controle",
+   "link": "https://www.empregos.com.br/vaga/11937364/assistente-de-planejamento-em-salvador-ba",
+   "publicada": "2026-10-21",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Power BI",
+     "Excel avançado"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-thera-consulting-gerente-pmo",
+   "data": "2026-11-12",
+   "titulo": "Gerente PMO",
+   "empresa": "THERA CONSULTING",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 64,
+   "motivo": "Planejamento e controle, remoto, nível acima do perfil",
+   "fonte": "Empregos.com.br",
+   "area": "Planejamento e controle",
+   "link": "https://www.empregos.com.br/vaga/11976125/gerente-pmo-em-campinas-sp",
+   "publicada": "2026-10-29",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "MS Project"
+    ],
+    "conferir": [
+     "PMP / PMI"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-thera-consulting-consultor-pmo-pleno",
+   "data": "2026-11-12",
+   "titulo": "Consultor PMO Pleno",
+   "empresa": "THERA CONSULTING",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 84,
+   "motivo": "Planejamento e controle, remoto",
+   "fonte": "Empregos.com.br",
+   "area": "Planejamento e controle",
+   "link": "https://www.empregos.com.br/vaga/11976019/consultor-pmo-pleno-em-sao-paulo-sp",
+   "publicada": "2026-10-29",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "MS Project"
+    ],
+    "conferir": [
+     "PMP / PMI"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-benner-sistemas-s-a-analista-de-projetos-junior",
+   "data": "2026-11-12",
+   "titulo": "Analista de Projetos - Junior",
+   "empresa": "BENNER SISTEMAS S/A",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 73,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Empregos.com.br",
+   "area": "Gestão de projetos",
+   "link": "https://www.empregos.com.br/vaga/12014596/analista-de-projetos-junior-em-blumenau-sc",
+   "publicada": "2026-11-10",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-alltech-gestao-e-locacao-ltda-coordenador-de-projetos",
+   "data": "2026-11-12",
+   "titulo": "Coordenador de Projetos",
+   "empresa": "Alltech Gestão e Locação LTDA",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Empregos.com.br",
+   "area": "Gestão de projetos",
+   "link": "https://www.empregos.com.br/vaga/11928396/coordenador-de-projetos-em-goiania-go",
+   "publicada": "2026-10-19",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-rehva-tech-gestao-de-projetos-devops",
+   "data": "2026-11-12",
+   "titulo": "Gestão de Projetos (DevOps)",
+   "empresa": "Rehva Tech",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Empregos.com.br",
+   "area": "Gestão de projetos",
+   "link": "https://www.empregos.com.br/vaga/11991180/gestao-de-projetos-devops-em-maringa-pr",
+   "publicada": "2026-11-04",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "MS Project"
+    ],
+    "conferir": [
+     "PMP / PMI"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-recruta-talentos-engenheiro-senior-de-manutencao-eletrica",
+   "data": "2026-11-12",
+   "titulo": "Engenheiro Sênior de Manutenção Elétrica (Solar)",
+   "empresa": "Recruta Talentos",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 52,
+   "motivo": "Manutenção, remoto, elétrica, nível acima do perfil",
+   "fonte": "Empregos.com.br",
+   "area": "Manutenção",
+   "link": "https://www.empregos.com.br/vaga/11963499/engenheiro-senior-de-manutencao-eletrica-solar-em-sao-paulo-sp",
+   "publicada": "2026-10-27",
+   "prazo": null,
+   "visto_em": "2026-11-12",
+   "requisitos": {
+    "tenho": [
+     "Orçamento e custos",
+     "CREA ativo"
+    ],
+    "conferir": [
+     "AutoCAD",
+     "Inglês",
+     "Disponibilidade para viagens"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-12-jobbol-gerente-corporativo-de-manutencao",
+   "data": "2026-11-12",
+   "titulo": "Gerente Corporativo de Manutenção",
    "empresa": "Jobbol",
    "local": "Salvador, BA",
    "modalidade": "Modalidade a confirmar",
-   "score": 59,
-   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "score": 38,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
    "fonte": "LinkedIn",
-   "area": "Gestão de projetos",
-   "link": "https://br.linkedin.com/jobs/view/encarregado-administrativo-de-obras-at-jobbol-4488883836",
-   "publicada": "2026-11-09",
-   "prazo": null
-  },
-  {
-   "id": "2026-11-12-tecnogera-eletricista-i-simoes-filho-ba",
-   "data": "2026-11-12",
-   "titulo": "Eletricista I | Simões Filho | BA",
-   "empresa": "Tecnogera",
-   "local": "Simões Filho, BA",
-   "modalidade": "Modalidade a confirmar",
-   "score": 59,
-   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica",
-   "fonte": "LinkedIn",
-   "area": "Engenharia elétrica",
-   "link": "https://br.linkedin.com/jobs/view/eletricista-i-sim%C3%B5es-filho-ba-at-tecnogera-4487173831",
-   "publicada": "2026-11-09",
-   "prazo": null
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/gerente-corporativo-de-manuten%C3%A7%C3%A3o-at-jobbol-4490371248",
+   "publicada": "2026-11-12",
+   "prazo": null,
+   "visto_em": "2026-11-12"
   }
  ]
 }
