@@ -209,6 +209,28 @@
   "mobilidade"
  ],
  "max_dias": 30,
+ "meu_perfil": [
+  "MS Project",
+  "Power BI",
+  "SAP",
+  "Excel avançado",
+  "Orçamento e custos",
+  "CREA ativo",
+  "NR-10"
+ ],
+ "gupy_cidades": [
+  "Salvador",
+  "Lauro de Freitas",
+  "Camaçari",
+  "Simões Filho",
+  "Candeias",
+  "Dias d'Ávila"
+ ],
+ "solides_cidades": [
+  "Salvador - BA",
+  "Lauro de Freitas - BA",
+  "Camaçari - BA"
+ ],
  "gupy_portais": [
   "https://motivaengenharia.gupy.io/",
   "https://isaenergiabrasil.gupy.io/",

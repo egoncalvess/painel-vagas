@@ -34,7 +34,7 @@ print("Copiando as vagas atuais para o banco")
 painel = json.load(open(os.path.join(RAIZ, "docs", "vagas.json"), encoding="utf-8"))
 rest = supa.Rest(servico)
 campos = ["id", "data", "titulo", "empresa", "local", "modalidade", "score", "motivo", "fonte", "area", "link",
-          "publicada", "prazo", "curriculo", "retorno"]
+          "publicada", "prazo", "curriculo", "retorno", "tambem_em", "visto_em", "sumiu", "requisitos"]
 rest.upsert("vagas", [{c: v.get(c) for c in campos} for v in painel["vagas"]])
 rest.upsert("buscas", [{"id": 1, "atualizado_em": painel.get("atualizado_em"), "fontes": painel.get("fontes", {})}])
 

@@ -30,6 +30,11 @@ create table if not exists public.vagas (
   retorno text,
   criada_em timestamptz not null default now()
 );
+-- Colunas acrescentadas depois: outros sites com a mesma vaga, último dia em que o robô a viu e se ela sumiu do site
+alter table public.vagas add column if not exists tambem_em jsonb;
+alter table public.vagas add column if not exists visto_em date;
+alter table public.vagas add column if not exists sumiu boolean;
+alter table public.vagas add column if not exists requisitos jsonb;
 alter table public.vagas enable row level security;
 drop policy if exists "ler vagas" on public.vagas;
 create policy "ler vagas" on public.vagas for select to authenticated using (public.permitido());

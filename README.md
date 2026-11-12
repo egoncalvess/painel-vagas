@@ -4,9 +4,13 @@ Robô que busca vagas todo dia às 17h55 (horário de Salvador) no GitHub Action
 
 ## Como funciona
 
-- `coletor/coletar.py` busca na **Gupy**, no **LinkedIn** e na **Vagas.com.br**, filtra (remoto ou híbrido em Salvador/RMS, formação que aceita Eng. Elétrica, anúncio com até 30 dias), dá um score de 0 a 100 e grava `docs/vagas.json`.
-- `dados/historico.json` guarda tudo que já foi visto, para a mesma vaga não voltar.
-- `docs/index.html` é o painel. Filtros por site, área, modalidade, score e status.
+- `coletor/coletar.py` busca na **Gupy** (busca pública do portal, com data de publicação, por cidade da RMS e remoto por termo, mais os portais de `gupy_portais`), na **Sólides**, no **Empregos.com.br**, na **Vagas.com.br** e no **LinkedIn**. Filtra (remoto ou híbrido em Salvador/RMS, formação que aceita Eng. Elétrica, anúncio com até 30 dias, vaga não exclusiva PcD), dá um score de 0 a 100 e grava `docs/vagas.json`.
+- `dados/historico.json` guarda tudo que já foi visto, para a mesma vaga não voltar. `docs/catalogo.json` é a parte dos últimos 45 dias, usada no painel em "Conferir uma vaga que eu achei".
+- `docs/index.html` é o painel. Filtros por site, área, modalidade, score e status (inclusive "Novas").
+- Mesma vaga em dois sites vira um cartão só, com "Também em". Vaga da Gupy ou da Sólides que some do site ganha o aviso "Não apareceu na última busca".
+- "Sites consultados na última busca" mostra, por site, quantos anúncios foram lidos, quantos entraram e por que os outros ficaram de fora. Um site que bloqueou aparece como Falhou, não como zero.
+- Nas vagas da Gupy, Sólides e Empregos.com.br o robô lê a descrição e mostra quantos requisitos citados (MS Project, Primavera, inglês, CREA, NR-10...) estão no seu perfil e o que vale conferir. Edite a lista `meu_perfil` no `config.json` com o que você tem.
+- Cidades da busca por cidade: `gupy_cidades` e `solides_cidades` no `config.json`.
 - `docs/estado.json` guarda "Me candidatei" e "Descartar".
 - Termos de busca, cidades e regras ficam em `config.json`. Edite ali para mudar a busca.
 

@@ -93,6 +93,13 @@ h2:first-child{margin-top:0}
 .selo{font-size:.8rem;padding:1px 8px;border-radius:4px;background:var(--trilho);color:var(--tinta)}
 .selo.area{background:var(--petroleo-fundo);color:var(--petroleo)}
 .selo.ok{background:var(--bom-fundo);color:var(--bom)}
+.selo.nova{background:var(--petroleo);color:var(--folha);font-weight:700}
+.selo.sumiu{background:var(--medio-fundo);color:var(--medio)}
+.selo a{color:inherit}
+.tambem{margin:0;font-size:.88rem;color:var(--suave)}
+.req{margin:0;font-size:.9rem;max-width:68ch}
+.req b{color:var(--bom);font-weight:700}
+.req .conf{color:var(--medio)}
 .acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
 .acoes button{font:inherit;font-size:.9rem;padding:6px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--linha);background:var(--folha);color:var(--tinta)}
 .acoes .cand[aria-pressed="true"]{background:var(--bom-fundo);border-color:var(--bom);color:var(--bom)}
@@ -109,6 +116,24 @@ details.conta input{flex:1 1 260px;min-width:0;font:inherit;padding:8px 10px;bor
 details.conta button{font:inherit;padding:8px 12px;border-radius:6px;border:1px solid var(--tinta);background:var(--tinta);color:var(--papel);cursor:pointer}
 details.conta button.sec{background:transparent;color:var(--tinta);border-color:var(--linha)}
 .estado-conta{margin:8px 0 0}
+details.painel-extra{border-top:1px solid var(--linha);padding-top:16px;font-size:.92rem}
+details.painel-extra summary{cursor:pointer;font:600 1.1rem/1.2 var(--f-titulo)}
+details.painel-extra>p{color:var(--suave);max-width:68ch}
+.tabela{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums}
+.tabela th,.tabela td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--linha);vertical-align:top}
+.tabela th{font-weight:400;color:var(--suave);font-size:.82rem}
+.tabela td.n{text-align:right}
+.tabela small{display:block;color:var(--suave)}
+.sit-ok{color:var(--bom)}.sit-parcial{color:var(--medio)}.sit-falhou{color:var(--perigo);font-weight:700}
+.alerta-fontes{margin:0;font-size:.85rem;color:var(--perigo)}
+.alerta-fontes button{font:inherit;background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer}
+#conferir textarea{width:100%;min-height:110px;font:inherit;padding:9px 12px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta);margin-top:6px}
+#conferir .bt{font:inherit;margin-top:8px;padding:8px 14px;border-radius:6px;border:1px solid var(--tinta);background:var(--tinta);color:var(--papel);cursor:pointer}
+.conf-lista{display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.conf-lista li{padding:10px 12px;border-left:4px solid var(--fraco);background:var(--folha);border-radius:0 6px 6px 0}
+.conf-lista li.painel{border-color:var(--bom)}.conf-lista li.fora{border-color:var(--medio)}.conf-lista li.nao{border-color:var(--perigo)}
+.conf-lista b,.conf-lista span{display:block}.conf-lista .linha-orig{color:var(--suave);font-size:.82rem;word-break:break-all}
+.conf-resumo{margin:12px 0 0;font-weight:700}
 #app{display:contents}
 .entrar{display:grid;gap:14px;justify-items:start;padding:28px 0;border-top:1px solid var(--linha)}
 .entrar p{margin:0;max-width:52ch;color:var(--suave)}
@@ -116,7 +141,7 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
 .google svg{width:18px;height:18px}
 .sair{font:inherit;font-size:.85rem;background:none;border:0;padding:0;color:var(--petroleo);text-decoration:underline;cursor:pointer}
 
-@media (max-width:640px){.selects{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.selects{grid-template-columns:repeat(2,minmax(0,1fr))}.tabela .esconde{display:none}}
 @media (max-width:560px){
   .funil li{grid-template-columns:7.5rem 2.2rem 1fr}
   .vaga{grid-template-columns:1fr;gap:10px}
@@ -131,6 +156,7 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
     <h1>Painel de Vagas</h1>
     <p class="quem">Vagas de planejamento, projetos e manutenção para o Erick, remotas ou em Salvador e RMS. Um robô no GitHub busca e avalia todo dia às 17h55.</p>
     <p class="atual" id="atual"></p>
+    <p class="alerta-fontes" id="alerta-fontes" hidden></p>
     <div class="barra-atual" id="barra-atual">
       <button class="atualizar" id="atualizar" type="button">Buscar vagas agora</button>
       <p class="msg-atual" id="msg-atual" aria-live="polite"></p>
@@ -169,6 +195,21 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
 
   <section id="lista" aria-live="polite"><p class="aviso">Carregando as vagas.</p></section>
 
+  <details class="painel-extra" id="fontes">
+    <summary>Sites consultados na última busca</summary>
+    <p>Quantos anúncios o robô leu em cada site, quantos entraram no painel e por que os outros ficaram de fora. Um site que bloqueou ou mudou aparece como <b>Falhou</b>, e não como zero vagas.</p>
+    <div id="tabela-fontes"></div>
+  </details>
+
+  <details class="painel-extra" id="conferir">
+    <summary>Conferir uma vaga que eu achei</summary>
+    <p>Achou uma vaga por conta própria? Cole o link (e, se quiser, o cargo e a empresa), uma por linha. O painel diz se o robô viu essa vaga e, se ela ficou de fora, por quê. Assim dá para saber se falta um termo de busca ou um site.</p>
+    <label for="conf-texto" class="tambem">Links ou "cargo, empresa", um por linha</label>
+    <textarea id="conf-texto" placeholder="https://empresa.gupy.io/jobs/1234567&#10;Analista de Planejamento, Empresa X"></textarea>
+    <button class="bt" id="conf-bt" type="button">Conferir</button>
+    <div id="conf-saida" aria-live="polite"></div>
+  </details>
+
   <details class="conta" id="conta">
     <summary>Salvar marcações em todos os aparelhos</summary>
     <p>Sem isso, o que você marca fica só neste navegador. Cole um token do GitHub deste repositório com permissão de leitura e escrita em <b>Contents</b> e em <b>Actions</b> (Actions é para o botão Buscar vagas agora). Ele fica guardado só neste navegador.</p>
@@ -184,7 +225,7 @@ details.conta button.sec{background:transparent;color:var(--tinta);border-color:
 
 <script>
 const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-const STATUS=[["todas","Todas"],["pendentes","Para me candidatar"],["feitas","Me candidatei"],["retorno","Com retorno"]];
+const STATUS=[["todas","Todas"],["novas","Novas"],["pendentes","Para me candidatar"],["feitas","Me candidatei"],["retorno","Com retorno"]];
 const $=id=>document.getElementById(id);
 const ler=(k,p)=>{try{const v=localStorage.getItem(k);return v==null?p:JSON.parse(v)}catch(e){return p}};
 const gravar=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
@@ -208,7 +249,9 @@ let f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"
 function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
 const visiveis=()=>todas.filter(v=>!estado.descartadas.includes(v.id)).map(v=>({...v,candidatei:!!estado.candidatei[v.id],candidatei_em:estado.candidatei[v.id]||null}));
 
-const regras={todas:()=>true,pendentes:v=>!v.candidatei&&sc(v)>=70,feitas:v=>v.candidatei,retorno:v=>!!v.retorno};
+// Dia da última busca (mesmo relógio do robô): as vagas desse dia são as novas
+const diaBusca=()=>(meta.atualizado_em||"").slice(0,10);
+const regras={todas:()=>true,novas:v=>v.data===diaBusca(),pendentes:v=>!v.candidatei&&sc(v)>=70,feitas:v=>v.candidatei,retorno:v=>!!v.retorno};
 
 // ---------- estado: GitHub (com token) ou navegador
 const b64=s=>btoa(unescape(encodeURIComponent(s)));
@@ -277,6 +320,14 @@ function passa(v,ignorarStatus){
   return !q||[v.titulo,v.empresa,v.motivo,v.local].join(" ").toLowerCase().includes(q);
 }
 
+// O que a vaga cita x o que está em "meu_perfil" no config.json. Ajuda a priorizar; não é chance de contratação.
+function linhaRequisitos(r){
+  const p=el("p","req"),t=r.tenho||[],cf=r.conferir||[],n=t.length+cf.length;
+  if(n)p.append(el("b",null,`${t.length} de ${n}`),` requisitos citados estão no seu perfil${t.length?` (${t.join(", ")})`:""}. `);
+  if(cf.length)p.append(el("span","conf",`Conferir: ${cf.join(", ")}. `));
+  if(r.anos)p.append(`Pede ${r.anos} ${r.anos>1?"anos":"ano"} de experiência.`);
+  return p;
+}
 function linha(v){
   const art=el("article","vaga"+(v.candidatei?" feita":""));
   const nivel=v.score==null?"sem":v.score>=80?"alto":v.score>=70?"medio":"";
@@ -288,14 +339,20 @@ function linha(v){
   const h=el("h3","titulo"),a=el("a",null,v.titulo);a.href=v.link||"#";a.target="_blank";a.rel="noopener";h.append(a);
   c.append(h,el("p","onde",[v.empresa,v.local].filter(Boolean).join(", ")));
   if(v.motivo)c.append(el("p","motivo",v.motivo));
+  if(v.requisitos)c.append(linhaRequisitos(v.requisitos));
   const s=el("div","selos");
+  if(v.data===diaBusca())s.append(el("span","selo nova","Nova"));
+  if(v.sumiu)s.append(el("span","selo sumiu","Não apareceu na última busca: pode ter sido encerrada"));
   if(v.area)s.append(el("span","selo area",v.area));
   if(v.modalidade)s.append(el("span","selo",v.modalidade));
   if(v.fonte)s.append(el("span","selo",v.fonte));
+  if(v.publicada&&/^\d{4}-\d{2}-\d{2}/.test(v.publicada))s.append(el("span","selo","Publicada em "+dataCurta(v.publicada.slice(0,10))));
   if(v.prazo)s.append(el("span","selo","Inscrição até "+dataCurta(v.prazo)));
   if(v.curriculo)s.append(el("span","selo","Currículo pronto"));
   if(v.retorno)s.append(el("span","selo ok","Retorno: "+v.retorno));
   c.append(s);
+  if(v.tambem_em&&v.tambem_em.length){const t=el("p","tambem","Também em: ");
+    v.tambem_em.forEach((o,i)=>{if(i)t.append(", ");const l=el("a",null,o.fonte);l.href=o.link;l.target="_blank";l.rel="noopener";t.append(l)});c.append(t)}
   const ac=el("div","acoes");
   const bc=el("button","cand",v.candidatei?`Me candidatei${v.candidatei_em?" em "+dataCurta(v.candidatei_em):""}`:"Marcar que me candidatei");
   bc.type="button";bc.setAttribute("aria-pressed",v.candidatei);
@@ -324,6 +381,7 @@ function render(){
   opcoes("f-area",contar(vs,"area"),f.area,"Todas as áreas");
   opcoes("f-mod",contar(vs.map(v=>({m:modDe(v)})),"m"),f.mod,"Todas");
   $("f-score").value=f.score;$("ordem").value=f.ordem;
+  desenharFontes();
   $("limpar").hidden=!(f.fonte||f.area||f.mod||f.score!=="0"||f.status!=="todas"||busca);
 
   const L=$("lista");L.textContent="";
@@ -356,9 +414,101 @@ async function carregarVagas(){
   todas=dados.vagas||[];meta=dados;
   if(dados.atualizado_em){const d=new Date(dados.atualizado_em);
     const fontes=Object.entries(dados.fontes||{}).map(([n,x])=>`${n} ${x.novas}`).join(", ");
-    $("atual").textContent=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontes?` Novas por site: ${fontes}.`:"")}
+    $("atual").textContent=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontes?` Novas por site: ${fontes}.`:"");
+    const ruins=Object.entries(dados.fontes||{}).filter(([,x])=>situacao(x)!=="ok").map(([n])=>n);
+    const A=$("alerta-fontes");A.hidden=!ruins.length;A.textContent="";
+    if(ruins.length){A.append(`Atenção: ${ruins.join(", ")} ${ruins.length>1?"falharam":"falhou"} em parte da busca. `);
+      const b=el("button",null,"Ver detalhes");b.type="button";b.onclick=()=>{$("fontes").open=true;$("fontes").scrollIntoView({behavior:"smooth"})};A.append(b)}}
   return dados.atualizado_em;
 }
+
+// ---------- sites consultados
+// ok = respondeu sem erro; parcial = algumas consultas falharam; falhou = não leu nada e teve erro
+const situacao=x=>!x.falhas?"ok":x.lidas?"parcial":"falhou";
+const SIT={ok:"Respondeu",parcial:"Parcial",falhou:"Falhou"};
+function desenharFontes(){
+  const T=$("tabela-fontes");T.textContent="";
+  const fs=Object.entries(meta.fontes||{});
+  if(!fs.length){T.append(el("p","aviso","Ainda não há dados da última busca."));return}
+  const tb=el("table","tabela"),cab=el("tr");
+  for(const[t,c]of[["Site"],["Lidos","n"],["Já vistos antes","n esconde"],["Novas no painel","n"],["Ficaram de fora"],["Situação"]])cab.append(el("th",c||null,t));
+  const th=el("thead");th.append(cab);tb.append(th);const corpo=el("tbody");
+  for(const[n,x]of fs){
+    const tr=el("tr"),sit=situacao(x);
+    const fora=Object.entries(x.descartes||{}),qtd=fora.reduce((a,[,q])=>a+q,0);
+    const tdFora=el("td",null,x.descartes?String(qtd):"—");
+    if(fora.length)tdFora.append(el("small",null,fora.slice(0,3).map(([m,q])=>`${m.replace(/^Descartada \((.*)\)$/,"$1")}: ${q}`).join(" · ")));
+    const tdSit=el("td","sit-"+sit,SIT[sit]);
+    if(x.falhas)tdSit.append(el("small",null,`${x.falhas} ${x.falhas>1?"consultas falharam":"consulta falhou"}`+(x.erros&&x.erros[0]?`: ${x.erros[0]}`:"")));
+    if(x.portais_sumidos&&x.portais_sumidos.length)tdSit.append(el("small",null,`${x.portais_sumidos.length} ${x.portais_sumidos.length>1?"páginas de empresa não existem mais":"página de empresa não existe mais"} (dá para tirar de gupy_portais): ${x.portais_sumidos.map(u=>u.replace(/^https?:\/\/|\.gupy\.io\/?$/g,"")).join(", ")}`));
+    const vistos=x.ja_vistas==null?"—":x.ja_vistas+(x.ja_no_painel||0);
+    tr.append(el("td",null,n),el("td","n",x.lidas??"—"),el("td","n esconde",vistos),el("td","n",x.novas??0),tdFora,tdSit);
+    corpo.append(tr);
+  }
+  tb.append(corpo);T.append(tb);
+}
+
+// ---------- conferir uma vaga achada por conta própria
+let catalogo=null;
+const urlLimpa=u=>{try{const x=new URL(u);return(x.hostname.replace(/^www\./,"")+x.pathname.replace(/\/$/,"")).toLowerCase()}catch(e){return""}};
+// Identificador do anúncio dentro de cada site, para achar a mesma vaga mesmo com link diferente
+function idDoLink(u){
+  try{const x=new URL(u),h=x.hostname,c=x.pathname;let m;
+    if(/gupy\.io$/.test(h)&&(m=/\/jobs?\/([^/?#]+)/.exec(c))){if(/^\d+$/.test(m[1]))return"gupy:"+m[1];
+      try{const j=JSON.parse(atob(decodeURIComponent(m[1])));if(j.jobId)return"gupy:"+j.jobId}catch(e){}}
+    if(/linkedin\./.test(h)){const id=x.searchParams.get("currentJobId")||(/(\d{8,})\/?$/.exec(c)||[])[1];if(id)return"linkedin:"+id}
+    if(/vagas\.com\.br$/.test(h)&&(m=/\/vagas\/v(\d+)/.exec(c)))return"vagascom:"+m[1];
+    if(/solides\.com\.br$/.test(h)&&(m=/\/vagas?\/(\d+)/.exec(c)))return"solides:"+m[1];
+    if(/empregos\.com\.br$/.test(h)&&(m=/\/vaga\/(\d+)/.exec(c)))return"empregos:"+m[1];
+  }catch(e){}
+  return null;
+}
+const VAZIAS=["de","da","do","das","dos","e","em","para","a","o","vaga","remoto","remota","hibrido","presencial","salvador","ba","bahia","jr","junior","pleno","na","no","com"];
+const palavras=t=>(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").split(" ").filter(w=>w.length>1&&!VAZIAS.includes(w));
+async function carregarCatalogo(){
+  if(catalogo)return catalogo;
+  const r=await fetch("catalogo.json?t="+Date.now());if(!r.ok)throw new Error(r.status);
+  const j=await r.json();
+  catalogo=j.linhas.map(l=>Object.fromEntries(j.campos.map((k,n)=>[k,l[n]])));catalogo.desde=j.desde;return catalogo;
+}
+function dicaNaoAchada(u){
+  if(/indeed\.|glassdoor\.|catho\.|infojobs\./i.test(u))return"Esse site não está ligado ao robô. Veja se a mesma vaga existe na Gupy, na Sólides ou na página da empresa.";
+  if(/linkedin\./i.test(u))return"O robô lê no LinkedIn só os primeiros resultados de cada termo. Inclua em config.json um termo parecido com o cargo dessa vaga.";
+  if(/gupy\.io/i.test(u))return"É da Gupy, mas não veio na busca. Ela pode ser de fora de Salvador/RMS sem ser remota, ou o cargo não está nos termos. Se for uma empresa que você acompanha, inclua o portal dela em gupy_portais no config.json.";
+  if(/solides|empregos\.com\.br|vagas\.com\.br/i.test(u))return"O site está ligado, mas essa vaga não veio nas buscas. Inclua em config.json um termo parecido com o cargo dela.";
+  if(u)return"Esse site ainda não está ligado ao robô.";
+  return"Não achei nada parecido com esse cargo e empresa no que o robô leu.";
+}
+function conferirLinha(linha,cat){
+  const u=(/https?:\/\/\S+/.exec(linha)||[""])[0],rotulo=linha.replace(u,"").replace(/[|;–—]+/g," ").trim();
+  const id=u&&idDoLink(u),limpa=u&&urlLimpa(u);
+  const mesmo=x=>!!x&&((id&&idDoLink(x)===id)||(limpa&&urlLimpa(x)===limpa));
+  // 1) link igual: no painel (inclusive pelos links de "Também em") ou no que o robô leu
+  let v=u?todas.find(x=>mesmo(x.link)||(x.tambem_em||[]).some(o=>mesmo(o.link))):null;
+  let c=!v&&u?cat.find(x=>mesmo(x.link)):null;
+  // 2) sem link igual: cargo e empresa parecidos
+  if(!v&&!c&&rotulo){const ws=palavras(rotulo);if(ws.length>=2){let melhor=null,nota=0;
+    for(const x of[...todas.map(t=>({...t,_painel:1})),...cat]){const h=" "+palavras(x.titulo+" "+x.empresa).join(" ")+" ";const p=ws.filter(w=>h.includes(" "+w+" ")).length/ws.length;if(p>nota){nota=p;melhor=x}}
+    if(nota>=.75){if(melhor._painel)v=todas.find(t=>t.id===melhor.id);else c=melhor}}}
+  if(v){const desc=estado.descartadas.includes(v.id);
+    return{cls:desc?"fora":"painel",titulo:`${v.titulo}${v.empresa?", "+v.empresa:""}`,txt:desc?"O robô colocou no painel e você descartou depois.":`Está no painel${v.score!=null?` com score ${v.score}`:""}${v.data?`, desde ${dataCurta(v.data)}`:""}.`}}
+  if(c){const st=c.status||"";
+    if(st==="No painel")return{cls:"fora",titulo:`${c.titulo}, ${c.empresa}`,txt:`O robô colocou no painel em ${dataCurta(c.visto_em)} e ela foi descartada depois.`};
+    const pq=st==="fora da área"?"o título não bate com as áreas de config.json ou tem uma palavra da lista de exclusão":st.replace(/^Descartada \((.*)\)$/,"$1").toLowerCase();
+    return{cls:"fora",titulo:`${c.titulo}, ${c.empresa}`,txt:`O robô leu em ${dataCurta(c.visto_em)} (${c.fonte}), mas ficou de fora: ${pq}${c.motivo?`. ${c.motivo}`:""}.`}}
+  return{cls:"nao",titulo:"Não encontrada",txt:dicaNaoAchada(u)};
+}
+$("conf-bt").onclick=async()=>{
+  const S=$("conf-saida"),linhas=$("conf-texto").value.split(/\n+/).map(x=>x.trim()).filter(Boolean).slice(0,60);
+  S.textContent="";if(!linhas.length){S.append(el("p","conf-resumo","Cole pelo menos um link ou um cargo com a empresa."));return}
+  let cat;try{cat=await carregarCatalogo()}catch(e){cat=[];S.append(el("p","tambem","A lista do que o robô leu aparece depois da próxima busca. Por enquanto só comparo com o painel."))}
+  const rs=linhas.map(l=>({l,...conferirLinha(l,cat)}));
+  const n=k=>rs.filter(r=>r.cls===k).length;
+  S.append(el("p","conf-resumo",`${rs.length} ${rs.length>1?"conferidas":"conferida"}: ${n("painel")} no painel, ${n("fora")} lidas e deixadas de fora, ${n("nao")} não encontradas.`));
+  const ul=el("ul","conf-lista");
+  for(const r of rs){const li=el("li",r.cls);li.append(el("b",null,r.titulo),el("span",null,r.txt),el("span","linha-orig",r.l));ul.append(li)}
+  S.append(ul);if(cat.desde)S.append(el("p","tambem",`O robô lembra do que leu desde ${dataCurta(cat.desde)}.`));
+};
 
 // Botão: dispara o robô no GitHub Actions e espera o resultado
 $("atualizar").onclick=async()=>{
