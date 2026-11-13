@@ -1,17 +1,12 @@
 {
- "atualizado_em": "2026-11-12T23:09+00:00",
+ "atualizado_em": "2026-11-13T01:37+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3814,
-   "novas": 8,
-   "ja_no_painel": 4,
-   "ja_vistas": 2611,
-   "descartes": {
-    "fora da área": 1147,
-    "Descartada (modalidade)": 22,
-    "Descartada (anúncio antigo)": 20,
-    "Descartada (formação)": 2
-   },
+   "lidas": 3803,
+   "novas": 0,
+   "ja_no_painel": 12,
+   "ja_vistas": 3791,
+   "descartes": {},
    "falhas": 0,
    "erros": [],
    "portais_sumidos": [
@@ -24,52 +19,42 @@
   },
   "Sólides": {
    "lidas": 275,
-   "novas": 6,
-   "ja_no_painel": 0,
-   "ja_vistas": 1,
+   "novas": 0,
+   "ja_no_painel": 6,
+   "ja_vistas": 268,
    "descartes": {
-    "fora da área": 249,
-    "Descartada (anúncio antigo)": 10,
-    "Descartada (modalidade)": 6,
-    "Descartada (exclusiva PcD)": 2,
-    "Descartada (encerrada)": 1
+    "fora da área": 1
    },
    "falhas": 0,
    "erros": []
   },
   "Empregos.com.br": {
-   "lidas": 276,
-   "novas": 7,
-   "ja_no_painel": 0,
-   "ja_vistas": 44,
-   "descartes": {
-    "fora da área": 211,
-    "Descartada (modalidade)": 10,
-    "Descartada (anúncio antigo)": 4
-   },
+   "lidas": 275,
+   "novas": 0,
+   "ja_no_painel": 7,
+   "ja_vistas": 268,
+   "descartes": {},
    "falhas": 0,
    "erros": []
   },
   "Vagas.com.br": {
-   "lidas": 391,
+   "lidas": 392,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 345,
+   "ja_vistas": 389,
    "descartes": {
-    "fora da área": 38,
-    "Descartada (modalidade)": 8
+    "fora da área": 3
    },
    "falhas": 0,
    "erros": []
   },
   "LinkedIn": {
-   "lidas": 293,
-   "novas": 1,
-   "ja_no_painel": 5,
-   "ja_vistas": 276,
+   "lidas": 297,
+   "novas": 0,
+   "ja_no_painel": 6,
+   "ja_vistas": 285,
    "descartes": {
-    "fora da área": 10,
-    "Descartada (fora do Brasil)": 1
+    "fora da área": 6
    },
    "falhas": 0,
    "erros": []
@@ -272,7 +257,7 @@
    "link": "https://brisanet.gupy.io/jobs/12725973",
    "id": "2026-10-18-brisanet-analista-de-projetos-pmo-iii",
    "area": "Planejamento e controle",
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "data": "2026-10-19",
@@ -338,7 +323,7 @@
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-at-turbotech-engenharia-ltda-4481247777",
    "publicada": "2026-10-19",
    "prazo": null,
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-10-27-intertechne-engenheiro-de-projetos-iii-salvador-ba",
@@ -370,7 +355,7 @@
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-motiva-4458307905",
    "publicada": "2026-10-22",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "tambem_em": [
     {
      "fonte": "Gupy",
@@ -392,7 +377,7 @@
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-grupo-ccr-4458375019",
    "publicada": "2026-10-22",
    "prazo": null,
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-10-28-vinci-energies-engenheiro-eletricista",
@@ -425,7 +410,7 @@
    "link": "https://br.linkedin.com/jobs/view/analista-de-pcm-jr-at-saint-gobain-brasil-4485204054",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-11-04-volkswagen-group-services-sout-analista-de-projetos-jr-salvador-ba",
@@ -473,7 +458,7 @@
    "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aanalista-de-pcm-i%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4488399539",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-11-12-cogna-educacao-analista-planejamento-operacoes-pl-afirm",
@@ -489,7 +474,7 @@
    "link": "https://cogna.gupy.io/job/eyJqb2JJZCI6MTI4MTA1MjQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-03",
    "prazo": "2026-12-01",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Power BI",
@@ -514,7 +499,7 @@
    "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI3NjI0NDksInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-26",
    "prazo": "2026-11-26",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "conferir": [
      "Inglês"
@@ -535,7 +520,7 @@
    "link": "https://attus.gupy.io/job/eyJqb2JJZCI6MTI4NTE4ODQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-09",
    "prazo": "2026-12-04",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -559,7 +544,7 @@
    "link": "https://bernoullieducacao.gupy.io/job/eyJqb2JJZCI6MTI3MTcyODAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-13",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "conferir": [
      "Pós-graduação"
@@ -580,7 +565,7 @@
    "link": "https://voeazul.gupy.io/job/eyJqb2JJZCI6MTI4MDkyMTUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-11",
    "prazo": "2026-12-01",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "MS Project",
@@ -606,7 +591,7 @@
    "link": "https://cogna.gupy.io/job/eyJqb2JJZCI6MTI4NDEyNDQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-06",
    "prazo": "2026-11-27",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -630,7 +615,7 @@
    "link": "https://almapbbdo.gupy.io/job/eyJqb2JJZCI6MTI2MzQxNzUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-14",
    "prazo": "2026-11-28",
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-11-12-vinci-energies-e-suas-marcas-d-projetista-eletrico",
@@ -646,7 +631,7 @@
    "link": "https://vinci-energies.gupy.io/job/eyJqb2JJZCI6MTI3ODA5MzAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-26",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "conferir": [
      "AutoCAD",
@@ -668,7 +653,7 @@
    "link": "https://vermontxcenter.vagas.solides.com.br/vaga/951255",
    "publicada": "2026-11-10",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -689,7 +674,7 @@
    "link": "https://vrsoftware.vagas.solides.com.br/vaga/YhtjmrHx9w",
    "publicada": "2026-11-09",
    "prazo": null,
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-11-12-sandech-consultoria-em-engenha-engenheiro-de-projetos-processamento-de-",
@@ -705,7 +690,7 @@
    "link": "https://sandech.vagas.solides.com.br/vaga/939566",
    "publicada": "2026-10-16",
    "prazo": "2026-12-31",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "CREA ativo"
@@ -729,7 +714,7 @@
    "link": "https://eureca.vagas.solides.com.br/vaga/946147",
    "publicada": "2026-10-28",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -750,7 +735,7 @@
    "link": "https://iliimitmarketing.vagas.solides.com.br/vaga/942052",
    "publicada": "2026-10-22",
    "prazo": "2026-12-07",
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-11-12-mellro-servicos-de-ti-ltda-product-manager-senior-crescimento-de-co",
@@ -766,7 +751,7 @@
    "link": "https://mellro.vagas.solides.com.br/vaga/948310",
    "publicada": "2026-11-04",
    "prazo": "2026-11-20",
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   },
   {
    "id": "2026-11-12-sicoob-central-ba-assistente-de-planejamento",
@@ -782,7 +767,7 @@
    "link": "https://www.empregos.com.br/vaga/11937364/assistente-de-planejamento-em-salvador-ba",
    "publicada": "2026-10-21",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Power BI",
@@ -804,7 +789,7 @@
    "link": "https://www.empregos.com.br/vaga/11976125/gerente-pmo-em-campinas-sp",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -828,7 +813,7 @@
    "link": "https://www.empregos.com.br/vaga/11976019/consultor-pmo-pleno-em-sao-paulo-sp",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -852,7 +837,7 @@
    "link": "https://www.empregos.com.br/vaga/12014596/analista-de-projetos-junior-em-blumenau-sc",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -873,7 +858,7 @@
    "link": "https://www.empregos.com.br/vaga/11928396/coordenador-de-projetos-em-goiania-go",
    "publicada": "2026-10-19",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -894,7 +879,7 @@
    "link": "https://www.empregos.com.br/vaga/11991180/gestao-de-projetos-devops-em-maringa-pr",
    "publicada": "2026-11-04",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -918,7 +903,7 @@
    "link": "https://www.empregos.com.br/vaga/11963499/engenheiro-senior-de-manutencao-eletrica-solar-em-sao-paulo-sp",
    "publicada": "2026-10-27",
    "prazo": null,
-   "visto_em": "2026-11-12",
+   "visto_em": "2026-11-13",
    "requisitos": {
     "tenho": [
      "Orçamento e custos",
@@ -945,7 +930,7 @@
    "link": "https://br.linkedin.com/jobs/view/gerente-corporativo-de-manuten%C3%A7%C3%A3o-at-jobbol-4490371248",
    "publicada": "2026-11-12",
    "prazo": null,
-   "visto_em": "2026-11-12"
+   "visto_em": "2026-11-13"
   }
  ]
 }
