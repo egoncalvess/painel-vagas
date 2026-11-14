@@ -1,12 +1,15 @@
 {
- "atualizado_em": "2026-11-13T01:37+00:00",
+ "atualizado_em": "2026-11-14T01:11+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3803,
-   "novas": 0,
-   "ja_no_painel": 12,
-   "ja_vistas": 3791,
-   "descartes": {},
+   "lidas": 3861,
+   "novas": 2,
+   "ja_no_painel": 11,
+   "ja_vistas": 3757,
+   "descartes": {
+    "fora da área": 71,
+    "Descartada (modalidade)": 20
+   },
    "falhas": 0,
    "erros": [],
    "portais_sumidos": [
@@ -18,43 +21,46 @@
    ]
   },
   "Sólides": {
-   "lidas": 275,
+   "lidas": 295,
    "novas": 0,
    "ja_no_painel": 6,
-   "ja_vistas": 268,
+   "ja_vistas": 267,
    "descartes": {
-    "fora da área": 1
+    "fora da área": 22
    },
    "falhas": 0,
    "erros": []
   },
   "Empregos.com.br": {
-   "lidas": 275,
-   "novas": 0,
-   "ja_no_painel": 7,
-   "ja_vistas": 268,
-   "descartes": {},
+   "lidas": 273,
+   "novas": 2,
+   "ja_no_painel": 8,
+   "ja_vistas": 242,
+   "descartes": {
+    "fora da área": 21
+   },
    "falhas": 0,
    "erros": []
   },
   "Vagas.com.br": {
-   "lidas": 392,
+   "lidas": 399,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 389,
+   "ja_vistas": 353,
    "descartes": {
-    "fora da área": 3
+    "fora da área": 39,
+    "Descartada (modalidade)": 7
    },
    "falhas": 0,
    "erros": []
   },
   "LinkedIn": {
-   "lidas": 297,
-   "novas": 0,
+   "lidas": 301,
+   "novas": 1,
    "ja_no_painel": 6,
    "ja_vistas": 285,
    "descartes": {
-    "fora da área": 6
+    "fora da área": 9
    },
    "falhas": 0,
    "erros": []
@@ -257,7 +263,7 @@
    "link": "https://brisanet.gupy.io/jobs/12725973",
    "id": "2026-10-18-brisanet-analista-de-projetos-pmo-iii",
    "area": "Planejamento e controle",
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "data": "2026-10-19",
@@ -323,7 +329,7 @@
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-at-turbotech-engenharia-ltda-4481247777",
    "publicada": "2026-10-19",
    "prazo": null,
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-10-27-intertechne-engenheiro-de-projetos-iii-salvador-ba",
@@ -355,7 +361,7 @@
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-motiva-4458307905",
    "publicada": "2026-10-22",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "tambem_em": [
     {
      "fonte": "Gupy",
@@ -377,7 +383,7 @@
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-grupo-ccr-4458375019",
    "publicada": "2026-10-22",
    "prazo": null,
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-10-28-vinci-energies-engenheiro-eletricista",
@@ -410,7 +416,7 @@
    "link": "https://br.linkedin.com/jobs/view/analista-de-pcm-jr-at-saint-gobain-brasil-4485204054",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-11-04-volkswagen-group-services-sout-analista-de-projetos-jr-salvador-ba",
@@ -458,7 +464,7 @@
    "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aanalista-de-pcm-i%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4488399539",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-11-12-cogna-educacao-analista-planejamento-operacoes-pl-afirm",
@@ -483,7 +489,8 @@
     "conferir": [
      "Pós-graduação"
     ]
-   }
+   },
+   "sumiu": true
   },
   {
    "id": "2026-11-12-grupo-boticario-especialista-pmo-i-plataforma-cloud",
@@ -499,7 +506,7 @@
    "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI3NjI0NDksInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-26",
    "prazo": "2026-11-26",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "conferir": [
      "Inglês"
@@ -520,7 +527,7 @@
    "link": "https://attus.gupy.io/job/eyJqb2JJZCI6MTI4NTE4ODQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-09",
    "prazo": "2026-12-04",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -544,7 +551,7 @@
    "link": "https://bernoullieducacao.gupy.io/job/eyJqb2JJZCI6MTI3MTcyODAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-13",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "conferir": [
      "Pós-graduação"
@@ -565,7 +572,7 @@
    "link": "https://voeazul.gupy.io/job/eyJqb2JJZCI6MTI4MDkyMTUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-11",
    "prazo": "2026-12-01",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "MS Project",
@@ -591,7 +598,7 @@
    "link": "https://cogna.gupy.io/job/eyJqb2JJZCI6MTI4NDEyNDQsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-06",
    "prazo": "2026-11-27",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -615,7 +622,7 @@
    "link": "https://almapbbdo.gupy.io/job/eyJqb2JJZCI6MTI2MzQxNzUsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-14",
    "prazo": "2026-11-28",
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-11-12-vinci-energies-e-suas-marcas-d-projetista-eletrico",
@@ -631,7 +638,7 @@
    "link": "https://vinci-energies.gupy.io/job/eyJqb2JJZCI6MTI3ODA5MzAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-10-26",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "conferir": [
      "AutoCAD",
@@ -653,7 +660,7 @@
    "link": "https://vermontxcenter.vagas.solides.com.br/vaga/951255",
    "publicada": "2026-11-10",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -674,7 +681,7 @@
    "link": "https://vrsoftware.vagas.solides.com.br/vaga/YhtjmrHx9w",
    "publicada": "2026-11-09",
    "prazo": null,
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-11-12-sandech-consultoria-em-engenha-engenheiro-de-projetos-processamento-de-",
@@ -690,7 +697,7 @@
    "link": "https://sandech.vagas.solides.com.br/vaga/939566",
    "publicada": "2026-10-16",
    "prazo": "2026-12-31",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "CREA ativo"
@@ -714,7 +721,7 @@
    "link": "https://eureca.vagas.solides.com.br/vaga/946147",
    "publicada": "2026-10-28",
    "prazo": "2026-11-30",
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -735,7 +742,7 @@
    "link": "https://iliimitmarketing.vagas.solides.com.br/vaga/942052",
    "publicada": "2026-10-22",
    "prazo": "2026-12-07",
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-11-12-mellro-servicos-de-ti-ltda-product-manager-senior-crescimento-de-co",
@@ -751,7 +758,7 @@
    "link": "https://mellro.vagas.solides.com.br/vaga/948310",
    "publicada": "2026-11-04",
    "prazo": "2026-11-20",
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
   },
   {
    "id": "2026-11-12-sicoob-central-ba-assistente-de-planejamento",
@@ -767,7 +774,7 @@
    "link": "https://www.empregos.com.br/vaga/11937364/assistente-de-planejamento-em-salvador-ba",
    "publicada": "2026-10-21",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Power BI",
@@ -789,7 +796,7 @@
    "link": "https://www.empregos.com.br/vaga/11976125/gerente-pmo-em-campinas-sp",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -813,7 +820,7 @@
    "link": "https://www.empregos.com.br/vaga/11976019/consultor-pmo-pleno-em-sao-paulo-sp",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -837,7 +844,7 @@
    "link": "https://www.empregos.com.br/vaga/12014596/analista-de-projetos-junior-em-blumenau-sc",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -858,7 +865,7 @@
    "link": "https://www.empregos.com.br/vaga/11928396/coordenador-de-projetos-em-goiania-go",
    "publicada": "2026-10-19",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -879,7 +886,7 @@
    "link": "https://www.empregos.com.br/vaga/11991180/gestao-de-projetos-devops-em-maringa-pr",
    "publicada": "2026-11-04",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -903,7 +910,7 @@
    "link": "https://www.empregos.com.br/vaga/11963499/engenheiro-senior-de-manutencao-eletrica-solar-em-sao-paulo-sp",
    "publicada": "2026-10-27",
    "prazo": null,
-   "visto_em": "2026-11-13",
+   "visto_em": "2026-11-14",
    "requisitos": {
     "tenho": [
      "Orçamento e custos",
@@ -930,7 +937,98 @@
    "link": "https://br.linkedin.com/jobs/view/gerente-corporativo-de-manuten%C3%A7%C3%A3o-at-jobbol-4490371248",
    "publicada": "2026-11-12",
    "prazo": null,
-   "visto_em": "2026-11-13"
+   "visto_em": "2026-11-14"
+  },
+  {
+   "id": "2026-11-14-grupo-boticario-analista-iii-de-projetos-e-governanca-ca",
+   "data": "2026-11-14",
+   "titulo": "Analista III de Projetos e Governança - Canal Lojas (Temporária)",
+   "empresa": "Grupo Boticário",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 63,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI4ODU0MjgsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-13",
+   "prazo": "2026-11-19",
+   "visto_em": "2026-11-14"
+  },
+  {
+   "id": "2026-11-14-vibra-energia-lider-de-manutencao",
+   "data": "2026-11-14",
+   "titulo": "Líder de Manutenção",
+   "empresa": "Vibra Energia",
+   "local": "São Francisco do Conde, BA",
+   "modalidade": "Híbrido",
+   "score": 47,
+   "motivo": "Manutenção, híbrido em Salvador/RMS, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Manutenção",
+   "link": "https://vibraenergia.gupy.io/jobs/12888213",
+   "publicada": null,
+   "prazo": null,
+   "visto_em": "2026-11-14"
+  },
+  {
+   "id": "2026-11-14-benner-sistemas-s-a-gerente-de-projetos-senior-erp",
+   "data": "2026-11-14",
+   "titulo": "Gerente de Projetos Sênior - ERP",
+   "empresa": "BENNER SISTEMAS S/A",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Empregos.com.br",
+   "area": "Gestão de projetos",
+   "link": "https://www.empregos.com.br/vaga/12023015/gerente-de-projetos-senior-erp-em-blumenau-sc",
+   "publicada": "2026-11-12",
+   "prazo": null,
+   "visto_em": "2026-11-14",
+   "requisitos": {
+    "conferir": [
+     "Pós-graduação"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-14-benner-sistemas-s-a-gerente-de-projetos-senior-turismo",
+   "data": "2026-11-14",
+   "titulo": "Gerente de Projetos Sênior - Turismo",
+   "empresa": "BENNER SISTEMAS S/A",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Empregos.com.br",
+   "area": "Gestão de projetos",
+   "link": "https://www.empregos.com.br/vaga/12022980/gerente-de-projetos-senior-turismo-em-blumenau-sc",
+   "publicada": "2026-11-12",
+   "prazo": null,
+   "visto_em": "2026-11-14",
+   "requisitos": {
+    "conferir": [
+     "PMP / PMI",
+     "Pós-graduação"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-14-vibra-lider-de-manutencao",
+   "data": "2026-11-14",
+   "titulo": "Líder de Manutenção",
+   "empresa": "Vibra",
+   "local": "São Francisco do Conde, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 38,
+   "motivo": "Manutenção, Salvador/RMS, modalidade a confirmar, nível acima do perfil",
+   "fonte": "LinkedIn",
+   "area": "Manutenção",
+   "link": "https://br.linkedin.com/jobs/view/l%C3%ADder-de-manuten%C3%A7%C3%A3o-at-vibra-4489580925",
+   "publicada": "2026-11-13",
+   "prazo": null,
+   "visto_em": "2026-11-14"
   }
  ]
 }
