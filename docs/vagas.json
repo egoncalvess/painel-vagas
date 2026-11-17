@@ -1,16 +1,12 @@
 {
- "atualizado_em": "2026-11-17T00:30+00:00",
+ "atualizado_em": "2026-11-17T03:24+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3680,
-   "novas": 2,
-   "ja_no_painel": 4,
-   "ja_vistas": 3554,
-   "descartes": {
-    "fora da área": 94,
-    "Descartada (modalidade)": 25,
-    "Descartada (anúncio antigo)": 1
-   },
+   "lidas": 3582,
+   "novas": 0,
+   "ja_no_painel": 6,
+   "ja_vistas": 3576,
+   "descartes": {},
    "falhas": 0,
    "erros": [],
    "portais_sumidos": [
@@ -25,10 +21,8 @@
    "lidas": 274,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 265,
-   "descartes": {
-    "fora da área": 9
-   },
+   "ja_vistas": 274,
+   "descartes": {},
    "falhas": 0,
    "erros": []
   },
@@ -36,11 +30,8 @@
    "lidas": 268,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 259,
-   "descartes": {
-    "fora da área": 8,
-    "Descartada (modalidade)": 1
-   },
+   "ja_vistas": 268,
+   "descartes": {},
    "falhas": 0,
    "erros": []
   },
@@ -48,25 +39,25 @@
    "lidas": 396,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 325,
+   "ja_vistas": 393,
    "descartes": {
-    "fora da área": 61,
-    "Descartada (modalidade)": 10
+    "fora da área": 3
    },
    "falhas": 0,
    "erros": []
   },
   "LinkedIn": {
-   "lidas": 284,
-   "novas": 4,
-   "ja_no_painel": 5,
-   "ja_vistas": 265,
+   "lidas": 282,
+   "novas": 0,
+   "ja_no_painel": 9,
+   "ja_vistas": 271,
    "descartes": {
-    "fora da área": 10
+    "fora da área": 2
    },
-   "falhas": 1,
+   "falhas": 2,
    "erros": [
-    "LinkedIn analista de custos 2 sem resposta"
+    "LinkedIn analista de manutenção 3 sem resposta",
+    "LinkedIn planejamento de manutenção 2 sem resposta"
    ]
   }
  },
