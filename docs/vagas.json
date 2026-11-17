@@ -1,12 +1,16 @@
 {
- "atualizado_em": "2026-11-16T00:31+00:00",
+ "atualizado_em": "2026-11-17T00:30+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3682,
-   "novas": 0,
+   "lidas": 3680,
+   "novas": 2,
    "ja_no_painel": 4,
-   "ja_vistas": 3678,
-   "descartes": {},
+   "ja_vistas": 3554,
+   "descartes": {
+    "fora da área": 94,
+    "Descartada (modalidade)": 25,
+    "Descartada (anúncio antigo)": 1
+   },
    "falhas": 0,
    "erros": [],
    "portais_sumidos": [
@@ -18,46 +22,52 @@
    ]
   },
   "Sólides": {
-   "lidas": 275,
+   "lidas": 274,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 274,
+   "ja_vistas": 265,
    "descartes": {
-    "fora da área": 1
+    "fora da área": 9
    },
    "falhas": 0,
    "erros": []
   },
   "Empregos.com.br": {
-   "lidas": 274,
+   "lidas": 268,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 274,
-   "descartes": {},
+   "ja_vistas": 259,
+   "descartes": {
+    "fora da área": 8,
+    "Descartada (modalidade)": 1
+   },
    "falhas": 0,
    "erros": []
   },
   "Vagas.com.br": {
-   "lidas": 391,
+   "lidas": 396,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 391,
-   "descartes": {},
-   "falhas": 1,
-   "erros": [
-    "Vagas.com.br https://www.vagas.com.br/vagas-de-analista-de-manutencao-em-salvador HTTP 500"
-   ]
-  },
-  "LinkedIn": {
-   "lidas": 296,
-   "novas": 0,
-   "ja_no_painel": 5,
-   "ja_vistas": 288,
+   "ja_vistas": 325,
    "descartes": {
-    "fora da área": 3
+    "fora da área": 61,
+    "Descartada (modalidade)": 10
    },
    "falhas": 0,
    "erros": []
+  },
+  "LinkedIn": {
+   "lidas": 284,
+   "novas": 4,
+   "ja_no_painel": 5,
+   "ja_vistas": 265,
+   "descartes": {
+    "fora da área": 10
+   },
+   "falhas": 1,
+   "erros": [
+    "LinkedIn analista de custos 2 sem resposta"
+   ]
   }
  },
  "vagas": [
@@ -257,7 +267,7 @@
    "link": "https://brisanet.gupy.io/jobs/12725973",
    "id": "2026-10-18-brisanet-analista-de-projetos-pmo-iii",
    "area": "Planejamento e controle",
-   "visto_em": "2026-11-16"
+   "visto_em": "2026-11-17"
   },
   {
    "data": "2026-10-19",
@@ -323,7 +333,7 @@
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-at-turbotech-engenharia-ltda-4481247777",
    "publicada": "2026-10-19",
    "prazo": null,
-   "visto_em": "2026-11-16"
+   "visto_em": "2026-11-17"
   },
   {
    "id": "2026-10-27-intertechne-engenheiro-de-projetos-iii-salvador-ba",
@@ -355,7 +365,7 @@
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-motiva-4458307905",
    "publicada": "2026-10-22",
    "prazo": null,
-   "visto_em": "2026-11-16",
+   "visto_em": "2026-11-17",
    "tambem_em": [
     {
      "fonte": "Gupy",
@@ -377,7 +387,7 @@
    "link": "https://br.linkedin.com/jobs/view/trilhos-l-especialista-de-manuten%C3%A7%C3%A3o-at-grupo-ccr-4458375019",
    "publicada": "2026-10-22",
    "prazo": null,
-   "visto_em": "2026-11-16"
+   "visto_em": "2026-11-17"
   },
   {
    "id": "2026-10-28-vinci-energies-engenheiro-eletricista",
@@ -410,7 +420,7 @@
    "link": "https://br.linkedin.com/jobs/view/analista-de-pcm-jr-at-saint-gobain-brasil-4485204054",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-16"
+   "visto_em": "2026-11-17"
   },
   {
    "id": "2026-11-04-volkswagen-group-services-sout-analista-de-projetos-jr-salvador-ba",
@@ -458,7 +468,117 @@
    "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aanalista-de-pcm-i%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4488399539",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-16"
+   "visto_em": "2026-11-17"
+  },
+  {
+   "id": "2026-11-17-minerva-foods-analista-de-projetos-senior",
+   "data": "2026-11-17",
+   "titulo": "Analista de Projetos Sênior",
+   "empresa": "Minerva Foods",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 53,
+   "motivo": "Gestão de projetos, remoto, nível acima do perfil",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://minervafoods.gupy.io/job/eyJqb2JJZCI6MTI4NjgzODMsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-16",
+   "prazo": "2027-01-09",
+   "visto_em": "2026-11-17",
+   "requisitos": {
+    "conferir": [
+     "PMP / PMI",
+     "Lean / Six Sigma",
+     "Inglês",
+     "Espanhol",
+     "Disponibilidade para viagens"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-17-nexdom-healthtech-analista-de-projetos",
+   "data": "2026-11-17",
+   "titulo": "Analista de Projetos",
+   "empresa": "Nexdom Healthtech",
+   "local": "Brasil, remoto",
+   "modalidade": "Remoto",
+   "score": 68,
+   "motivo": "Gestão de projetos, remoto",
+   "fonte": "Gupy",
+   "area": "Gestão de projetos",
+   "link": "https://vempranexdom.gupy.io/job/eyJqb2JJZCI6MTI3OTM4MjMsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
+   "publicada": "2026-11-16",
+   "prazo": "2026-12-07",
+   "visto_em": "2026-11-17",
+   "requisitos": {
+    "tenho": [
+     "MS Project"
+    ]
+   }
+  },
+  {
+   "id": "2026-11-17-in1000-consultoria-e-servicos-assistente-de-planejamento-de-manutencao",
+   "data": "2026-11-17",
+   "titulo": "Assistente de Planejamento de Manutenção",
+   "empresa": "in1000 Consultoria e Serviços",
+   "local": "Candeias, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 56,
+   "motivo": "Planejamento e controle, Salvador/RMS, modalidade a confirmar, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Planejamento e controle",
+   "link": "https://br.linkedin.com/jobs/view/assistente-de-planejamento-de-manuten%C3%A7%C3%A3o-at-in1000-consultoria-e-servi%C3%A7os-4489795713",
+   "publicada": "2026-11-16",
+   "prazo": null,
+   "visto_em": "2026-11-17"
+  },
+  {
+   "id": "2026-11-17-mrv-co-mestre-obras-salvador-ba",
+   "data": "2026-11-17",
+   "titulo": "Mestre Obras - Salvador | BA",
+   "empresa": "MRV&CO",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/mestre-obras-salvador-ba-at-mrv-co-4490164226",
+   "publicada": "2026-11-16",
+   "prazo": null,
+   "visto_em": "2026-11-17"
+  },
+  {
+   "id": "2026-11-17-mrv-co-encarregado-de-obras-salvador-ba",
+   "data": "2026-11-17",
+   "titulo": "Encarregado de Obras - Salvador | BA",
+   "empresa": "MRV&CO",
+   "local": "Salvador, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 59,
+   "motivo": "Gestão de projetos, Salvador/RMS, modalidade a confirmar",
+   "fonte": "LinkedIn",
+   "area": "Gestão de projetos",
+   "link": "https://br.linkedin.com/jobs/view/encarregado-de-obras-salvador-ba-at-mrv-co-4490162247",
+   "publicada": "2026-11-16",
+   "prazo": null,
+   "visto_em": "2026-11-17"
+  },
+  {
+   "id": "2026-11-17-jobbol-tecnico-em-eletrotecnica",
+   "data": "2026-11-17",
+   "titulo": "Técnico em Eletrotécnica",
+   "empresa": "Jobbol",
+   "local": "Lauro de Freitas, BA",
+   "modalidade": "Modalidade a confirmar",
+   "score": 44,
+   "motivo": "Engenharia elétrica, Salvador/RMS, modalidade a confirmar, elétrica, nível técnico",
+   "fonte": "LinkedIn",
+   "area": "Engenharia elétrica",
+   "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-em-eletrot%C3%A9cnica-at-jobbol-4484794486",
+   "publicada": "2026-10-29",
+   "prazo": null,
+   "visto_em": "2026-11-17"
   }
  ]
 }
