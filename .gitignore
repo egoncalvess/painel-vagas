@@ -1,2 +1,15 @@
 __pycache__/
 *.pyc
+.pytest_cache/
+agent-session.jsonl
+build-activity.log
+capture/
+checks/
+craft.json
+feed.json
+inbox/
+investigation.cany/
+reference/
+transcript.json
+usage.json
+radar-main/

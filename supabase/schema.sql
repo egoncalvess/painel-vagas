@@ -1,17 +1,25 @@
--- Banco do Painel de Vagas. Aplicado pelo workflow "Configurar Supabase"; pode rodar de novo sem problema.
+-- Banco do Painel de Vagas + Radar Multiusuário.
+-- Aplicado pelo workflow "Configurar Supabase"; pode rodar de novo sem problema (idempotente).
 
--- Quem pode entrar no painel (e-mail da conta Google)
+-- Quem pode entrar no painel: mantém a tabela por compatibilidade e libera acesso multiusuário para amigos autenticados
 create table if not exists public.permitidos (email text primary key);
 alter table public.permitidos enable row level security;
-insert into public.permitidos (email) values ('engerickgoncalves@gmail.com') on conflict do nothing;
+insert into public.permitidos (email) values ('engerickgoncalves@gmail.com'), ('*') on conflict do nothing;
 
 create or replace function public.permitido() returns boolean
 language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.permitidos where email = lower(auth.jwt() ->> 'email'))
+  select auth.uid() is not null and (
+    exists (
+      select 1 from public.permitidos
+      where email in ('*', 'todos', lower(coalesce(auth.jwt() ->> 'email', '')))
+    )
+    or not exists (select 1 from public.permitidos)
+    or true
+  )
 $$;
 grant execute on function public.permitido() to authenticated;
 
--- Vagas: o robô grava (chave de serviço), quem está logado e permitido lê
+-- Vagas: o robô grava (chave de serviço), quem está logado lê
 create table if not exists public.vagas (
   id text primary key,
   data date not null,
@@ -49,6 +57,33 @@ alter table public.buscas enable row level security;
 drop policy if exists "ler buscas" on public.buscas;
 create policy "ler buscas" on public.buscas for select to authenticated using (public.permitido());
 
+-- Fila separada de erros do Vagas.com.br (visível no painel e reprocessada nas próximas coletas)
+create table if not exists public.fila_erros_vagas (
+  id text primary key,
+  fonte text not null default 'Vagas.com.br',
+  tipo text not null default 'vaga',
+  termo text,
+  titulo text,
+  empresa text,
+  local text,
+  link text,
+  erro text,
+  codigo_http int,
+  tentativas int not null default 1,
+  primeira_falha_em timestamptz not null default now(),
+  ultima_tentativa_em timestamptz not null default now(),
+  status_fila text not null default 'pendente',
+  extra jsonb default '{}'::jsonb
+);
+alter table public.fila_erros_vagas enable row level security;
+drop policy if exists "ler fila erros vagas" on public.fila_erros_vagas;
+create policy "ler fila erros vagas" on public.fila_erros_vagas for select to authenticated
+  using (public.permitido());
+drop policy if exists "atualizar fila erros vagas" on public.fila_erros_vagas;
+create policy "atualizar fila erros vagas" on public.fila_erros_vagas for update to authenticated
+  using (public.permitido())
+  with check (public.permitido());
+
 -- Marcações de cada usuário: "Me candidatei" e "Descartar"
 create table if not exists public.marcacoes (
   user_id uuid not null default auth.uid() references auth.users on delete cascade,
@@ -64,5 +99,85 @@ create policy "minhas marcacoes" on public.marcacoes for all to authenticated
   using (user_id = auth.uid() and public.permitido())
   with check (user_id = auth.uid() and public.permitido());
 
-grant select on public.vagas, public.buscas to authenticated;
-grant select, insert, update, delete on public.marcacoes to authenticated;
+-- Perfis individuais de usuários (suporte multiusuário gratuito para amigos convidados)
+create table if not exists public.perfis_usuarios (
+  user_id uuid primary key default auth.uid() references auth.users(id) on delete cascade,
+  email text,
+  nome text,
+  cargo_objetivo text,
+  cidade text,
+  uf text,
+  cidades_proximas jsonb default '[]'::jsonb,
+  modalidades jsonb default '["remoto","hibrido","presencial"]'::jsonb,
+  max_dias int default 30,
+  areas jsonb default '[]'::jsonb,
+  competencias jsonb default '[]'::jsonb,
+  historias jsonb default '{}'::jsonb,
+  config jsonb default '{}'::jsonb,
+  atualizado_em timestamptz not null default now()
+);
+alter table public.perfis_usuarios enable row level security;
+drop policy if exists "meu perfil usuario" on public.perfis_usuarios;
+create policy "meu perfil usuario" on public.perfis_usuarios for all to authenticated
+  using (user_id = auth.uid() and public.permitido())
+  with check (user_id = auth.uid() and public.permitido());
+
+-- Módulo Clientes / Leads por usuário (espelhado do Radar)
+create table if not exists public.clientes_leads (
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  id text not null,
+  campanha_id text,
+  nome text,
+  nicho text,
+  cidade text,
+  uf text,
+  telefone text,
+  whatsapp text,
+  email text,
+  site text,
+  endereco text,
+  cnpj text,
+  score int,
+  status text not null default 'novo',
+  sinais jsonb default '[]'::jsonb,
+  mensagem text,
+  notas text,
+  dados jsonb default '{}'::jsonb,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  primary key (user_id, id)
+);
+alter table public.clientes_leads enable row level security;
+drop policy if exists "meus clientes leads" on public.clientes_leads;
+create policy "meus clientes leads" on public.clientes_leads for all to authenticated
+  using (user_id = auth.uid() and public.permitido())
+  with check (user_id = auth.uid() and public.permitido());
+
+-- Módulo Publicações / Posts LinkedIn por usuário (espelhado do Radar)
+create table if not exists public.publicacoes_posts (
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  id text not null,
+  pilar text,
+  titulo text,
+  conteudo text,
+  hashtags jsonb default '[]'::jsonb,
+  midia_url text,
+  status text not null default 'rascunho',
+  agendado_para timestamptz,
+  publicado_em timestamptz,
+  linkedin_urn text,
+  metricas jsonb default '{}'::jsonb,
+  dados jsonb default '{}'::jsonb,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  primary key (user_id, id)
+);
+alter table public.publicacoes_posts enable row level security;
+drop policy if exists "minhas publicacoes posts" on public.publicacoes_posts;
+create policy "minhas publicacoes posts" on public.publicacoes_posts for all to authenticated
+  using (user_id = auth.uid() and public.permitido())
+  with check (user_id = auth.uid() and public.permitido());
+
+grant select on public.vagas, public.buscas, public.fila_erros_vagas to authenticated;
+grant update on public.fila_erros_vagas to authenticated;
+grant select, insert, update, delete on public.marcacoes, public.perfis_usuarios, public.clientes_leads, public.publicacoes_posts to authenticated;

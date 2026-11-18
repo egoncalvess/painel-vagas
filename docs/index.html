@@ -1,578 +1,731 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Painel de Vagas</title>
-<script src="supabase-config.js"></script>
+<meta name="theme-color" content="#112926">
+<meta name="color-scheme" content="light">
+<title>Radar · Vagas, Clientes e Carreira</title>
+<script src="supabase-config.js" onerror=""></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
-<style>
-/* Layout: uma coluna de leitura; funil em barras no topo, filtros, depois a lista como um cronograma, cada vaga com sua régua de score 0-100 */
-:root{
-  --papel:#eef2f1; --folha:#ffffff; --tinta:#14232a; --suave:#56666d; --linha:#d5dddc;
-  --petroleo:#0b6a73; --petroleo-fundo:#dcecec;
-  --bom:#2a7a4c; --bom-fundo:#dff0e5; --medio:#9a6a00; --medio-fundo:#f6ead0; --fraco:#9aa6aa; --perigo:#b23a2e;
-  --trilho:#e2e8e7;
-  --f-titulo:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
-  --f-texto:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --papel:#0e1618; --folha:#152023; --tinta:#e2eaea; --suave:#93a3a7; --linha:#253338;
-  --petroleo:#58bcc4; --petroleo-fundo:#163437;
-  --bom:#6fd197; --bom-fundo:#173726; --medio:#e7b54e; --medio-fundo:#3a2f14; --fraco:#617075; --perigo:#ff8a7a;
-  --trilho:#22302f; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --papel:#0e1618; --folha:#152023; --tinta:#e2eaea; --suave:#93a3a7; --linha:#253338;
-  --petroleo:#58bcc4; --petroleo-fundo:#163437;
-  --bom:#6fd197; --bom-fundo:#173726; --medio:#e7b54e; --medio-fundo:#3a2f14; --fraco:#617075; --perigo:#ff8a7a;
-  --trilho:#22302f; color-scheme:dark}
-
-*{box-sizing:border-box}
-html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.5 var(--f-texto)}
-[hidden]{display:none!important}
-main{max-width:860px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
-a{color:var(--petroleo)}
-:focus-visible{outline:2px solid var(--petroleo);outline-offset:2px}
-
-header{display:grid;gap:6px}
-h1{font:700 clamp(2.2rem,6vw,3.2rem)/1 var(--f-titulo);margin:0;letter-spacing:-.01em;text-wrap:balance}
-.quem{margin:0;color:var(--suave);max-width:60ch}
-.atual{margin:0;font-size:.85rem;color:var(--suave)}
-
-.funil{display:grid;gap:6px;margin:0;padding:0;list-style:none}
-.funil li{display:grid;grid-template-columns:9.5rem 2.6rem 1fr;align-items:center;gap:10px}
-.funil .rot{color:var(--suave);font-size:.9rem}
-.funil .num{font:600 1.35rem/1 var(--f-titulo);text-align:right;font-variant-numeric:tabular-nums}
-.funil .barra{height:14px;background:var(--trilho);border-radius:2px;overflow:hidden}
-.funil .barra i{display:block;height:100%;background:var(--petroleo);border-radius:2px;transition:width .5s ease}
-.funil li:last-child .barra i{background:var(--bom)}
-
-.controles{display:grid;gap:12px}
-.linha-busca{display:flex;flex-wrap:wrap;gap:10px}
-.busca{flex:1 1 240px;min-width:0;font:inherit;padding:9px 12px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta)}
-select{font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta);min-width:0;max-width:100%}
-.selects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.selects label{display:grid;gap:4px;font-size:.82rem;color:var(--suave)}
-.filtros{display:flex;flex-wrap:wrap;gap:6px}
-.filtros button{font:inherit;font-size:.92rem;padding:6px 12px;border:1px solid var(--linha);border-radius:6px;background:transparent;color:var(--tinta);cursor:pointer}
-.filtros button span{color:var(--suave);font-variant-numeric:tabular-nums;margin-left:4px}
-.filtros button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:var(--papel)}
-.filtros button[aria-pressed="true"] span{color:inherit;opacity:.7}
-.barra-atual{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.atualizar{font:inherit;font-size:.9rem;padding:6px 12px;border-radius:6px;border:1px solid var(--petroleo);background:var(--petroleo);color:var(--folha);cursor:pointer}
-.atualizar:disabled{opacity:.6;cursor:default}
-.msg-atual{margin:0;font-size:.85rem;color:var(--suave)}
-.limpar{justify-self:start;font:inherit;font-size:.85rem;background:none;border:0;padding:0;color:var(--petroleo);text-decoration:underline;cursor:pointer}
-
-#lista{display:grid;gap:4px}
-h2{font:600 1.15rem/1.2 var(--f-titulo);margin:22px 0 4px;color:var(--suave)}
-h2:first-child{margin-top:0}
-.vaga{display:grid;grid-template-columns:120px minmax(0,1fr);gap:18px;padding:16px 0;border-top:1px solid var(--linha)}
-.vaga.feita .titulo a{color:var(--suave)}
-.regua{display:grid;gap:6px;align-content:start;padding-top:3px}
-.regua b{font:700 2rem/1 var(--f-titulo);font-variant-numeric:tabular-nums}
-.regua b small{font-size:.55em;font-weight:500;color:var(--suave);margin-left:1px}
-.regua .trilho{position:relative;height:8px;background:var(--trilho);border-radius:2px}
-.regua .trilho i{position:absolute;inset:0 auto 0 0;border-radius:2px;background:var(--fraco)}
-.regua .trilho::before,.regua .trilho::after{content:"";position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--suave);opacity:.55}
-.regua .trilho::before{left:70%}.regua .trilho::after{left:80%}
-.alto b{color:var(--bom)}.alto .trilho i{background:var(--bom)}
-.medio b{color:var(--medio)}.medio .trilho i{background:var(--medio)}
-.sem b{color:var(--fraco);font-size:1.2rem}
-.corpo{display:grid;gap:6px;min-width:0}
-.titulo{font:600 1.3rem/1.2 var(--f-titulo);margin:0;text-wrap:balance}
-.titulo a{color:var(--tinta);text-decoration:none}
-.titulo a:hover{color:var(--petroleo);text-decoration:underline}
-.onde{color:var(--suave);margin:0;font-size:.95rem}
-.motivo{margin:0;font-size:.95rem;max-width:68ch}
-.selos{display:flex;flex-wrap:wrap;gap:6px}
-.selo{font-size:.8rem;padding:1px 8px;border-radius:4px;background:var(--trilho);color:var(--tinta)}
-.selo.area{background:var(--petroleo-fundo);color:var(--petroleo)}
-.selo.ok{background:var(--bom-fundo);color:var(--bom)}
-.selo.nova{background:var(--petroleo);color:var(--folha);font-weight:700}
-.selo.sumiu{background:var(--medio-fundo);color:var(--medio)}
-.selo a{color:inherit}
-.tambem{margin:0;font-size:.88rem;color:var(--suave)}
-.req{margin:0;font-size:.9rem;max-width:68ch}
-.req b{color:var(--bom);font-weight:700}
-.req .conf{color:var(--medio)}
-.acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.acoes button{font:inherit;font-size:.9rem;padding:6px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--linha);background:var(--folha);color:var(--tinta)}
-.acoes .cand[aria-pressed="true"]{background:var(--bom-fundo);border-color:var(--bom);color:var(--bom)}
-.acoes .desc{background:transparent;color:var(--suave)}
-.acoes .desc:hover,.acoes .desc.armado{color:var(--perigo);border-color:var(--perigo)}
-.acoes button:disabled{opacity:.6;cursor:default}
-.aviso{color:var(--suave);padding:28px 0;border-top:1px solid var(--linha);margin:0}
-.erro{color:var(--perigo)}
-
-details.conta{border-top:1px solid var(--linha);padding-top:16px;color:var(--suave);font-size:.92rem}
-details.conta summary{cursor:pointer;color:var(--tinta)}
-details.conta form{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-details.conta input{flex:1 1 260px;min-width:0;font:inherit;padding:8px 10px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta)}
-details.conta button{font:inherit;padding:8px 12px;border-radius:6px;border:1px solid var(--tinta);background:var(--tinta);color:var(--papel);cursor:pointer}
-details.conta button.sec{background:transparent;color:var(--tinta);border-color:var(--linha)}
-.estado-conta{margin:8px 0 0}
-details.painel-extra{border-top:1px solid var(--linha);padding-top:16px;font-size:.92rem}
-details.painel-extra summary{cursor:pointer;font:600 1.1rem/1.2 var(--f-titulo)}
-details.painel-extra>p{color:var(--suave);max-width:68ch}
-.tabela{width:100%;border-collapse:collapse;margin-top:10px;font-variant-numeric:tabular-nums}
-.tabela th,.tabela td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--linha);vertical-align:top}
-.tabela th{font-weight:400;color:var(--suave);font-size:.82rem}
-.tabela td.n{text-align:right}
-.tabela small{display:block;color:var(--suave)}
-.sit-ok{color:var(--bom)}.sit-parcial{color:var(--medio)}.sit-falhou{color:var(--perigo);font-weight:700}
-.alerta-fontes{margin:0;font-size:.85rem;color:var(--perigo)}
-.alerta-fontes button{font:inherit;background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer}
-#conferir textarea{width:100%;min-height:110px;font:inherit;padding:9px 12px;border:1px solid var(--linha);border-radius:6px;background:var(--folha);color:var(--tinta);margin-top:6px}
-#conferir .bt{font:inherit;margin-top:8px;padding:8px 14px;border-radius:6px;border:1px solid var(--tinta);background:var(--tinta);color:var(--papel);cursor:pointer}
-.conf-lista{display:grid;gap:10px;margin:14px 0 0;padding:0;list-style:none}
-.conf-lista li{padding:10px 12px;border-left:4px solid var(--fraco);background:var(--folha);border-radius:0 6px 6px 0}
-.conf-lista li.painel{border-color:var(--bom)}.conf-lista li.fora{border-color:var(--medio)}.conf-lista li.nao{border-color:var(--perigo)}
-.conf-lista b,.conf-lista span{display:block}.conf-lista .linha-orig{color:var(--suave);font-size:.82rem;word-break:break-all}
-.conf-resumo{margin:12px 0 0;font-weight:700}
-#app{display:contents}
-.entrar{display:grid;gap:14px;justify-items:start;padding:28px 0;border-top:1px solid var(--linha)}
-.entrar p{margin:0;max-width:52ch;color:var(--suave)}
-.google{display:inline-flex;align-items:center;gap:10px;font:inherit;font-weight:700;padding:10px 18px;border-radius:6px;border:1px solid var(--linha);background:var(--folha);color:var(--tinta);cursor:pointer}
-.google svg{width:18px;height:18px}
-.sair{font:inherit;font-size:.85rem;background:none;border:0;padding:0;color:var(--petroleo);text-decoration:underline;cursor:pointer}
-
-@media (max-width:640px){.selects{grid-template-columns:repeat(2,minmax(0,1fr))}.tabela .esconde{display:none}}
-@media (max-width:560px){
-  .funil li{grid-template-columns:7.5rem 2.2rem 1fr}
-  .vaga{grid-template-columns:1fr;gap:10px}
-  .regua{grid-template-columns:auto 1fr;align-items:center;gap:12px}
-}
-@media (prefers-reduced-motion:reduce){.funil .barra i{transition:none}}
-</style>
+<link rel="stylesheet" href="radar.css">
 </head>
 <body>
-<main>
-  <header>
-    <h1>Painel de Vagas</h1>
-    <p class="quem">Vagas de planejamento, projetos e manutenção para o Erick, remotas ou em Salvador e RMS. Um robô no GitHub busca e avalia todo dia às 17h55.</p>
-    <p class="atual" id="atual"></p>
-    <p class="alerta-fontes" id="alerta-fontes" hidden></p>
-    <div class="barra-atual" id="barra-atual">
-      <button class="atualizar" id="atualizar" type="button">Buscar vagas agora</button>
-      <p class="msg-atual" id="msg-atual" aria-live="polite"></p>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+  <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><path d="M19.1 4.9A10 10 0 1 0 22 12"/><path d="M16.2 7.8A6 6 0 1 0 18 12"/><circle cx="12" cy="12" r="2"/><path d="m13.4 10.6 6-6"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5a2.5 2.5 0 0 1 5 0V17"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
+</svg>
+
+<p class="sr-only" id="anuncio-acao" role="status" aria-live="polite" aria-atomic="true"></p>
+
+<!-- TELA DE LOGIN / ACESSO MULTIUSUÁRIO (Supabase Auth + Modo Local / Convidado) -->
+<section class="auth-overlay" id="login" hidden aria-labelledby="login-title">
+  <div class="auth-story">
+    <div>
+      <div class="brand">
+        <span class="brand-mark"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></span>
+        <span class="brand-name">Radar</span>
+      </div>
+      <h2 id="login-title">Seu painel pessoal de <em>vagas, clientes e conteúdo</em>.</h2>
+      <p>Use gratuitamente com sua própria conta ou direto no navegador. Cada pessoa configura seus cargos, cidade, currículo e acompanha suas candidaturas sem misturar dados.</p>
+      <ul class="auth-features">
+        <li>
+          <div>
+            <strong>Vagas avaliadas contra o seu currículo</strong>
+            <span>Score 0–100 explicável, requisitos no seu perfil vs. vale conferir e fila dedicada de erros do Vagas.com.br.</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Prospecção de clientes e publicações LinkedIn</strong>
+            <span>Campanhas por nicho e cidade com 1ª mensagem editável e pautas semanais baseadas nos fatos reais da sua carreira.</span>
+          </div>
+        </li>
+      </ul>
     </div>
-    <p class="atual" id="usuario" hidden><span id="email"></span> · <button class="sair" id="sair" type="button">Sair</button></p>
-  </header>
-
-  <section class="entrar" id="login" hidden>
-    <p id="msg-login">Entre com a sua conta Google para ver as vagas e as suas marcações.</p>
-    <button class="google" id="entrar" type="button"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Entrar com Google</button>
-  </section>
-
-  <div id="app">
-
-  <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
-
-  <section class="controles" aria-label="Filtros">
-    <div class="linha-busca">
-      <input class="busca" id="busca" type="search" placeholder="Buscar por cargo, empresa ou motivo" aria-label="Buscar vagas">
-      <select id="ordem" aria-label="Ordenar">
-        <option value="data">Mais recentes primeiro</option>
-        <option value="score">Maior score primeiro</option>
-      </select>
-    </div>
-    <div class="selects">
-      <label>Site<select id="f-fonte"></select></label>
-      <label>Área<select id="f-area"></select></label>
-      <label>Modalidade<select id="f-mod"></select></label>
-      <label>Score mínimo<select id="f-score">
-        <option value="0">Qualquer</option><option value="50">50</option><option value="60">60</option><option value="70">70</option><option value="80">80</option>
-      </select></label>
-    </div>
-    <div class="filtros" id="filtros"></div>
-    <button class="limpar" id="limpar" type="button" hidden>Limpar filtros</button>
-  </section>
-
-  <section id="lista" aria-live="polite"><p class="aviso">Carregando as vagas.</p></section>
-
-  <details class="painel-extra" id="fontes">
-    <summary>Sites consultados na última busca</summary>
-    <p>Quantos anúncios o robô leu em cada site, quantos entraram no painel e por que os outros ficaram de fora. Um site que bloqueou ou mudou aparece como <b>Falhou</b>, e não como zero vagas.</p>
-    <div id="tabela-fontes"></div>
-  </details>
-
-  <details class="painel-extra" id="conferir">
-    <summary>Conferir uma vaga que eu achei</summary>
-    <p>Achou uma vaga por conta própria? Cole o link (e, se quiser, o cargo e a empresa), uma por linha. O painel diz se o robô viu essa vaga e, se ela ficou de fora, por quê. Assim dá para saber se falta um termo de busca ou um site.</p>
-    <label for="conf-texto" class="tambem">Links ou "cargo, empresa", um por linha</label>
-    <textarea id="conf-texto" placeholder="https://empresa.gupy.io/jobs/1234567&#10;Analista de Planejamento, Empresa X"></textarea>
-    <button class="bt" id="conf-bt" type="button">Conferir</button>
-    <div id="conf-saida" aria-live="polite"></div>
-  </details>
-
-  <details class="conta" id="conta">
-    <summary>Salvar marcações em todos os aparelhos</summary>
-    <p>Sem isso, o que você marca fica só neste navegador. Cole um token do GitHub deste repositório com permissão de leitura e escrita em <b>Contents</b> e em <b>Actions</b> (Actions é para o botão Buscar vagas agora). Ele fica guardado só neste navegador.</p>
-    <form id="form-token">
-      <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">
-      <button type="submit">Salvar token</button>
-      <button type="button" class="sec" id="tirar-token">Remover</button>
-    </form>
-    <p class="estado-conta" id="estado-conta"></p>
-  </details>
+    <p class="small">Código aberto e multiusuário · Replicável para amigos</p>
   </div>
-</main>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <h2>Entrar no Radar</h2>
+      <p class="muted" id="msg-login">Entre com sua conta para sincronizar em qualquer aparelho ou use o modo local gratuito neste navegador.</p>
+      <div style="margin-top:16px;display:grid;gap:10px">
+        <button class="google-btn" id="entrar" type="button">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+          Entrar com Google
+        </button>
+      </div>
+      <div class="auth-divider">ou com e-mail e senha</div>
+      <form id="auth-email-form" style="display:grid;gap:12px">
+        <label>Seu nome (para novos cadastros)<input id="auth-name" name="name" type="text" autocomplete="name" placeholder="Ex.: Ana Souza"></label>
+        <label>E-mail<input id="auth-email" name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
+        <label>Senha<input id="auth-pass" name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Mínimo 6 caracteres"></label>
+        <div class="form-actions">
+          <button class="button" type="submit" data-auth-mode="signin" style="flex:1">Entrar</button>
+          <button class="button button-secondary" type="button" id="auth-signup-btn" style="flex:1">Criar conta grátis</button>
+        </div>
+      </form>
+      <div class="auth-divider">uso rápido sem cadastro</div>
+      <button class="button button-secondary button-block" id="auth-guest-btn" type="button">Usar no Modo Local / Convidado</button>
+      <p class="helper" id="auth-feedback" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
 
-<script>
-const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-const STATUS=[["todas","Todas"],["novas","Novas"],["pendentes","Para me candidatar"],["feitas","Me candidatei"],["retorno","Com retorno"]];
-const $=id=>document.getElementById(id);
-const ler=(k,p)=>{try{const v=localStorage.getItem(k);return v==null?p:JSON.parse(v)}catch(e){return p}};
-const gravar=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-const hoje=()=>new Date().toISOString().slice(0,10);
-const dataLonga=d=>{const[a,m,dd]=d.split("-");return `${+dd} de ${MESES[+m-1]} de ${a}`};
-const dataCurta=d=>{const[,m,dd]=(d||"").split("-");return dd?`${dd}/${m}`:""};
-const sc=v=>v.score??-1;
+<div class="app-shell" id="app">
+  <!-- BARRA LATERAL (SIDEBAR) -->
+  <aside class="sidebar" aria-label="Navegação principal">
+    <a class="brand" href="#overview" data-view="overview" aria-label="Radar, início">
+      <span class="brand-mark"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></span>
+      <span class="brand-name">Radar</span>
+    </a>
+    <nav class="tabs" aria-label="Seções">
+      <p class="sidebar-label">Espaço de trabalho</p>
+      <button class="nav-item active" type="button" data-view="overview">
+        <svg class="i" aria-hidden="true"><use href="#i-home"/></svg>
+        <span class="long">Visão geral</span><span class="short">Início</span>
+      </button>
+      <button class="nav-item" type="button" data-view="jobs">
+        <svg class="i" aria-hidden="true"><use href="#i-briefcase"/></svg>
+        <span>Vagas</span>
+        <span class="nav-badges">
+          <span class="nav-count" id="nav-jobs" title="Vagas novas ou para analisar">0</span>
+          <span class="nav-count err" id="nav-errors" title="Fila de erros vagas.com.br" hidden>0</span>
+        </span>
+      </button>
+      <button class="nav-item" type="button" data-view="leads">
+        <svg class="i" aria-hidden="true"><use href="#i-target"/></svg>
+        <span>Clientes</span>
+        <span class="nav-count" id="nav-leads">0</span>
+      </button>
+      <button class="nav-item" type="button" data-view="content">
+        <svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>
+        <span class="long">Publicações</span><span class="short">Posts</span>
+        <span class="nav-count" id="nav-content">0</span>
+      </button>
+      <button class="nav-item" type="button" data-view="profile">
+        <svg class="i" aria-hidden="true"><use href="#i-file"/></svg>
+        <span class="long">Meu perfil</span><span class="short">Perfil</span>
+      </button>
+      <button class="nav-item" type="button" data-view="settings">
+        <svg class="i" aria-hidden="true"><use href="#i-settings"/></svg>
+        <span class="long">Configurações</span><span class="short">Ajustes</span>
+      </button>
+    </nav>
 
-// Repositório: deduzido do endereço do GitHub Pages (usuario.github.io/repo)
-const REPO=(()=>{const h=location.hostname.match(/^([^.]+)\.github\.io$/);const r=location.pathname.split("/").filter(Boolean)[0];
-  return h&&r?`${h[1]}/${r}`:"egoncalvess/painel-vagas"})();
-const API=`https://api.github.com/repos/${REPO}/contents/docs/estado.json`;
+    <button class="sidebar-share" id="btn-invite-sidebar" type="button">
+      <svg class="i" aria-hidden="true"><use href="#i-share"/></svg>
+      <span>Convidar amigos</span>
+    </button>
 
-// Supabase: ligado quando docs/supabase-config.js existe (criado pelo workflow Configurar Supabase)
-let sb=null, usuario=null;
+    <div class="robot" id="robot-card" title="Estado da busca automática">
+      <span class="robot-dot ok" id="robot-dot"></span>
+      <span>
+        <strong>Robô de vagas</strong>
+        <small id="robot-status">Verificando última coleta…</small>
+      </span>
+    </div>
 
-let todas=[], estado={candidatei:{},descartadas:[]}, sha=null;
-let token=ler("token",""), meta={};
-let f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"},ler("filtros",{})), busca="";
+    <button class="profile-chip" type="button" data-view="profile" title="Editar meu perfil e currículo">
+      <span class="avatar" id="sidebar-avatar">PF</span>
+      <span class="profile-chip-text">
+        <strong id="sidebar-name">Perfil ativo</strong>
+        <small id="sidebar-role">Configurar currículo e cargos</small>
+      </span>
+      <svg class="i chip-icon" aria-hidden="true"><use href="#i-user"/></svg>
+    </button>
 
-function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
-const visiveis=()=>todas.filter(v=>!estado.descartadas.includes(v.id)).map(v=>({...v,candidatei:!!estado.candidatei[v.id],candidatei_em:estado.candidatei[v.id]||null}));
+    <div class="sidebar-foot">
+      <button class="sidebar-logout" id="btn-switch-user" type="button" title="Entrar ou trocar de conta">
+        <svg class="i" aria-hidden="true"><use href="#i-user"/></svg>
+        <span id="sidebar-auth-label">Entrar / Conta</span>
+      </button>
+      <button class="sidebar-logout" id="sair" type="button" title="Sair da sessão">
+        <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
 
-// Dia da última busca (mesmo relógio do robô): as vagas desse dia são as novas
-const diaBusca=()=>(meta.atualizado_em||"").slice(0,10);
-const regras={todas:()=>true,novas:v=>v.data===diaBusca(),pendentes:v=>!v.candidatei&&sc(v)>=70,feitas:v=>v.candidatei,retorno:v=>!!v.retorno};
+  <!-- ÁREA PRINCIPAL -->
+  <main class="main">
+    <header class="topbar">
+      <a class="mobile-brand" href="#overview" data-view="overview">
+        <span class="brand-mark"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></span>
+        Radar
+      </a>
+      <span class="date-label" id="today-label"></span>
+      <div class="topbar-right">
+        <p class="user-pill" id="usuario">
+          <span id="email">Modo local</span>
+        </p>
+        <button class="button button-secondary button-sm" id="btn-invite-top" type="button">
+          <svg class="i" aria-hidden="true"><use href="#i-share"/></svg>
+          <span>Convidar amigos</span>
+        </button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro ou escuro" title="Alternar tema claro/escuro">
+          <svg class="i" id="theme-icon" aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
+      </div>
+    </header>
 
-// ---------- estado: GitHub (com token) ou navegador
-const b64=s=>btoa(unescape(encodeURIComponent(s)));
-const de64=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,""))));
-async function lerEstadoGitHub(){
-  const r=await fetch(API+"?ref=main&t="+Date.now(),{headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"}});
-  if(!r.ok)throw new Error(r.status);
-  const j=await r.json();sha=j.sha;return JSON.parse(de64(j.content));
-}
-// Cada mudança é uma função aplicada ao estado; em conflito relê o GitHub e reaplica.
-async function mudar(msg,fn,vid){
-  fn(estado);
-  if(sb){const{error}=await sb.from("marcacoes").upsert(linhaMarca(vid));if(error)throw error;return}
-  if(!token){gravar("estado-local",estado);return}
-  for(let t=0;t<3;t++){
-    const r=await fetch(API,{method:"PUT",headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
-      body:JSON.stringify({message:msg,content:b64(JSON.stringify(estado,null,1)),sha,branch:"main"})});
-    if(r.ok){sha=(await r.json()).content.sha;return}
-    if(r.status===409||r.status===422){estado=await lerEstadoGitHub();fn(estado);continue}
-    throw new Error(r.status);
-  }
-  throw new Error("conflito");
-}
+    <!-- ==================== 1. VISÃO GERAL ==================== -->
+    <section id="overview" class="view active" aria-labelledby="overview-title">
+      <div class="home">
+        <div class="home-main">
+          <div class="ops-strip" role="region" aria-labelledby="overview-title">
+            <div class="hero">
+              <h1 id="overview-title">Painel operacional<span class="dot">.</span></h1>
+              <p class="hero-kicker">Radar do dia <span class="hero-line"></span> <span id="hero-date"></span></p>
+              <p class="hero-sub">
+                <span id="greeting">Olá</span>, <strong id="greeting-name">visitante</strong>.
+                <span id="quem" class="quem">Vagas, prospecção e publicações avaliadas conforme o seu perfil ativo.</span>
+              </p>
+            </div>
+            <div class="modules" id="modules"></div>
+          </div>
 
-const linhaMarca=id=>({user_id:usuario.id,vaga_id:id,candidatei_em:estado.candidatei[id]||null,descartada:estado.descartadas.includes(id),atualizado_em:new Date().toISOString()});
-async function lerEstadoSupabase(){
-  const{data,error}=await sb.from("marcacoes").select("vaga_id,candidatei_em,descartada");if(error)throw error;
-  const e={candidatei:{},descartadas:[]};
-  for(const m of data){if(m.candidatei_em)e.candidatei[m.vaga_id]=m.candidatei_em;if(m.descartada)e.descartadas.push(m.vaga_id)}
-  // Primeira entrada: traz as marcações antigas (estado.json do repositório e deste navegador)
-  if(!data.length){
-    try{const r=await fetch("estado.json?t="+Date.now());if(r.ok){const x=await r.json();Object.assign(e.candidatei,x.candidatei||{});e.descartadas.push(...(x.descartadas||[]))}}catch(err){}
-    const local=ler("estado-local",null);
-    if(local){Object.assign(e.candidatei,local.candidatei||{});e.descartadas.push(...(local.descartadas||[]))}
-    e.descartadas=[...new Set(e.descartadas)];estado=e;
-    const ids=[...new Set([...Object.keys(e.candidatei),...e.descartadas])];
-    if(ids.length){const{error:er}=await sb.from("marcacoes").upsert(ids.map(linhaMarca));if(er)throw er}
-  }
-  return e;
-}
+          <div class="section-heading">
+            <h2>Vagas recomendadas para o seu perfil</h2>
+            <button class="link" type="button" data-view="jobs">Ver todas as vagas <span id="pending-count"></span></button>
+          </div>
+          <div id="overview-list" class="rec-list"></div>
 
-// ---------- desenho
-function funil(vs){
-  const n=fn=>vs.filter(fn).length,total=vs.length||1;
-  const F=$("funil");F.textContent="";
-  for(const[r,q]of[["No painel",vs.length],["Score 70 ou mais",n(v=>sc(v)>=70)],["Candidaturas",n(v=>v.candidatei)],["Com retorno",n(v=>v.retorno)]]){
-    const li=el("li"),b=el("span","barra"),i=el("i");i.style.width=(q/total*100)+"%";b.append(i);
-    li.append(el("span","rot",r),el("span","num",q),b);F.append(li);
-  }
-}
-function opcoes(sel,valores,atual,todosTxt){
-  const s=$(sel);s.textContent="";s.append(new Option(todosTxt,""));
-  for(const[v,q]of valores)s.append(new Option(`${v} (${q})`,v));
-  s.value=valores.some(([v])=>v===atual)?atual:"";
-}
-function contar(vs,campo){const m=new Map();for(const v of vs){const k=v[campo]||"Não informado";m.set(k,(m.get(k)||0)+1)}return[...m].sort((a,b)=>b[1]-a[1])}
-const modDe=v=>/remot/i.test(v.modalidade)?"Remoto":/h[ií]brid/i.test(v.modalidade)?"Híbrido":"A confirmar";
+          <div class="section-heading">
+            <h2>Fila de erros Vagas.com.br para revisar</h2>
+            <button class="link" type="button" id="overview-open-errors">Abrir fila de erros (<span id="overview-err-count">0</span>)</button>
+          </div>
+          <div id="overview-errors" class="rec-list"></div>
 
-function passa(v,ignorarStatus){
-  if(!ignorarStatus&&!regras[f.status](v))return false;
-  if(f.fonte&&v.fonte!==f.fonte)return false;
-  if(f.area&&(v.area||"Não informado")!==f.area)return false;
-  if(f.mod&&modDe(v)!==f.mod)return false;
-  if(sc(v)<+f.score&&+f.score>0)return false;
-  const q=busca.trim().toLowerCase();
-  return !q||[v.titulo,v.empresa,v.motivo,v.local].join(" ").toLowerCase().includes(q);
-}
+          <div class="home-two">
+            <div>
+              <div class="section-heading">
+                <h2>Publicações para revisar</h2>
+                <button class="link" type="button" data-view="content">Ver todas</button>
+              </div>
+              <div id="overview-content" class="rec-list"></div>
+            </div>
+            <div>
+              <div class="section-heading">
+                <h2>Clientes para contatar</h2>
+                <button class="link" type="button" data-view="leads">Ver todos</button>
+              </div>
+              <div id="overview-leads" class="rec-list"></div>
+            </div>
+          </div>
+        </div>
 
-// O que a vaga cita x o que está em "meu_perfil" no config.json. Ajuda a priorizar; não é chance de contratação.
-function linhaRequisitos(r){
-  const p=el("p","req"),t=r.tenho||[],cf=r.conferir||[],n=t.length+cf.length;
-  if(n)p.append(el("b",null,`${t.length} de ${n}`),` requisitos citados estão no seu perfil${t.length?` (${t.join(", ")})`:""}. `);
-  if(cf.length)p.append(el("span","conf",`Conferir: ${cf.join(", ")}. `));
-  if(r.anos)p.append(`Pede ${r.anos} ${r.anos>1?"anos":"ano"} de experiência.`);
-  return p;
-}
-function linha(v){
-  const art=el("article","vaga"+(v.candidatei?" feita":""));
-  const nivel=v.score==null?"sem":v.score>=80?"alto":v.score>=70?"medio":"";
-  const reg=el("div","regua "+nivel);
-  const b=el("b",null,v.score==null?"sem nota":v.score);if(v.score!=null)b.append(el("small",null,"/100"));
-  const tr=el("div","trilho");tr.title="Linhas em 70 e 80";const i=el("i");i.style.width=Math.max(0,Math.min(100,v.score||0))+"%";tr.append(i);
-  reg.append(b,tr);
-  const c=el("div","corpo");
-  const h=el("h3","titulo"),a=el("a",null,v.titulo);a.href=v.link||"#";a.target="_blank";a.rel="noopener";h.append(a);
-  c.append(h,el("p","onde",[v.empresa,v.local].filter(Boolean).join(", ")));
-  if(v.motivo)c.append(el("p","motivo",v.motivo));
-  if(v.requisitos)c.append(linhaRequisitos(v.requisitos));
-  const s=el("div","selos");
-  if(v.data===diaBusca())s.append(el("span","selo nova","Nova"));
-  if(v.sumiu)s.append(el("span","selo sumiu","Não apareceu na última busca: pode ter sido encerrada"));
-  if(v.area)s.append(el("span","selo area",v.area));
-  if(v.modalidade)s.append(el("span","selo",v.modalidade));
-  if(v.fonte)s.append(el("span","selo",v.fonte));
-  if(v.publicada&&/^\d{4}-\d{2}-\d{2}/.test(v.publicada))s.append(el("span","selo","Publicada em "+dataCurta(v.publicada.slice(0,10))));
-  if(v.prazo)s.append(el("span","selo","Inscrição até "+dataCurta(v.prazo)));
-  if(v.curriculo)s.append(el("span","selo","Currículo pronto"));
-  if(v.retorno)s.append(el("span","selo ok","Retorno: "+v.retorno));
-  c.append(s);
-  if(v.tambem_em&&v.tambem_em.length){const t=el("p","tambem","Também em: ");
-    v.tambem_em.forEach((o,i)=>{if(i)t.append(", ");const l=el("a",null,o.fonte);l.href=o.link;l.target="_blank";l.rel="noopener";t.append(l)});c.append(t)}
-  const ac=el("div","acoes");
-  const bc=el("button","cand",v.candidatei?`Me candidatei${v.candidatei_em?" em "+dataCurta(v.candidatei_em):""}`:"Marcar que me candidatei");
-  bc.type="button";bc.setAttribute("aria-pressed",v.candidatei);
-  bc.onclick=async()=>{bc.disabled=true;const copia=JSON.stringify(estado),marcar=!v.candidatei;
-    try{await mudar((marcar?"Candidatura: ":"Desmarca: ")+v.titulo,e=>{if(marcar)e.candidatei[v.id]=hoje();else delete e.candidatei[v.id]},v.id);render()}
-    catch(err){estado=JSON.parse(copia);bc.disabled=false;bc.textContent="Não salvou. Confira o token e tente de novo."}};
-  const bd=el("button","desc","Descartar");bd.type="button";let armado=false;
-  bd.onclick=async()=>{
-    if(!armado){armado=true;bd.classList.add("armado");bd.textContent="Confirmar descarte";
-      setTimeout(()=>{if(armado&&bd.isConnected){armado=false;bd.classList.remove("armado");bd.textContent="Descartar"}},4000);return}
-    bd.disabled=true;const copia=JSON.stringify(estado);
-    try{await mudar("Descarta: "+v.titulo,e=>{if(!e.descartadas.includes(v.id))e.descartadas.push(v.id)},v.id);render()}
-    catch(err){estado=JSON.parse(copia);bd.disabled=false;bd.textContent="Não descartou. Tente de novo."}};
-  ac.append(bc,bd);c.append(ac);
-  art.append(reg,c);return art;
-}
+        <aside class="home-side">
+          <div class="side-card">
+            <h3>Busca automática</h3>
+            <dl class="rows" id="summary-grid"></dl>
+            <p class="muted small" id="last-run-home"></p>
+            <button class="button button-secondary button-block" type="button" data-view="jobs">Abrir vagas</button>
+          </div>
+          <div class="side-card">
+            <h3>Seu perfil e currículo</h3>
+            <p class="muted" id="profile-summary">O Radar calcula o score e os requisitos de cada vaga em tempo real usando suas competências e cidade.</p>
+            <button class="link" type="button" data-view="profile">Personalizar meu perfil →</button>
+          </div>
+          <div class="side-card">
+            <h3>Usar com amigos</h3>
+            <p class="muted">Cada amigo pode entrar com sua conta ou usar no navegador com seus próprios cargos, cidade e currículo.</p>
+            <button class="button button-secondary button-block" type="button" id="btn-invite-card">Como compartilhar com amigos</button>
+          </div>
+        </aside>
+      </div>
+    </section>
 
-function render(){
-  const vs=visiveis();
-  funil(vs);
-  const base=vs.filter(v=>passa(v,true));
-  const F=$("filtros");F.textContent="";
-  for(const[k,nome]of STATUS){const b=el("button",null,nome);b.type="button";b.setAttribute("aria-pressed",k===f.status);
-    b.append(el("span",null,base.filter(regras[k]).length));b.onclick=()=>{f.status=k;salvarFiltros();render()};F.append(b)}
-  opcoes("f-fonte",contar(vs,"fonte"),f.fonte,"Todos os sites");
-  opcoes("f-area",contar(vs,"area"),f.area,"Todas as áreas");
-  opcoes("f-mod",contar(vs.map(v=>({m:modDe(v)})),"m"),f.mod,"Todas");
-  $("f-score").value=f.score;$("ordem").value=f.ordem;
-  desenharFontes();
-  $("limpar").hidden=!(f.fonte||f.area||f.mod||f.score!=="0"||f.status!=="todas"||busca);
+    <!-- ==================== 2. VAGAS (+ FILA DE ERROS VAGAS.COM.BR) ==================== -->
+    <section id="jobs" class="view" aria-labelledby="jobs-title">
+      <div class="jobs-head">
+        <div>
+          <h1 id="jobs-title">Vagas</h1>
+          <p class="summary-line" id="atual">Carregando dados da última busca…</p>
+        </div>
+        <div class="search-actions" id="barra-atual">
+          <button class="button button-secondary" id="toggle-manual" type="button" aria-expanded="false" aria-controls="manual-panel">+ Adicionar vaga</button>
+          <button class="button atualizar" id="atualizar" type="button">
+            <svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>
+            <span>Buscar vagas agora</span>
+          </button>
+        </div>
+      </div>
 
-  const L=$("lista");L.textContent="";
-  let lista=vs.filter(v=>passa(v,false));
-  lista.sort(f.ordem==="score"?(a,b)=>sc(b)-sc(a)||b.data.localeCompare(a.data):(a,b)=>b.data.localeCompare(a.data)||sc(b)-sc(a));
-  if(!lista.length){
-    L.append(el("p","aviso",!vs.length?"Ainda não há vagas. O robô adiciona as novas todo dia às 17h55."
-      :"Nenhuma vaga com esses filtros. Use Limpar filtros para ver todas."));return}
-  let dia="";
-  for(const v of lista){if(f.ordem==="data"&&v.data!==dia){dia=v.data;L.append(el("h2",null,dataLonga(dia)))}L.append(linha(v))}
-}
-function salvarFiltros(){gravar("filtros",{status:f.status,ordem:f.ordem,fonte:f.fonte,area:f.area,mod:f.mod,score:f.score})}
-for(const[id,campo]of[["f-fonte","fonte"],["f-area","area"],["f-mod","mod"],["f-score","score"],["ordem","ordem"]])
-  $(id).addEventListener("change",e=>{f[campo]=e.target.value;salvarFiltros();render()});
-$("busca").addEventListener("input",e=>{busca=e.target.value;render()});
-$("limpar").onclick=()=>{f={...f,status:"todas",fonte:"",area:"",mod:"",score:"0"};busca="";$("busca").value="";salvarFiltros();render()};
+      <p class="notice info" id="msg-atual" role="status" aria-live="polite" hidden></p>
+      <p class="notice bad alerta-fontes" id="alerta-fontes" hidden></p>
 
-// Lê vagas.json: direto do repositório quando há token (sem cache do Pages), senão do site
-async function carregarVagas(){
-  let dados=null;
-  if(sb){
-    const[{data:vs,error},{data:bs}]=await Promise.all([sb.from("vagas").select("*").range(0,9999),sb.from("buscas").select("*").eq("id",1)]);
-    if(error)throw error;
-    for(const v of vs)for(const k in v)if(v[k]==null)delete v[k];
-    dados={vagas:vs,...(bs&&bs[0]||{})};
-  }
-  else if(token){try{const r=await fetch(`https://api.github.com/repos/${REPO}/contents/docs/vagas.json?ref=main&t=${Date.now()}`,
-    {headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github.raw+json"}});if(r.ok)dados=await r.json()}catch(e){}}
-  if(!dados){const r=await fetch("vagas.json?t="+Date.now());dados=await r.json()}
-  todas=dados.vagas||[];meta=dados;
-  if(dados.atualizado_em){const d=new Date(dados.atualizado_em);
-    const fontes=Object.entries(dados.fontes||{}).map(([n,x])=>`${n} ${x.novas}`).join(", ");
-    $("atual").textContent=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontes?` Novas por site: ${fontes}.`:"");
-    const ruins=Object.entries(dados.fontes||{}).filter(([,x])=>situacao(x)!=="ok").map(([n])=>n);
-    const A=$("alerta-fontes");A.hidden=!ruins.length;A.textContent="";
-    if(ruins.length){A.append(`Atenção: ${ruins.join(", ")} ${ruins.length>1?"falharam":"falhou"} em parte da busca. `);
-      const b=el("button",null,"Ver detalhes");b.type="button";b.onclick=()=>{$("fontes").open=true;$("fontes").scrollIntoView({behavior:"smooth"})};A.append(b)}}
-  return dados.atualizado_em;
-}
+      <!-- Funil operacional tabular-nums -->
+      <div class="funil-strip">
+        <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
+      </div>
 
-// ---------- sites consultados
-// ok = respondeu sem erro; parcial = algumas consultas falharam; falhou = não leu nada e teve erro
-const situacao=x=>!x.falhas?"ok":x.lidas?"parcial":"falhou";
-const SIT={ok:"Respondeu",parcial:"Parcial",falhou:"Falhou"};
-function desenharFontes(){
-  const T=$("tabela-fontes");T.textContent="";
-  const fs=Object.entries(meta.fontes||{});
-  if(!fs.length){T.append(el("p","aviso","Ainda não há dados da última busca."));return}
-  const tb=el("table","tabela"),cab=el("tr");
-  for(const[t,c]of[["Site"],["Lidos","n"],["Já vistos antes","n esconde"],["Novas no painel","n"],["Ficaram de fora"],["Situação"]])cab.append(el("th",c||null,t));
-  const th=el("thead");th.append(cab);tb.append(th);const corpo=el("tbody");
-  for(const[n,x]of fs){
-    const tr=el("tr"),sit=situacao(x);
-    const fora=Object.entries(x.descartes||{}),qtd=fora.reduce((a,[,q])=>a+q,0);
-    const tdFora=el("td",null,x.descartes?String(qtd):"—");
-    if(fora.length)tdFora.append(el("small",null,fora.slice(0,3).map(([m,q])=>`${m.replace(/^Descartada \((.*)\)$/,"$1")}: ${q}`).join(" · ")));
-    const tdSit=el("td","sit-"+sit,SIT[sit]);
-    if(x.falhas)tdSit.append(el("small",null,`${x.falhas} ${x.falhas>1?"consultas falharam":"consulta falhou"}`+(x.erros&&x.erros[0]?`: ${x.erros[0]}`:"")));
-    if(x.portais_sumidos&&x.portais_sumidos.length)tdSit.append(el("small",null,`${x.portais_sumidos.length} ${x.portais_sumidos.length>1?"páginas de empresa não existem mais":"página de empresa não existe mais"} (dá para tirar de gupy_portais): ${x.portais_sumidos.map(u=>u.replace(/^https?:\/\/|\.gupy\.io\/?$/g,"")).join(", ")}`));
-    const vistos=x.ja_vistas==null?"—":x.ja_vistas+(x.ja_no_painel||0);
-    tr.append(el("td",null,n),el("td","n",x.lidas??"—"),el("td","n esconde",vistos),el("td","n",x.novas??0),tdFora,tdSit);
-    corpo.append(tr);
-  }
-  tb.append(corpo);T.append(tb);
-}
+      <!-- Formulário para adicionar vaga manual -->
+      <form id="manual-panel" class="manual-panel" hidden>
+        <div>
+          <strong>Adicionar uma vaga ao seu painel</strong>
+          <p class="muted small">Serve para qualquer site (LinkedIn, Gupy, Vagas.com.br, Indeed). O Radar calcula o score e os requisitos para o seu perfil na hora.</p>
+        </div>
+        <div class="form-grid">
+          <label class="full">Link da vaga<input name="link" type="url" required placeholder="https://..."></label>
+          <label>Cargo / Título<input name="titulo" required placeholder="Ex.: Engenheiro de Planejamento"></label>
+          <label>Empresa<input name="empresa" required placeholder="Ex.: Empresa X"></label>
+          <label>Cidade / Local<input name="local" placeholder="Ex.: Salvador, BA ou Remoto"></label>
+          <label>Modalidade
+            <select name="modalidade">
+              <option value="Remoto">Remoto</option>
+              <option value="Híbrido">Híbrido</option>
+              <option value="Presencial">Presencial</option>
+              <option value="Modalidade a confirmar">Modalidade a confirmar</option>
+            </select>
+          </label>
+          <label class="full">Descrição ou requisitos citados (opcional)<textarea name="texto" rows="2" placeholder="Ex.: MS Project, Power BI, SAP, 3 anos de experiência"></textarea></label>
+        </div>
+        <div class="form-actions">
+          <button class="button" type="submit">Salvar e avaliar vaga</button>
+          <button class="button button-ghost" type="button" id="close-manual">Cancelar</button>
+        </div>
+      </form>
 
-// ---------- conferir uma vaga achada por conta própria
-let catalogo=null;
-const urlLimpa=u=>{try{const x=new URL(u);return(x.hostname.replace(/^www\./,"")+x.pathname.replace(/\/$/,"")).toLowerCase()}catch(e){return""}};
-// Identificador do anúncio dentro de cada site, para achar a mesma vaga mesmo com link diferente
-function idDoLink(u){
-  try{const x=new URL(u),h=x.hostname,c=x.pathname;let m;
-    if(/gupy\.io$/.test(h)&&(m=/\/jobs?\/([^/?#]+)/.exec(c))){if(/^\d+$/.test(m[1]))return"gupy:"+m[1];
-      try{const j=JSON.parse(atob(decodeURIComponent(m[1])));if(j.jobId)return"gupy:"+j.jobId}catch(e){}}
-    if(/linkedin\./.test(h)){const id=x.searchParams.get("currentJobId")||(/(\d{8,})\/?$/.exec(c)||[])[1];if(id)return"linkedin:"+id}
-    if(/vagas\.com\.br$/.test(h)&&(m=/\/vagas\/v(\d+)/.exec(c)))return"vagascom:"+m[1];
-    if(/solides\.com\.br$/.test(h)&&(m=/\/vagas?\/(\d+)/.exec(c)))return"solides:"+m[1];
-    if(/empregos\.com\.br$/.test(h)&&(m=/\/vaga\/(\d+)/.exec(c)))return"empregos:"+m[1];
-  }catch(e){}
-  return null;
-}
-const VAZIAS=["de","da","do","das","dos","e","em","para","a","o","vaga","remoto","remota","hibrido","presencial","salvador","ba","bahia","jr","junior","pleno","na","no","com"];
-const palavras=t=>(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").split(" ").filter(w=>w.length>1&&!VAZIAS.includes(w));
-async function carregarCatalogo(){
-  if(catalogo)return catalogo;
-  const r=await fetch("catalogo.json?t="+Date.now());if(!r.ok)throw new Error(r.status);
-  const j=await r.json();
-  catalogo=j.linhas.map(l=>Object.fromEntries(j.campos.map((k,n)=>[k,l[n]])));catalogo.desde=j.desde;return catalogo;
-}
-function dicaNaoAchada(u){
-  if(/indeed\.|glassdoor\.|catho\.|infojobs\./i.test(u))return"Esse site não está ligado ao robô. Veja se a mesma vaga existe na Gupy, na Sólides ou na página da empresa.";
-  if(/linkedin\./i.test(u))return"O robô lê no LinkedIn só os primeiros resultados de cada termo. Inclua em config.json um termo parecido com o cargo dessa vaga.";
-  if(/gupy\.io/i.test(u))return"É da Gupy, mas não veio na busca. Ela pode ser de fora de Salvador/RMS sem ser remota, ou o cargo não está nos termos. Se for uma empresa que você acompanha, inclua o portal dela em gupy_portais no config.json.";
-  if(/solides|empregos\.com\.br|vagas\.com\.br/i.test(u))return"O site está ligado, mas essa vaga não veio nas buscas. Inclua em config.json um termo parecido com o cargo dela.";
-  if(u)return"Esse site ainda não está ligado ao robô.";
-  return"Não achei nada parecido com esse cargo e empresa no que o robô leu.";
-}
-function conferirLinha(linha,cat){
-  const u=(/https?:\/\/\S+/.exec(linha)||[""])[0],rotulo=linha.replace(u,"").replace(/[|;–—]+/g," ").trim();
-  const id=u&&idDoLink(u),limpa=u&&urlLimpa(u);
-  const mesmo=x=>!!x&&((id&&idDoLink(x)===id)||(limpa&&urlLimpa(x)===limpa));
-  // 1) link igual: no painel (inclusive pelos links de "Também em") ou no que o robô leu
-  let v=u?todas.find(x=>mesmo(x.link)||(x.tambem_em||[]).some(o=>mesmo(o.link))):null;
-  let c=!v&&u?cat.find(x=>mesmo(x.link)):null;
-  // 2) sem link igual: cargo e empresa parecidos
-  if(!v&&!c&&rotulo){const ws=palavras(rotulo);if(ws.length>=2){let melhor=null,nota=0;
-    for(const x of[...todas.map(t=>({...t,_painel:1})),...cat]){const h=" "+palavras(x.titulo+" "+x.empresa).join(" ")+" ";const p=ws.filter(w=>h.includes(" "+w+" ")).length/ws.length;if(p>nota){nota=p;melhor=x}}
-    if(nota>=.75){if(melhor._painel)v=todas.find(t=>t.id===melhor.id);else c=melhor}}}
-  if(v){const desc=estado.descartadas.includes(v.id);
-    return{cls:desc?"fora":"painel",titulo:`${v.titulo}${v.empresa?", "+v.empresa:""}`,txt:desc?"O robô colocou no painel e você descartou depois.":`Está no painel${v.score!=null?` com score ${v.score}`:""}${v.data?`, desde ${dataCurta(v.data)}`:""}.`}}
-  if(c){const st=c.status||"";
-    if(st==="No painel")return{cls:"fora",titulo:`${c.titulo}, ${c.empresa}`,txt:`O robô colocou no painel em ${dataCurta(c.visto_em)} e ela foi descartada depois.`};
-    const pq=st==="fora da área"?"o título não bate com as áreas de config.json ou tem uma palavra da lista de exclusão":st.replace(/^Descartada \((.*)\)$/,"$1").toLowerCase();
-    return{cls:"fora",titulo:`${c.titulo}, ${c.empresa}`,txt:`O robô leu em ${dataCurta(c.visto_em)} (${c.fonte}), mas ficou de fora: ${pq}${c.motivo?`. ${c.motivo}`:""}.`}}
-  return{cls:"nao",titulo:"Não encontrada",txt:dicaNaoAchada(u)};
-}
-$("conf-bt").onclick=async()=>{
-  const S=$("conf-saida"),linhas=$("conf-texto").value.split(/\n+/).map(x=>x.trim()).filter(Boolean).slice(0,60);
-  S.textContent="";if(!linhas.length){S.append(el("p","conf-resumo","Cole pelo menos um link ou um cargo com a empresa."));return}
-  let cat;try{cat=await carregarCatalogo()}catch(e){cat=[];S.append(el("p","tambem","A lista do que o robô leu aparece depois da próxima busca. Por enquanto só comparo com o painel."))}
-  const rs=linhas.map(l=>({l,...conferirLinha(l,cat)}));
-  const n=k=>rs.filter(r=>r.cls===k).length;
-  S.append(el("p","conf-resumo",`${rs.length} ${rs.length>1?"conferidas":"conferida"}: ${n("painel")} no painel, ${n("fora")} lidas e deixadas de fora, ${n("nao")} não encontradas.`));
-  const ul=el("ul","conf-lista");
-  for(const r of rs){const li=el("li",r.cls);li.append(el("b",null,r.titulo),el("span",null,r.txt),el("span","linha-orig",r.l));ul.append(li)}
-  S.append(ul);if(cat.desde)S.append(el("p","tambem",`O robô lembra do que leu desde ${dataCurta(cat.desde)}.`));
-};
+      <!-- Controles e Filtros de Vagas -->
+      <section class="controles" aria-label="Filtros">
+        <div class="filters" role="search">
+          <label class="search-field">
+            <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+            <input class="busca" id="busca" type="search" placeholder="Buscar por cargo, empresa, local ou motivo" aria-label="Buscar vagas">
+          </label>
+          <label class="filter-col">Ordenar
+            <select id="ordem" aria-label="Ordenar">
+              <option value="data">Mais recentes primeiro</option>
+              <option value="score">Maior score primeiro</option>
+            </select>
+          </label>
+          <label class="filter-col">Site
+            <select id="f-fonte"></select>
+          </label>
+          <label class="filter-col">Área
+            <select id="f-area"></select>
+          </label>
+          <label class="filter-col">Modalidade
+            <select id="f-mod"></select>
+          </label>
+          <label class="filter-col">Score mínimo
+            <select id="f-score">
+              <option value="0">Qualquer</option>
+              <option value="50">50+</option>
+              <option value="60">60+</option>
+              <option value="70">70+</option>
+              <option value="80">80+</option>
+            </select>
+          </label>
+        </div>
 
-// Botão: dispara o robô no GitHub Actions e espera o resultado
-$("atualizar").onclick=async()=>{
-  const b=$("atualizar"),m=$("msg-atual");
-  if(sb){b.disabled=true;m.textContent="Iniciando a busca.";
-    const{error}=await sb.functions.invoke("buscar-agora");
-    if(error){b.disabled=false;m.textContent="Não deu para iniciar a busca. Tente de novo daqui a pouco.";return}}
-  else if(!token){m.textContent="Para buscar agora, conecte o token do GitHub no fim da página.";$("conta").open=true;return}
-  else{b.disabled=true;m.textContent="Iniciando a busca.";
-  try{
-    const r=await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/coletar.yml/dispatches`,{method:"POST",
-      headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},body:JSON.stringify({ref:"main"})});
-    if(r.status!==204)throw new Error(r.status);
-  }catch(e){b.disabled=false;m.textContent="Não deu para iniciar. Confira se o token tem permissão de escrita em Actions.";return}}
-  const antes=meta.atualizado_em;m.textContent="Busca iniciada. Leva uns 5 minutos; a lista atualiza sozinha.";
-  for(let i=0;i<15;i++){
-    await new Promise(ok=>setTimeout(ok,60000));
-    try{if(await carregarVagas()!==antes){render();m.textContent="Vagas atualizadas.";b.disabled=false;return}}catch(e){}
-  }
-  b.disabled=false;m.textContent="A busca está demorando. Recarregue a página daqui a pouco.";
-};
+        <div class="filtros" id="filtros" role="group" aria-label="Filtrar por situação ou fila de erros"></div>
+        <div style="margin-bottom:12px">
+          <button class="link limpar" id="limpar" type="button" hidden>Limpar filtros ativos</button>
+        </div>
+      </section>
 
-function mostrarConta(){$("estado-conta").textContent=token?`Conectado. As marcações vão para ${REPO}.`:"Não conectado. As marcações ficam só neste navegador."}
-$("form-token").onsubmit=async e=>{e.preventDefault();const t=$("token").value.trim();if(!t)return;
-  token=t;try{const remoto=await lerEstadoGitHub();
-    const local=ler("estado-local",null);
-    estado=remoto;
-    if(local)await mudar("Marcações deste navegador",e=>{Object.assign(e.candidatei,local.candidatei);for(const id of local.descartadas)if(!e.descartadas.includes(id))e.descartadas.push(id)});
-    gravar("token",t);gravar("estado-local",null);$("token").value="";mostrarConta();render()}
-  catch(err){token=ler("token","");$("estado-conta").textContent="Esse token não conseguiu ler o repositório. Confira a permissão Contents (leitura e escrita).";$("estado-conta").className="estado-conta erro"}};
-$("tirar-token").onclick=()=>{token="";gravar("token","");mostrarConta()};
+      <!-- PAINEL DEDICADO DA FILA DE ERROS VAGAS.COM.BR (visível quando o chip "erros" está ativo ou pelo atalho) -->
+      <section id="painel-fila-erros" class="workspace-panel" style="margin-bottom:18px" hidden aria-labelledby="titulo-fila-erros">
+        <div class="panel-heading">
+          <div>
+            <h2 id="titulo-fila-erros">Fila separada de erros · Vagas.com.br (<span id="contador-fila-erros">0</span>)</h2>
+            <p>Buscas ou anúncios do <code>vagas.com.br</code> que retornaram falha HTTP, timeout, mudança de seletor ou modalidade pendente de confirmação. Você pode abrir o link original, tentar reprocessar, aprovar para o painel de vagas (escolhendo a modalidade) ou descartar da fila.</p>
+          </div>
+          <button class="button button-secondary button-sm" type="button" id="btn-add-erro-manual">+ Registrar falha na fila</button>
+        </div>
+        <form id="form-erro-manual" class="compact-form form-grid" hidden>
+          <label>Cargo ou termo buscado<input name="titulo" required placeholder="Ex.: Engenheiro de Planejamento"></label>
+          <label>Empresa (se conhecida)<input name="empresa" placeholder="Ex.: Confidencial (Vagas.com.br)"></label>
+          <label>Local<input name="local" placeholder="Ex.: Salvador, BA"></label>
+          <label>Código / Motivo do erro<input name="erro" required placeholder="Ex.: HTTP 503 / Timeout na listagem"></label>
+          <label class="full">Link no Vagas.com.br<input name="link" type="url" required placeholder="https://www.vagas.com.br/vagas-de-..."></label>
+          <div class="form-actions full">
+            <button class="button" type="submit">Adicionar à fila de erros</button>
+            <button class="button button-ghost" type="button" id="cancel-erro-manual">Cancelar</button>
+          </div>
+        </form>
+      </section>
 
-function carregarScript(src){return new Promise((ok,erro)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=erro;document.head.append(s)})}
+      <!-- SPLIT-VIEW MASTER-DETAIL (Lista navegável por ArrowUp/ArrowDown + Painel de Detalhes) -->
+      <div class="split">
+        <div class="list-col">
+          <div class="list-head">
+            <p class="list-count" id="jobs-count">Carregando…</p>
+          </div>
+          <section id="lista" class="job-list" role="listbox" aria-label="Lista de vagas e fila de erros" aria-live="polite">
+            <p class="aviso">Carregando as vagas…</p>
+          </section>
+        </div>
+        <article class="detail-col" id="job-detail" tabindex="-1" aria-live="polite">
+          <div class="empty">
+            <strong>Selecione uma vaga ao lado</strong>
+            <span>Use o clique ou as setas ↑↓ do teclado para inspecionar o score, os requisitos do seu perfil e as ações.</span>
+          </div>
+        </article>
+      </div>
 
-// Com Supabase: só mostra o painel depois do login com Google
-async function iniciarSupabase(){
-  await carregarScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js");
-  sb=window.supabase.createClient(window.SUPABASE.url,window.SUPABASE.anon);
-  $("conta").hidden=true;
-  $("entrar").onclick=()=>sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
-  $("sair").onclick=async()=>{await sb.auth.signOut();location.reload()};
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){$("app").hidden=true;$("barra-atual").hidden=true;$("login").hidden=false;return}
-  usuario=session.user;$("email").textContent=usuario.email;$("usuario").hidden=false;
-  const{data:pode}=await sb.rpc("permitido");
-  if(!pode){$("app").hidden=true;$("barra-atual").hidden=true;$("login").hidden=false;$("entrar").hidden=true;
-    $("msg-login").textContent=`A conta ${usuario.email} não tem acesso a este painel.`;return}
-  try{await carregarVagas();estado=await lerEstadoSupabase();render()}
-  catch(e){$("lista").replaceChildren(el("p","aviso erro","As vagas não carregaram do banco. Recarregue a página."))}
-}
+      <!-- Diagnóstico da busca + Prova de cobertura -->
+      <div class="diagnostics" id="diagnostics">
+        <h2>Diagnóstico e Prova de Cobertura</h2>
+        <p class="muted">Transparência do que o coletor leu em cada site e verificação de vagas encontradas por conta própria.</p>
 
-(async()=>{
-  if(window.SUPABASE&&window.SUPABASE.url)return iniciarSupabase();
-  mostrarConta();
-  try{
-    await carregarVagas();
-    if(token){try{estado=await lerEstadoGitHub()}catch(e){token="";mostrarConta()}}
-    if(!token){try{const r2=await fetch("estado.json?t="+Date.now());if(r2.ok)estado=await r2.json()}catch(e){}
-      const local=ler("estado-local",null);
-      if(local){estado.candidatei={...estado.candidatei,...local.candidatei};estado.descartadas=[...new Set([...estado.descartadas,...local.descartadas])]}}
-    estado.candidatei=estado.candidatei||{};estado.descartadas=estado.descartadas||[];
-    render();
-  }catch(e){$("lista").replaceChildren(el("p","aviso erro","As vagas não carregaram. Se abriu o arquivo direto do PC, rode um servidor local (veja o README)."))}
-})();
-</script>
+        <details class="painel-extra disclosure" id="fontes" open>
+          <summary>Sites consultados na última busca <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="disclosure-body">
+            <p class="muted small">Quantos anúncios o robô leu em cada site, quantos entraram no painel e por que os outros ficaram de fora. Um site que bloqueou ou mudou aparece como <b>Falhou</b>, e não como zero vagas.</p>
+            <div class="table-wrap" id="tabela-fontes"></div>
+          </div>
+        </details>
+
+        <details class="painel-extra disclosure" id="conferir">
+          <summary>Prova de cobertura: conferir uma vaga que eu achei <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="disclosure-body">
+            <p class="muted small">Achou uma vaga por conta própria? Cole o link (e, se quiser, o cargo e a empresa), uma por linha. O painel diz se o robô viu essa vaga e, se ela ficou de fora, por quê.</p>
+            <label for="conf-texto" style="margin-top:8px">Links ou "cargo, empresa", um por linha</label>
+            <textarea id="conf-texto" rows="4" placeholder="https://empresa.gupy.io/jobs/1234567&#10;Analista de Planejamento, Empresa X"></textarea>
+            <div class="form-actions">
+              <button class="button button-secondary bt" id="conf-bt" type="button">Conferir cobertura</button>
+            </div>
+            <div id="conf-saida" aria-live="polite"></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ==================== 3. CLIENTES (PROSPECÇÃO) ==================== -->
+    <section id="leads" class="view" aria-labelledby="leads-title">
+      <div class="jobs-head">
+        <div>
+          <h1 id="leads-title">Clientes e Prospecção</h1>
+          <p class="summary-line">Empresas por nicho e cidade com score 0–100 explicável, motivos da indicação, rascunho editável da 1ª mensagem e controle de limite diário.</p>
+        </div>
+        <div class="search-actions">
+          <label class="period-field">
+            <span>Campanha</span>
+            <select id="campaign-select" aria-label="Selecionar campanha"></select>
+          </label>
+          <button class="button button-secondary" id="new-campaign" type="button">+ Nova campanha</button>
+          <button class="button" id="add-lead-btn" type="button">+ Cadastrar / Importar empresa</button>
+        </div>
+      </div>
+
+      <!-- Resumo operacional de envios e campanha -->
+      <div class="camp-summary" id="leads-summary-strip"></div>
+
+      <!-- Formulário de Nova Campanha -->
+      <form id="campaign-form" class="workspace-panel" style="margin-bottom:18px" hidden>
+        <div class="panel-heading">
+          <div>
+            <h2>Configurar campanha de prospecção</h2>
+            <p>Defina o serviço/automação oferecido, o nicho e a cidade-alvo para pontuar empresas e gerar o rascunho da 1ª mensagem.</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label>Nome da campanha<input name="name" required placeholder="Ex.: Gestão de Manutenção e Obras — Salvador"></label>
+          <label>Cidade / Região<input name="city" required placeholder="Ex.: Salvador e RMS, BA"></label>
+          <label>Nicho / Tipo de empresa<input name="niche" required placeholder="Ex.: Construtoras, Indústrias e Clínicas"></label>
+          <label>Limite diário de envios<select name="dailyLimit"><option value="10">10 envios/dia</option><option value="20" selected>20 envios/dia (recomendado)</option><option value="30">30 envios/dia</option><option value="50">50 envios/dia</option></select></label>
+          <label class="full">Sua oferta / O que você resolve<textarea name="offer" rows="2" required placeholder="Ex.: Controle de cronograma, dashboards em Power BI e organização de manutenção preventiva sem planilhas soltas."></textarea></label>
+        </div>
+        <div class="form-actions">
+          <button class="button" type="submit">Salvar campanha</button>
+          <button class="button button-ghost" type="button" id="cancel-campaign-btn">Cancelar</button>
+        </div>
+      </form>
+
+      <!-- Formulário de Cadastro / Importação de Lead -->
+      <form id="lead-form" class="workspace-panel" style="margin-bottom:18px" hidden>
+        <div class="panel-heading">
+          <div>
+            <h2>Cadastrar ou importar empresa</h2>
+            <p>Adicione uma empresa encontrada no Google Maps, LinkedIn ou indicação local. O Radar calcula o score 0–100 e prepara o rascunho personalizado.</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label>Nome da empresa<input name="name" required placeholder="Ex.: Engenharia & Obras Bahia Ltda"></label>
+          <label>Nicho / Segmento<input name="category" required placeholder="Ex.: Construtora / Incorporadora"></label>
+          <label>Cidade / Bairro<input name="city" required placeholder="Ex.: Caminho das Árvores, Salvador - BA"></label>
+          <label>Contato (E-mail ou WhatsApp)<input name="contact" placeholder="Ex.: contato@empresa.com.br ou (71) 99999-0000"></label>
+          <label>Site ou Instagram (opcional)<input name="website" placeholder="https://..."></label>
+          <label>Sinal de oportunidade observado<input name="signal" placeholder="Ex.: Contratando auxiliar de planejamento / controle manual"></label>
+        </div>
+        <div class="form-actions">
+          <button class="button" type="submit">Adicionar empresa e gerar mensagem</button>
+          <button class="button button-ghost" type="button" id="cancel-lead-btn">Cancelar</button>
+        </div>
+      </form>
+
+      <div class="filters">
+        <div class="chips" id="lead-status-chips" role="group" aria-label="Filtrar clientes por status"></div>
+        <label class="search-field">
+          <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="lead-query" type="search" placeholder="Filtrar por nome, nicho ou cidade" aria-label="Filtrar empresas">
+        </label>
+      </div>
+
+      <div class="split">
+        <div class="list-col">
+          <p class="list-count" id="leads-count">0 empresas</p>
+          <div id="leads-list" class="job-list" role="listbox" aria-label="Lista de empresas para prospecção"></div>
+        </div>
+        <article class="detail-col" id="leads-detail" tabindex="-1" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ==================== 4. PUBLICAÇÕES (LINKEDIN) ==================== -->
+    <section id="content" class="view" aria-labelledby="content-title">
+      <div class="jobs-head">
+        <div>
+          <h1 id="content-title">Publicações LinkedIn</h1>
+          <p class="summary-line">Gerador e editor de pautas baseadas nos fatos reais do seu currículo e projetos, com transparência dos fatos usados e aprovação manual.</p>
+        </div>
+        <div class="search-actions">
+          <button class="button button-secondary" id="new-story-btn" type="button">+ Adicionar fato / projeto</button>
+          <button class="button" id="plan-posts" type="button">
+            <svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>
+            <span>Gerar pauta a partir do meu perfil</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="camp-summary" id="posts-summary-strip"></div>
+
+      <!-- Formulário para adicionar fato/história verificável -->
+      <form id="story-form" class="workspace-panel" style="margin-bottom:18px" hidden>
+        <div class="panel-heading">
+          <div>
+            <h2>Registrar fato real ou aprendizado da carreira</h2>
+            <p>O gerador de publicações usa exclusivamente fatos verificados do seu perfil e histórias abaixo, sem inventar números.</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label>Título da história ou projeto<input name="title" required placeholder="Ex.: Automação de relatórios de manutenção com Power BI"></label>
+          <label>Pilar editorial
+            <select name="pillar">
+              <option value="Prova e projeto">Prova e projeto</option>
+              <option value="Dica prática">Dica prática</option>
+              <option value="História e aprendizado">História e aprendizado</option>
+              <option value="Opinião sobre o mercado">Opinião sobre o mercado</option>
+            </select>
+          </label>
+          <label class="full">Fatos verificados (um por linha ou separados por ponto e vírgula)<textarea name="facts" rows="3" required placeholder="Ex.: Reduzi o tempo de consolidação semanal; Integrei planilhas de campo ao painel; Mantive revisão técnica com a equipe"></textarea></label>
+        </div>
+        <div class="form-actions">
+          <button class="button" type="submit">Salvar fato e criar rascunho</button>
+          <button class="button button-ghost" type="button" id="cancel-story-btn">Cancelar</button>
+        </div>
+      </form>
+
+      <div class="filters">
+        <div class="chips" id="post-status-chips" role="group" aria-label="Filtrar publicações por status"></div>
+      </div>
+
+      <div class="split">
+        <div class="list-col">
+          <p class="list-count" id="posts-count">0 publicações</p>
+          <div id="posts-list" class="job-list" role="listbox" aria-label="Lista de publicações"></div>
+        </div>
+        <article class="detail-col" id="posts-detail" tabindex="-1" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ==================== 5. MEU PERFIL & CURRÍCULO ==================== -->
+    <section id="profile" class="view" aria-labelledby="profile-title">
+      <div class="page-head">
+        <div>
+          <h1 id="profile-title">Meu perfil e currículo</h1>
+          <p class="heading-subtitle">Qualquer pessoa pode configurar seus próprios dados aqui. Ao salvar, o Radar recalcula na hora o score de todas as vagas e os requisitos "No seu perfil" vs. "Vale conferir".</p>
+        </div>
+        <div class="form-actions">
+          <button class="button button-secondary" type="button" id="btn-preset-erick">Carregar preset Eng. Planejamento (Erick)</button>
+          <button class="button button-secondary" type="button" id="btn-preset-blank">Limpar para novo amigo</button>
+        </div>
+      </div>
+
+      <div class="profile-layout">
+        <div class="settings-stack">
+          <section class="workspace-panel" aria-labelledby="base-title">
+            <div class="panel-heading">
+              <div>
+                <h2 id="base-title">Identificação, cargos e competências</h2>
+                <p>Esses campos alimentam o cabeçalho do painel, a avaliação de vagas e os geradores de clientes e posts.</p>
+              </div>
+            </div>
+            <form id="profile-form" class="form-grid">
+              <label>Seu nome<input name="name" required placeholder="Ex.: Erick Gonçalves ou Maria Silva"></label>
+              <label>Cidade e UF de preferência<input name="city" required placeholder="Ex.: Salvador, BA"></label>
+              <label class="full">Cidades da sua região metropolitana (separadas por vírgula)<input name="regionCities" placeholder="Ex.: salvador, lauro de freitas, camaçari, candeias, simões filho"></label>
+              <label class="full">Resumo curto (aparece na Visão Geral)<input name="headline" placeholder="Ex.: Vagas de planejamento, projetos e manutenção, remotas ou na minha região."></label>
+              <label class="full">Áreas e cargos de interesse (separados por vírgula)<textarea name="roles" rows="2" placeholder="Ex.: Planejamento e controle, Gestão de projetos, Manutenção, Engenharia elétrica, Analista de Dados"></textarea></label>
+              <fieldset class="full">
+                <legend>Modalidades aceitas</legend>
+                <label class="check"><input type="checkbox" name="acceptRemote" checked> Remoto</label>
+                <label class="check"><input type="checkbox" name="acceptHybrid" checked> Híbrido na minha região</label>
+                <label class="check"><input type="checkbox" name="acceptOnsite"> Presencial na minha região</label>
+              </fieldset>
+              <label>Prazo máximo dos anúncios (dias)<input name="maxDays" type="number" min="1" max="90" value="14"></label>
+              <label>E-mail ou LinkedIn (para assinatura)<input name="contact" placeholder="Ex.: linkedin.com/in/seu-perfil"></label>
+              <label class="full">Competências e ferramentas no seu currículo (separadas por vírgula — recalculam os requisitos das vagas!)<textarea name="skills" rows="3" required placeholder="Ex.: MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, CREA ativo, NR-10, SQL, Python"></textarea></label>
+              <label class="full">Resumo profissional e experiências-chave<textarea name="summary" rows="4" placeholder="Descreva suas principais experiências e resultados reais para usar nas publicações e cartas de apresentação."></textarea></label>
+              <div class="form-actions full">
+                <button class="button" type="submit"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg> Salvar perfil e recalcular vagas</button>
+                <span id="profile-saved" class="save-note" role="status" aria-live="polite"></span>
+              </div>
+            </form>
+          </section>
+
+          <section class="workspace-panel" aria-labelledby="stories-profile-title">
+            <div class="panel-heading">
+              <div>
+                <h2 id="stories-profile-title">Histórias e projetos verificáveis</h2>
+                <p>Base de fatos reais usada pelo módulo Publicações para criar posts sem clichês de IA.</p>
+              </div>
+            </div>
+            <div id="profile-stories-list" class="profile-list"></div>
+          </section>
+        </div>
+
+        <aside class="settings-stack">
+          <section class="workspace-panel" aria-labelledby="preview-match-title">
+            <div class="panel-heading">
+              <div>
+                <h2 id="preview-match-title">Impacto imediato no painel</h2>
+              </div>
+            </div>
+            <div id="profile-impact-box" class="rows"></div>
+            <p class="helper">Sempre que você adiciona ou remove uma competência (como <code>Power BI</code>, <code>SAP</code>, <code>Primavera P6</code>, <code>Inglês</code>), todas as vagas abertas são reavaliadas imediatamente.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================== 6. CONFIGURAÇÕES ==================== -->
+    <section id="settings" class="view" aria-labelledby="settings-title">
+      <div class="page-head">
+        <div>
+          <h1 id="settings-title">Configurações e Integrações</h1>
+          <p class="heading-subtitle">Aparência, sincronização em nuvem (Supabase ou GitHub), exportação de dados e compartilhamento com amigos.</p>
+        </div>
+      </div>
+
+      <div class="profile-card" id="profile-card">
+        <span class="avatar avatar-lg" id="profile-card-avatar">PF</span>
+        <div class="profile-card-main">
+          <h2 id="profile-card-name">Usuário</h2>
+          <p id="profile-card-line" class="muted"></p>
+          <p id="profile-card-contact" class="profile-card-contact"></p>
+        </div>
+        <div class="profile-card-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="button button-secondary" type="button" data-view="profile">Editar currículo e competências</button>
+          <button class="button" type="button" id="btn-open-auth-settings">Trocar conta / Entrar</button>
+        </div>
+      </div>
+
+      <div class="settings-stack">
+        <section class="workspace-panel appearance-panel" aria-labelledby="appearance-title">
+          <div class="panel-heading">
+            <div>
+              <h2 id="appearance-title">Aparência e acessibilidade</h2>
+              <p>Contraste validado WCAG AA (>= 4,5:1) tanto no tema claro quanto no tema escuro.</p>
+            </div>
+          </div>
+          <div class="segmented" role="group" aria-label="Tema">
+            <button type="button" class="seg" data-theme-choice="light">Claro</button>
+            <button type="button" class="seg" data-theme-choice="dark">Escuro</button>
+          </div>
+        </section>
+
+        <!-- Sincronização GitHub (compatível com o fluxo original de docs/index.html) -->
+        <details class="workspace-panel conta" id="conta" open>
+          <summary>Sincronização via GitHub Token (opcional) <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="disclosure-body">
+            <p class="muted">Sem login Supabase ou token, tudo fica salvo gratuitamente neste navegador (isolado por perfil). Se você é dono do repositório no GitHub, pode colar um token com permissão em <b>Contents</b> e <b>Actions</b> para disparar o robô e gravar em <code>estado.json</code>.</p>
+            <form id="form-token" class="form-grid" style="margin-top:12px">
+              <label class="full">Token do GitHub (Personal Access Token)
+                <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">
+              </label>
+              <div class="form-actions full">
+                <button class="button" type="submit">Salvar token</button>
+                <button class="button button-secondary sec" type="button" id="tirar-token">Remover token</button>
+              </div>
+            </form>
+            <p class="helper estado-conta" id="estado-conta"></p>
+          </div>
+        </details>
+
+        <!-- Conexão Supabase Customizada (para amigos que queiram ligar seu próprio banco grátis) -->
+        <section class="workspace-panel" aria-labelledby="supa-custom-title">
+          <div class="panel-heading">
+            <div>
+              <h2 id="supa-custom-title">Conexão Supabase (Multiusuário na nuvem)</h2>
+              <p>O painel usa o Supabase configurado em <code>supabase-config.js</code> ou permite informar a URL e Anon Key do projeto para sincronizar marcações, clientes e publicações por usuário.</p>
+            </div>
+          </div>
+          <form id="supa-custom-form" class="form-grid">
+            <label>Supabase Project URL<input name="url" type="url" placeholder="https://xyz.supabase.co"></label>
+            <label>Supabase Anon Public Key<input name="anon" type="password" autocomplete="off" placeholder="eyJhbGciOi..."></label>
+            <div class="form-actions full">
+              <button class="button button-secondary" type="submit">Salvar conexão Supabase</button>
+              <button class="button button-ghost" type="button" id="supa-clear-btn">Usar padrão / Desconectar</button>
+              <span id="supa-saved-note" class="save-note"></span>
+            </div>
+          </form>
+        </section>
+
+        <!-- Backup / Exportar e Importar Perfil -->
+        <section class="workspace-panel" aria-labelledby="backup-title">
+          <div class="panel-heading">
+            <div>
+              <h2 id="backup-title">Exportar ou importar meus dados</h2>
+              <p>Baixe uma cópia JSON do seu perfil, candidaturas, clientes e posts para levar para outro aparelho ou enviar de modelo para um amigo.</p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="button button-secondary" type="button" id="btn-export-data">Baixar backup (.json)</button>
+            <label class="button button-secondary" style="margin:0;cursor:pointer">
+              Importar backup (.json)
+              <input type="file" id="input-import-data" accept="application/json,.json" hidden>
+            </label>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL ACESSÍVEL (Detalhes em telas menores + Convidar Amigos + Aprovar Erro Vagas.com.br) -->
+<div id="modal-backdrop" class="modal-backdrop hidden" role="presentation">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" type="button" aria-label="Fechar janela">
+      <svg class="i" aria-hidden="true"><use href="#i-x"/></svg>
+    </button>
+    <div id="modal-content"></div>
+  </section>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="radar-app.js"></script>
 </body>
 </html>

@@ -14,13 +14,19 @@ import unicodedata
 import requests
 from bs4 import BeautifulSoup
 
-import supa
+try:
+    import supa
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import supa
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CFG = json.load(open(os.path.join(RAIZ, "config.json"), encoding="utf-8"))
 ARQ_VAGAS = os.path.join(RAIZ, "docs", "vagas.json")
 ARQ_ESTADO = os.path.join(RAIZ, "docs", "estado.json")
 ARQ_HIST = os.path.join(RAIZ, "dados", "historico.json")
+ARQ_FILA_ERROS = os.path.join(RAIZ, "dados", "fila_erros_vagas.json")
+ARQ_PERFIS = os.path.join(RAIZ, "dados", "perfis_usuarios.json")
 ARQ_CATALOGO = os.path.join(RAIZ, "docs", "catalogo.json")
 
 HOJE = dt.date.today()
@@ -28,6 +34,8 @@ HOJE = dt.date.today()
 FONTES_COMPLETAS = {"Gupy", "Sólides"}
 ERROS = []  # falhas da fonte que está rodando agora (vão para o diagnóstico do painel)
 AVISOS = []  # coisas a arrumar no config.json que não são falha do site
+FILA_ERROS_VAGAS = []  # fila persistente de erros do Vagas.com.br (dados/fila_erros_vagas.json)
+PERFIS_USUARIOS = []  # perfis adicionais de usuários (multiusuário)
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
       "Accept-Language": "pt-BR,pt;q=0.9"}
 S = requests.Session()
@@ -46,6 +54,14 @@ def falha(*a):
 
 def cod(r):
     return f"HTTP {r.status_code}" if r is not None else "sem resposta"
+
+
+def codigo_http_de(r):
+    return int(r.status_code) if r is not None and getattr(r, "status_code", None) is not None else None
+
+
+def agora_iso():
+    return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
 
 
 def sem_acento(t):
@@ -74,10 +90,259 @@ def get(url, **kw):
     return None
 
 
+# ---------------------------------------------------------------- fila de erros Vagas.com.br
+
+def id_erro_vaga(tipo, link="", termo="", titulo="", empresa=""):
+    tipo_norm = "busca" if tipo == "busca" else "vaga"
+    alvo = (link or "").strip()
+    if alvo:
+        alvo = re.sub(r"^https?://(www\.)?vagas\.com\.br/?", "", alvo)
+        s = slug(alvo)
+    else:
+        s = slug(f"{termo}-{titulo}-{empresa}")
+    return f"erro-vagas-{tipo_norm}-{s or 'item'}"[:96]
+
+
+def _normalizar_item_fila(item):
+    if not isinstance(item, dict):
+        return None
+    tipo = "busca" if item.get("tipo") == "busca" else "vaga"
+    termo = (item.get("termo") or "").strip()
+    titulo = (item.get("titulo") or "").strip()
+    empresa = (item.get("empresa") or "").strip()
+    local = (item.get("local") or "").strip()
+    link = (item.get("link") or "").strip()
+    eid = (item.get("id") or "").strip() or id_erro_vaga(tipo, link=link, termo=termo, titulo=titulo, empresa=empresa)
+    if not eid.startswith("erro-vagas-"):
+        eid = f"erro-vagas-{slug(eid)}"[:96]
+    agora = agora_iso()
+    cod_http = item.get("codigo_http")
+    if isinstance(cod_http, str) and cod_http.isdigit():
+        cod_http = int(cod_http)
+    elif not isinstance(cod_http, int) or isinstance(cod_http, bool):
+        cod_http = None
+    status_fila = item.get("status_fila")
+    if status_fila not in ("pendente", "resolvida", "descartada"):
+        status_fila = "pendente"
+    return {
+        "id": eid,
+        "fonte": "Vagas.com.br",
+        "tipo": tipo,
+        "termo": termo,
+        "titulo": titulo,
+        "empresa": empresa,
+        "local": local,
+        "link": link,
+        "erro": str(item.get("erro") or "")[:300],
+        "codigo_http": cod_http,
+        "tentativas": max(1, int(item.get("tentativas") or 1)),
+        "primeira_falha_em": item.get("primeira_falha_em") or agora,
+        "ultima_tentativa_em": item.get("ultima_tentativa_em") or item.get("primeira_falha_em") or agora,
+        "status_fila": status_fila,
+    }
+
+
+def carregar_fila_erros(caminho=None):
+    arq = caminho or ARQ_FILA_ERROS
+    dados = []
+    if os.path.exists(arq):
+        try:
+            with open(arq, encoding="utf-8") as f:
+                bruto = json.load(f)
+            if isinstance(bruto, list):
+                dados = bruto
+            elif isinstance(bruto, dict):
+                dados = bruto.get("fila_erros") or bruto.get("itens") or []
+        except (OSError, ValueError):
+            dados = []
+    normalizados = []
+    por_id = {}
+    for raw in dados:
+        norm = _normalizar_item_fila(raw)
+        if not norm:
+            continue
+        por_id[norm["id"]] = norm
+    normalizados = list(por_id.values())
+    if caminho is None:
+        FILA_ERROS_VAGAS[:] = normalizados
+        return FILA_ERROS_VAGAS
+    return normalizados
+
+
+def salvar_fila_erros(fila=None, caminho=None):
+    arq = caminho or ARQ_FILA_ERROS
+    alvo = FILA_ERROS_VAGAS if fila is None else fila
+    os.makedirs(os.path.dirname(arq), exist_ok=True)
+    with open(arq, "w", encoding="utf-8") as f:
+        json.dump(alvo, f, ensure_ascii=False, indent=1)
+    return alvo
+
+
+def fila_erros_pendentes(fila=None):
+    alvo = FILA_ERROS_VAGAS if fila is None else fila
+    return [x for x in alvo if x.get("status_fila") == "pendente"]
+
+
+def registrar_erro_vaga(tipo, erro, codigo_http=None, termo="", titulo="", empresa="", local="", link="", fila=None):
+    alvo = FILA_ERROS_VAGAS if fila is None else fila
+    tipo_norm = "busca" if tipo == "busca" else "vaga"
+    link_limpo = (link or "").strip()
+    eid = id_erro_vaga(tipo_norm, link=link_limpo, termo=termo, titulo=titulo, empresa=empresa)
+    agora = agora_iso()
+    cod_int = int(codigo_http) if isinstance(codigo_http, int) and not isinstance(codigo_http, bool) else None
+
+    existente = None
+    for item in alvo:
+        if item.get("id") == eid or (link_limpo and item.get("link") == link_limpo and item.get("tipo") == tipo_norm):
+            existente = item
+            break
+
+    if existente is not None:
+        existente["tentativas"] = int(existente.get("tentativas") or 0) + 1
+        existente["ultima_tentativa_em"] = agora
+        existente["erro"] = str(erro)[:300]
+        existente["codigo_http"] = cod_int
+        for campo, valor in (("termo", termo), ("titulo", titulo), ("empresa", empresa), ("local", local), ("link", link_limpo)):
+            if valor:
+                existente[campo] = valor.strip()
+        if existente.get("status_fila") != "descartada":
+            existente["status_fila"] = "pendente"
+        return existente
+
+    novo = {
+        "id": eid,
+        "fonte": "Vagas.com.br",
+        "tipo": tipo_norm,
+        "termo": (termo or "").strip(),
+        "titulo": (titulo or "").strip(),
+        "empresa": (empresa or "").strip(),
+        "local": (local or "").strip(),
+        "link": link_limpo,
+        "erro": str(erro)[:300],
+        "codigo_http": cod_int,
+        "tentativas": 1,
+        "primeira_falha_em": agora,
+        "ultima_tentativa_em": agora,
+        "status_fila": "pendente",
+    }
+    alvo.append(novo)
+    return novo
+
+
+def resolver_erro_vaga(id_ou_link, tipo=None, codigo_http=200, fila=None):
+    alvo = FILA_ERROS_VAGAS if fila is None else fila
+    agora = agora_iso()
+    resolvidos = []
+    for item in alvo:
+        if item.get("id") == id_ou_link or (id_ou_link and item.get("link") == id_ou_link):
+            if tipo and item.get("tipo") != tipo:
+                continue
+            item["status_fila"] = "resolvida"
+            item["ultima_tentativa_em"] = agora
+            item["codigo_http"] = codigo_http
+            item["erro"] = ""
+            resolvidos.append(item)
+    return resolvidos
+
+
+# ---------------------------------------------------------------- suporte multiusuário (perfis)
+
+def _normalizar_perfil_usuario(p):
+    if not isinstance(p, dict):
+        return None
+    cfg_extra = p.get("config") if isinstance(p.get("config"), dict) else {}
+    cidades = []
+    if p.get("cidade"):
+        cidades.append(str(p["cidade"]).strip().lower())
+    for c in (p.get("cidades_proximas") or cfg_extra.get("cidades_rms") or []):
+        if isinstance(c, str) and c.strip():
+            cidades.append(c.strip().lower())
+    areas_raw = p.get("areas") or cfg_extra.get("areas") or []
+    areas = []
+    for item in areas_raw:
+        if isinstance(item, (list, tuple)) and len(item) == 2 and isinstance(item[1], list):
+            areas.append([str(item[0]), [str(x) for x in item[1]]])
+        elif isinstance(item, dict) and item.get("nome") and isinstance(item.get("chaves"), list):
+            areas.append([str(item["nome"]), [str(x) for x in item["chaves"]]])
+        elif isinstance(item, str) and item.strip():
+            areas.append([item.strip(), [item.strip().lower()]])
+    cargo = (p.get("cargo_objetivo") or "").strip()
+    if cargo and not areas:
+        areas.append([cargo, [cargo.lower()]])
+    termos = []
+    if cargo:
+        termos.append(cargo)
+    termos_cfg = cfg_extra.get("termos")
+    if isinstance(termos_cfg, dict):
+        for lista in termos_cfg.values():
+            if isinstance(lista, list):
+                termos.extend(str(t).strip() for t in lista if str(t).strip())
+    elif isinstance(termos_cfg, list):
+        termos.extend(str(t).strip() for t in termos_cfg if str(t).strip())
+    modalidades = [sem_acento(str(m)) for m in (p.get("modalidades") or ["remoto", "hibrido"]) if str(m).strip()]
+    competencias = [str(c).strip() for c in (p.get("competencias") or cfg_extra.get("meu_perfil") or []) if str(c).strip()]
+    return {
+        "user_id": p.get("user_id") or p.get("id") or p.get("email") or "usuario",
+        "email": p.get("email") or "",
+        "nome": p.get("nome") or "",
+        "cargo_objetivo": cargo,
+        "cidades_rms": cidades or list(CFG.get("cidades_rms", [])),
+        "areas": areas or list(CFG.get("areas", [])),
+        "fora_da_area": cfg_extra.get("fora_da_area") if isinstance(cfg_extra.get("fora_da_area"), list) else list(CFG.get("fora_da_area", [])),
+        "formacao_excluida": cfg_extra.get("formacao_excluida") if isinstance(cfg_extra.get("formacao_excluida"), list) else list(CFG.get("formacao_excluida", [])),
+        "mobilidade": cfg_extra.get("mobilidade") if isinstance(cfg_extra.get("mobilidade"), list) else list(CFG.get("mobilidade", [])),
+        "max_dias": int(p.get("max_dias") or cfg_extra.get("max_dias") or CFG.get("max_dias", 30)),
+        "modalidades": modalidades,
+        "meu_perfil": competencias or list(CFG.get("meu_perfil", [])),
+        "termos": termos,
+    }
+
+
+def carregar_perfis_usuarios(rest=None, caminho=None):
+    perfis = []
+    for p in (CFG.get("perfis") or CFG.get("usuarios") or []):
+        norm = _normalizar_perfil_usuario(p)
+        if norm:
+            perfis.append(norm)
+    arq = caminho or ARQ_PERFIS
+    if os.path.exists(arq):
+        try:
+            with open(arq, encoding="utf-8") as f:
+                bruto = json.load(f)
+            lista = bruto if isinstance(bruto, list) else (bruto.get("perfis") or []) if isinstance(bruto, dict) else []
+            for p in lista:
+                norm = _normalizar_perfil_usuario(p)
+                if norm:
+                    perfis.append(norm)
+        except (OSError, ValueError):
+            pass
+    if rest is not None:
+        try:
+            remotos = rest.get("perfis_usuarios", "select=*") or []
+            for p in remotos:
+                norm = _normalizar_perfil_usuario(p)
+                if norm:
+                    perfis.append(norm)
+        except Exception as e:  # noqa: BLE001
+            log("Supabase perfis_usuarios indisponível:", e)
+    PERFIS_USUARIOS[:] = perfis
+    return PERFIS_USUARIOS
+
+
 def todos_termos():
+    vistos = set()
     for prio, lista in CFG["termos"].items():
         for t in lista:
-            yield prio, t
+            chave_t = sem_acento(t).strip()
+            if chave_t and chave_t not in vistos:
+                vistos.add(chave_t)
+                yield prio, t
+    for p in PERFIS_USUARIOS:
+        for t in p.get("termos", []):
+            chave_t = sem_acento(t).strip()
+            if chave_t and chave_t not in vistos:
+                vistos.add(chave_t)
+                yield "usuario", t
 
 
 # ---------------------------------------------------------------- fontes
@@ -247,37 +512,254 @@ def _data_vagas(txt):
     return None
 
 
+def _extrair_detalhe_vagas_com_br(html, parcial=None):
+    """Extrai dados enriquecidos da página de detalhe do Vagas.com.br, preservando os campos parciais."""
+    parcial = dict(parcial or {})
+    soup = BeautifulSoup(html or "", "html.parser")
+    if soup.select_one(".erro-vaga, .pagina-erro"):
+        raise RuntimeError("Página de detalhe da vaga retornou estrutura de erro")
+
+    h1 = soup.select_one("h1.job-shortdescription__title, .nome-vaga, article h1, h1")
+    titulo = (parcial.get("titulo") or (h1.get_text(" ", strip=True) if h1 else "")).strip()
+    if not titulo:
+        raise ValueError("Detalhe da vaga sem título válido")
+
+    emp_el = soup.select_one(".job-shortdescription__company, .nome-empresa, .emprVaga")
+    empresa = (parcial.get("empresa") or (emp_el.get_text(" ", strip=True) if emp_el else "")).strip()
+
+    loc_el = soup.select_one(".info-localizacao, .job-local, .vaga-local")
+    local_bruto = parcial.get("local") or (loc_el.get_text(" ", strip=True) if loc_el else "")
+    local = re.split(r"A empresa aceita", re.sub(r"\s+", " ", local_bruto))[0].strip()
+
+    dtp_el = soup.select_one(".data-publicacao, .job-hierarchical-list__item")
+    data_pub = parcial.get("data") or (_data_vagas(dtp_el.get_text(" ", strip=True)) if dtp_el else None)
+
+    corpo_el = soup.select_one(".job-tab-content, .texto-vaga, .infoVaga, .job-description__text, article")
+    texto_det = _limpo(str(corpo_el))[:4000] if corpo_el else (parcial.get("texto") or "")
+
+    mod = parcial.get("modalidade") or "?"
+    lsa = sem_acento(f"{local} {texto_det[:600]}")
+    if "home office" in lsa or "100% remot" in lsa or "trabalho remoto" in lsa or "modelo remoto" in lsa or ("remot" in sem_acento(local)):
+        mod = "remoto"
+    elif mod == "?" and ("hibrid" in lsa or "modelo hibrido" in lsa):
+        mod = "hibrido"
+    elif mod == "?" and ("100% presencial" in lsa or "modelo presencial" in lsa):
+        mod = "presencial"
+
+    out = dict(
+        titulo=titulo,
+        empresa=empresa,
+        local=local,
+        modalidade=mod,
+        data=data_pub,
+        link=parcial.get("link") or "",
+        fonte="Vagas.com.br",
+    )
+    if texto_det:
+        out["texto"] = texto_det
+    return out
+
+
+def _processar_pagina_busca_vagas(html, termo, vistos, consultar_detalhes=None):
+    """Lê os cards `li.vaga` de uma página de busca do Vagas.com.br, enfileirando falhas sem perder vagas."""
+    soup = BeautifulSoup(html or "", "html.parser")
+    cards = soup.select("li.vaga")
+    for li in cards:
+        titulo = ""
+        empresa = ""
+        local = ""
+        link = ""
+        try:
+            a = li.select_one("h2 a") or li.select_one("a.link-detalhes-vaga") or li.select_one("a[href*='/vagas/']")
+            emp = li.select_one(".emprVaga")
+            loc = li.select_one(".vaga-local")
+            dtp = li.select_one(".data-publicacao")
+            det = li.select_one(".detalhes")
+
+            empresa = emp.get_text(" ", strip=True) if emp else ""
+            local = re.sub(r"\s+", " ", loc.get_text(" ", strip=True)) if loc else ""
+            local = re.split(r"A empresa aceita", local)[0].strip()
+
+            href = (a.get("href") or "").strip() if a else (li.get("data-url") or li.get("data-link") or "").strip()
+            if href:
+                link = href if href.startswith("http") else "https://www.vagas.com.br/" + href.lstrip("/")
+
+            titulo = ((a.get("title") or a.get_text(" ", strip=True)) if a else "").strip()
+            if not titulo:
+                h2 = li.select_one("h2")
+                titulo = h2.get_text(" ", strip=True) if h2 else ""
+
+            if li.get("data-erro") or li.select_one(".erro-vaga"):
+                raise RuntimeError(li.get("data-erro") or "Card da vaga retornou erro na listagem")
+            if not a or not link or not titulo:
+                raise ValueError("Card de vaga incompleto: sem título ou link válido")
+
+            if link in vistos:
+                continue
+            vistos.add(link)
+
+            lsa = sem_acento(local)
+            mod = "remoto" if "home office" in lsa or "remot" in lsa else "hibrido" if "hibrid" in lsa else "?"
+            texto_card = _limpo(str(det))[:4000] if det else ""
+            parcial = dict(
+                titulo=titulo,
+                empresa=empresa,
+                local=local,
+                modalidade=mod,
+                data=_data_vagas(dtp.get_text(" ", strip=True)) if dtp else None,
+                link=link,
+                fonte="Vagas.com.br",
+            )
+            if texto_card:
+                parcial["texto"] = texto_card
+
+            deve_detalhar = consultar_detalhes if consultar_detalhes is not None else (
+                bool(area_de_qualquer(titulo)) or len(cards) <= 5 or bool(CFG.get("vagas_detalhar_sempre"))
+            )
+            if deve_detalhar:
+                rd = get(link)
+                if not rd or rd.status_code != 200:
+                    cod_http = codigo_http_de(rd)
+                    motivo_err = f"Falha ao consultar detalhe da vaga ({cod(rd)})"
+                    falha("Vagas.com.br vaga", link, cod(rd))
+                    registrar_erro_vaga(
+                        "vaga",
+                        motivo_err,
+                        codigo_http=cod_http,
+                        termo=termo,
+                        titulo=titulo,
+                        empresa=empresa,
+                        local=local,
+                        link=link,
+                    )
+                    continue
+                vaga_enriquecida = _extrair_detalhe_vagas_com_br(rd.text, parcial)
+                resolver_erro_vaga(link, tipo="vaga", codigo_http=200)
+                yield vaga_enriquecida
+            else:
+                resolver_erro_vaga(link, tipo="vaga", codigo_http=200)
+                yield parcial
+        except Exception as e:  # noqa: BLE001
+            falha("Vagas.com.br vaga", link or titulo or termo, e)
+            registrar_erro_vaga(
+                "vaga",
+                str(e),
+                codigo_http=None,
+                termo=termo,
+                titulo=titulo,
+                empresa=empresa,
+                local=local,
+                link=link,
+            )
+
+
 def fonte_vagas_com_br():
     vistos = set()
-    for _, termo in todos_termos():
-        base = "https://www.vagas.com.br/vagas-de-" + slug(termo)
-        for url in (base + "-em-salvador", base):
-            r = get(url, params={"ordenar_por": "mais_recentes"})
-            if r is not None and r.status_code == 404:
-                continue  # termo sem página no site
-            if not r or r.status_code != 200:
-                falha("Vagas.com.br", url, cod(r))
-                continue
-            soup = BeautifulSoup(r.text, "html.parser")
-            for li in soup.select("li.vaga"):
-                a = li.select_one("h2 a") or li.select_one("a.link-detalhes-vaga")
-                if not a:
+    urls_busca_reprocessadas = set()
+    carregar_fila_erros()
+    try:
+        # 1) Reprocessar itens pendentes da fila de erros do Vagas.com.br
+        pendentes = list(fila_erros_pendentes())
+        for item in pendentes:
+            tipo = item.get("tipo") or "vaga"
+            link = (item.get("link") or "").strip()
+            termo = (item.get("termo") or "").strip()
+            if tipo == "busca":
+                if not link:
+                    registrar_erro_vaga("busca", "Busca sem URL para reprocessamento", termo=termo)
                     continue
-                link = "https://www.vagas.com.br" + a.get("href", "")
-                if link in vistos:
+                urls_busca_reprocessadas.add(link)
+                r = get(link, params={"ordenar_por": "mais_recentes"})
+                if r is not None and r.status_code == 404:
+                    item["status_fila"] = "descartada"
+                    item["codigo_http"] = 404
+                    item["ultima_tentativa_em"] = agora_iso()
                     continue
+                if not r or r.status_code != 200:
+                    falha("Vagas.com.br", link, cod(r))
+                    registrar_erro_vaga(
+                        "busca",
+                        f"Falha na busca ({cod(r)})",
+                        codigo_http=codigo_http_de(r),
+                        termo=termo,
+                        link=link,
+                    )
+                    continue
+                resolver_erro_vaga(link, tipo="busca", codigo_http=200)
+                yield from _processar_pagina_busca_vagas(r.text, termo, vistos)
+            else:
+                if not link:
+                    registrar_erro_vaga(
+                        "vaga",
+                        item.get("erro") or "Vaga sem link válido para reprocessamento",
+                        termo=termo,
+                        titulo=item.get("titulo", ""),
+                        empresa=item.get("empresa", ""),
+                        local=item.get("local", ""),
+                    )
+                    continue
+                rd = get(link)
                 vistos.add(link)
-                emp = li.select_one(".emprVaga")
-                loc = li.select_one(".vaga-local")
-                dtp = li.select_one(".data-publicacao")
-                local = re.sub(r"\s+", " ", loc.get_text(" ", strip=True)) if loc else ""
-                local = re.split(r"A empresa aceita", local)[0].strip()
-                lsa = sem_acento(local)
-                mod = "remoto" if "home office" in lsa or "remot" in lsa else "?"
-                yield dict(titulo=(a.get("title") or a.get_text(strip=True)), empresa=emp.get_text(strip=True) if emp else "",
-                           local=local, modalidade=mod, data=_data_vagas(dtp.get_text(" ", strip=True)) if dtp else None,
-                           link=link, fonte="Vagas.com.br")
-            time.sleep(1)
+                if rd is not None and rd.status_code == 404:
+                    item["status_fila"] = "descartada"
+                    item["codigo_http"] = 404
+                    item["ultima_tentativa_em"] = agora_iso()
+                    continue
+                if not rd or rd.status_code != 200:
+                    falha("Vagas.com.br vaga", link, cod(rd))
+                    registrar_erro_vaga(
+                        "vaga",
+                        f"Falha ao consultar detalhe da vaga ({cod(rd)})",
+                        codigo_http=codigo_http_de(rd),
+                        termo=termo,
+                        titulo=item.get("titulo", ""),
+                        empresa=item.get("empresa", ""),
+                        local=item.get("local", ""),
+                        link=link,
+                    )
+                    continue
+                try:
+                    vaga = _extrair_detalhe_vagas_com_br(rd.text, item)
+                    resolver_erro_vaga(link, tipo="vaga", codigo_http=200)
+                    vistos.add(link)
+                    yield vaga
+                except Exception as e:  # noqa: BLE001
+                    falha("Vagas.com.br vaga", link, e)
+                    registrar_erro_vaga(
+                        "vaga",
+                        str(e),
+                        codigo_http=200,
+                        termo=termo,
+                        titulo=item.get("titulo", ""),
+                        empresa=item.get("empresa", ""),
+                        local=item.get("local", ""),
+                        link=link,
+                    )
+
+        # 2) Coleta normal por termos de busca
+        for _, termo in todos_termos():
+            base = "https://www.vagas.com.br/vagas-de-" + slug(termo)
+            for url in (base + "-em-salvador", base):
+                if url in urls_busca_reprocessadas:
+                    continue
+                r = get(url, params={"ordenar_por": "mais_recentes"})
+                if r is not None and r.status_code == 404:
+                    continue  # termo sem página no site
+                if not r or r.status_code != 200:
+                    falha("Vagas.com.br", url, cod(r))
+                    registrar_erro_vaga(
+                        "busca",
+                        f"Falha na busca ({cod(r)})",
+                        codigo_http=codigo_http_de(r),
+                        termo=termo,
+                        link=url,
+                    )
+                    continue
+                resolver_erro_vaga(url, tipo="busca", codigo_http=200)
+                yield from _processar_pagina_busca_vagas(r.text, termo, vistos)
+                time.sleep(1)
+    finally:
+        salvar_fila_erros()
 
 
 def _limpo(html):
@@ -417,15 +899,26 @@ def tem(txt, lista):
     return any(sem_acento(x) in t for x in lista)
 
 
-def area_de(titulo):
-    for nome, chaves in CFG["areas"]:
+def area_de(titulo, areas=None):
+    for nome, chaves in (areas if areas is not None else CFG["areas"]):
         if tem(titulo, chaves):
             return nome
     return None
 
 
-def na_rms(local):
-    return tem(local, CFG["cidades_rms"])
+def area_de_qualquer(titulo):
+    area = area_de(titulo)
+    if area:
+        return area
+    for p in PERFIS_USUARIOS:
+        area_p = area_de(titulo, p.get("areas"))
+        if area_p:
+            return area_p
+    return None
+
+
+def na_rms(local, cidades=None):
+    return tem(local, cidades if cidades is not None else CFG["cidades_rms"])
 
 
 UFS = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split()
@@ -438,20 +931,28 @@ def no_brasil(local):
     return bool(m and m.group(1) in UFS)
 
 
-def avaliar(v):
-    """Devolve (status, score, motivo). status None = vaga entra no painel."""
+def _avaliar_com_cfg(v, cfg_alvo):
+    """Avalia uma vaga contra um perfil/config específico."""
     titulo, local = v["titulo"], v.get("local", "")
-    area = area_de(titulo)
-    if not area or tem(" " + titulo + " ", CFG["fora_da_area"]):
+    areas_cfg = cfg_alvo.get("areas", CFG["areas"])
+    fora_cfg = cfg_alvo.get("fora_da_area", CFG["fora_da_area"])
+    formacao_cfg = cfg_alvo.get("formacao_excluida", CFG["formacao_excluida"])
+    cidades_cfg = cfg_alvo.get("cidades_rms", CFG["cidades_rms"])
+    mobilidade_cfg = cfg_alvo.get("mobilidade", CFG["mobilidade"])
+    max_dias_cfg = int(cfg_alvo.get("max_dias") or CFG["max_dias"])
+    modalidades_aceitas = cfg_alvo.get("modalidades")
+
+    area = area_de(titulo, areas_cfg)
+    if not area or tem(" " + titulo + " ", fora_cfg):
         return "fora da área", None, ""
-    if tem(titulo, CFG["formacao_excluida"]):
+    if tem(titulo, formacao_cfg):
         return "Descartada (formação)", None, "Formação exigida não aceita Eng. Elétrica"
     if v.get("so_pcd"):
         return "Descartada (exclusiva PcD)", None, "Vaga exclusiva para pessoas com deficiência"
     if v.get("data"):
         try:
             idade = (HOJE - dt.date.fromisoformat(v["data"][:10])).days
-            if idade > CFG["max_dias"]:
+            if idade > max_dias_cfg:
                 return "Descartada (anúncio antigo)", None, f"Publicada há {idade} dias"
         except ValueError:
             pass
@@ -465,16 +966,19 @@ def avaliar(v):
     elif tem(titulo, ["híbrido", "hibrido"]) and mod == "?":
         mod = "hibrido"
     v["modalidade"] = mod
-    rms = na_rms(local)
+    rms = na_rms(local, cidades_cfg)
     if local and not no_brasil(local) and not rms:
         return "Descartada (fora do Brasil)", None, "Vaga fora do Brasil"
-    if mod == "presencial" or (mod == "hibrido" and not rms):
+
+    aceita_presencial = bool(modalidades_aceitas and "presencial" in modalidades_aceitas)
+    if (mod == "presencial" and not (aceita_presencial and rms)) or (mod == "hibrido" and not rms):
         return "Descartada (modalidade)", None, "Presencial ou híbrido fora de Salvador/RMS"
     if mod == "?" and not rms:
         return "Descartada (modalidade)", None, "Fora de Salvador/RMS e sem indicação de remoto"
 
     pontos, motivos = 25, []
-    pontos += {"Planejamento e controle": 35, "Gestão de projetos": 28, "Manutenção": 22, "Trainee": 28, "Engenharia elétrica": 18}[area]
+    pesos_area = {"Planejamento e controle": 35, "Gestão de projetos": 28, "Manutenção": 22, "Trainee": 28, "Engenharia elétrica": 18}
+    pontos += pesos_area.get(area, 25)
     motivos.append(area)
     if mod == "remoto":
         pontos += 15; motivos.append("remoto")
@@ -484,7 +988,7 @@ def avaliar(v):
         pontos += 6; motivos.append("Salvador/RMS, modalidade a confirmar")
     if tem(titulo, ["elétric", "eletric", "eletrotécn"]):
         pontos += 5; motivos.append("elétrica")
-    if tem(titulo + " " + v.get("empresa", ""), CFG["mobilidade"]):
+    if tem(titulo + " " + v.get("empresa", ""), mobilidade_cfg):
         pontos += 8; motivos.append("mobilidade")
     if re.search(r"\b(j[uú]nior|jr|pleno|pl|i|ii)\b", sem_acento(titulo)):
         pontos += 5
@@ -497,6 +1001,21 @@ def avaliar(v):
     if tem(titulo, ["power bi", "ms project", "sap", "pmo"]):
         pontos += 4
     return None, max(0, min(100, pontos)), ", ".join(motivos)
+
+
+def avaliar(v, perfil=None):
+    """Devolve (status, score, motivo). status None = vaga entra no painel."""
+    if perfil is not None:
+        norm = _normalizar_perfil_usuario(perfil) or CFG
+        return _avaliar_com_cfg(v, norm)
+    status, score, motivo = _avaliar_com_cfg(v, CFG)
+    if status is None or not PERFIS_USUARIOS:
+        return status, score, motivo
+    for p in PERFIS_USUARIOS:
+        st_p, sc_p, mot_p = _avaliar_com_cfg(v, p)
+        if st_p is None:
+            return None, sc_p, mot_p
+    return status, score, motivo
 
 
 # ---------------------------------------------------------------- requisitos x perfil
@@ -525,14 +1044,15 @@ REQUISITOS = [
 ]
 
 
-def requisitos(texto):
+def requisitos(texto, perfil=None):
     """O que a vaga cita, separado entre o que consta no seu perfil e o que vale conferir. Ajuda a priorizar; não é chance de contratação."""
     t = sem_acento(texto)
-    perfil = {sem_acento(x) for x in CFG.get("meu_perfil", [])}
+    base_perfil = (perfil.get("meu_perfil") if isinstance(perfil, dict) and perfil.get("meu_perfil") else CFG.get("meu_perfil", []))
+    conjunto_perfil = {sem_acento(x) for x in base_perfil}
     tenho, conferir = [], []
     for nome, padrao in REQUISITOS:
         if re.search(sem_acento(padrao), t):
-            (tenho if sem_acento(nome) in perfil else conferir).append(nome)
+            (tenho if sem_acento(nome) in conjunto_perfil else conferir).append(nome)
     out = {}
     if tenho:
         out["tenho"] = tenho
@@ -580,9 +1100,15 @@ def checar_gmail(vagas):
 
 # ---------------------------------------------------------------- principal
 
-COLUNAS_NOVAS = ("alter table public.vagas add column if not exists tambem_em jsonb, "
-                 "add column if not exists visto_em date, add column if not exists sumiu boolean, "
-                 "add column if not exists requisitos jsonb;")
+COLUNAS_NOVAS = (
+    "alter table public.vagas add column if not exists tambem_em jsonb, "
+    "add column if not exists visto_em date, add column if not exists sumiu boolean, "
+    "add column if not exists requisitos jsonb; "
+    "create table if not exists public.fila_erros_vagas ("
+    "id text primary key, fonte text, tipo text, termo text, titulo text, empresa text, local text, "
+    "link text, erro text, codigo_http int, tentativas int, primeira_falha_em timestamptz, "
+    "ultima_tentativa_em timestamptz, status_fila text, extra jsonb default '{}'::jsonb);"
+)
 
 
 def gravar_catalogo(hist):
@@ -592,6 +1118,7 @@ def gravar_catalogo(hist):
                h.get("motivo") or "", h.get("visto_em") or ""] for h in hist.values() if (h.get("visto_em") or "") >= desde]
     json.dump({"campos": ["link", "titulo", "empresa", "fonte", "status", "motivo", "visto_em"], "desde": desde, "linhas": linhas},
               open(ARQ_CATALOGO, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+
 
 def ler(caminho, padrao):
     try:
@@ -604,6 +1131,7 @@ def main():
     painel = ler(ARQ_VAGAS, {"vagas": []})
     estado = ler(ARQ_ESTADO, {"candidatei": {}, "descartadas": []})
     hist = ler(ARQ_HIST, {})
+    carregar_fila_erros()
     fora = set(estado.get("descartadas", []))
     rest = None
     if supa.ativo:
@@ -613,6 +1141,7 @@ def main():
         except Exception as e:  # noqa: BLE001
             log("Supabase indisponível:", e)
             rest = None
+    carregar_perfis_usuarios(rest=rest)
     vagas = [v for v in painel["vagas"] if v["id"] not in fora]
     ids = {v["id"] for v in vagas}
     por_chave = {chave(v["titulo"], v["empresa"]): v for v in vagas}
@@ -656,7 +1185,7 @@ def main():
                 ids.add(vid); n["novas"] += 1
                 mod = {"remoto": "Remoto", "hibrido": "Híbrido", "?": "Modalidade a confirmar"}.get(v["modalidade"], v["modalidade"])
                 nova = dict(id=vid, data=HOJE.isoformat(), titulo=v["titulo"], empresa=v["empresa"], local=v.get("local", ""),
-                            modalidade=mod, score=score, motivo=motivo, fonte=v["fonte"], area=area_de(v["titulo"]),
+                            modalidade=mod, score=score, motivo=motivo, fonte=v["fonte"], area=area_de_qualquer(v["titulo"]),
                             link=v["link"], publicada=v.get("data"), prazo=v.get("prazo"), visto_em=HOJE.isoformat())
                 req = requisitos(v["titulo"] + " " + (v.get("texto") or ""))
                 if req:
@@ -671,6 +1200,8 @@ def main():
         n["erros"] = ERROS[:3]
         if AVISOS:
             n["portais_sumidos"] = list(AVISOS)
+        if nome == "Vagas.com.br":
+            n["fila_erros_pendentes"] = len(fila_erros_pendentes())
         resumo[nome] = n
         log(f"{nome}: {n['lidas']} lidas, {n['novas']} novas, {n['falhas']} falhas")
 
@@ -684,18 +1215,20 @@ def main():
         if not v.get("tambem_em"):
             v.pop("tambem_em", None)
     for v in vagas:
-        v.setdefault("area", area_de(v["titulo"]) or "Outras")
+        v.setdefault("area", area_de_qualquer(v["titulo"]) or "Outras")
     checar_gmail(vagas)
     os.makedirs(os.path.dirname(ARQ_HIST), exist_ok=True)
+    salvar_fila_erros()
+    pendentes_painel = fila_erros_pendentes()
     agora = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
-    json.dump({"atualizado_em": agora, "fontes": resumo, "vagas": vagas},
+    json.dump({"atualizado_em": agora, "fontes": resumo, "fila_erros": pendentes_painel, "vagas": vagas},
               open(ARQ_VAGAS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     gravar_catalogo(hist)
     if rest:
         campos = ["id", "data", "titulo", "empresa", "local", "modalidade", "score", "motivo", "fonte", "area", "link",
                   "publicada", "prazo", "curriculo", "retorno"]
         try:
-            # Colunas novas (Também em, visto em, sumiu); se o banco recusar, grava só as antigas
+            # Colunas novas (Também em, visto em, sumiu) e tabela fila_erros_vagas; se o banco recusar, grava só as antigas
             supa.sql(COLUNAS_NOVAS)
             campos += ["tambem_em", "visto_em", "sumiu", "requisitos"]
         except Exception as e:  # noqa: BLE001
@@ -703,6 +1236,10 @@ def main():
         try:
             rest.upsert("vagas", [{c: v.get(c) for c in campos} for v in vagas])
             rest.upsert("buscas", [{"id": 1, "atualizado_em": agora, "fontes": resumo}])
+            if FILA_ERROS_VAGAS:
+                campos_fila = ["id", "fonte", "tipo", "termo", "titulo", "empresa", "local", "link", "erro",
+                               "codigo_http", "tentativas", "primeira_falha_em", "ultima_tentativa_em", "status_fila"]
+                rest.upsert("fila_erros_vagas", [{c: x.get(c) for c in campos_fila} for x in FILA_ERROS_VAGAS])
             log(f"Supabase: {len(vagas)} vagas gravadas")
         except Exception as e:  # noqa: BLE001
             log("Supabase não gravou:", e)
