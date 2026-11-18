@@ -198,6 +198,7 @@
     else RadarDynamicDB.put("progress",`${activeNamespace}:${k}`,v);
     sincronizarProgressoContasSupabase();
     sinalizarSincronizacaoBase();
+    atualizarOnboardingBanner();
   }
 
   let syncSupaTimer=null;
@@ -212,6 +213,7 @@
           email:usuario?.email||profile?.contact||null,
           nome:profile?.name||usuario?.name||activeNamespace,
           provider:usuario?.provider||"local",
+          role:usuario?.role||"user",
           perfil:profile||{},
           estado:estado||{candidatei:{},salvas:{},descartadas:[]},
           posts:posts||[],
@@ -345,6 +347,7 @@
       $("profile-summary").textContent=`Perfil ativo de ${profile.name} (${profile.city}) com ${skCount} competências mapeadas no currículo.`;
     }
     sinalizarSincronizacaoBase();
+    atualizarOnboardingBanner();
   }
 
   function listaSkillsPerfil(){
@@ -2032,42 +2035,135 @@
     });
   }
 
-  function obterGoogleClientId(){
-    const salvo=lerGlobal("google-client-id","");
-    return String(salvo||window.SUPABASE?.googleClientId||"").trim();
+  function resolverPapelUsuario(dados){
+    const em=semAcento(dados?.email||"");
+    const uid=semAcento(dados?.userId||dados?.id||"");
+    if(em==="engerickgoncalves@gmail.com"||uid==="erick"||uid==="user-engerickgoncalves-gmail-com")return "admin";
+    return dados?.role==="admin"?"admin":"user";
   }
 
-  function decodificarJwtGoogle(tokenJwt){
-    const parts=String(tokenJwt||"").split(".");
-    if(parts.length!==3)throw new Error("Token JWT inválido");
-    const b64Url=parts[1].replace(/-/g,"+").replace(/_/g,"/");
-    const json=decodeURIComponent(atob(b64Url).split("").map(c=>"%"+("00"+c.charCodeAt(0).toString(16)).slice(-2)).join(""));
-    return JSON.parse(json);
+  function atualizarOnboardingBanner(){
+    const precisa=!profile||!String(profile.skills||"").trim()||profile.name==="Novo Usuário"||profile.name==="Visitante";
+    if($("onboarding-banner"))$("onboarding-banner").hidden=!precisa;
+    if($("onboarding-banner-jobs"))$("onboarding-banner-jobs").hidden=!precisa;
+  }
+
+  async function carregarUsuariosAdmin(){
+    const box=$("admin-users-list");
+    if(!box||usuario?.role!=="admin")return;
+    const mapa=new Map();
+    for(const [k,c] of Object.entries(listarContasLocais())){
+      const role=resolverPapelUsuario(c);
+      mapa.set((c.email||c.userId||k).toLowerCase(),{
+        name:c.name||c.username||k,
+        email:c.email||k,
+        provider:c.provider||"local",
+        role
+      });
+    }
+    if(sb){
+      try{
+        const{data:perfis}=await sb.from("perfis").select("id,email,nome,role,atualizado_em");
+        if(Array.isArray(perfis)){
+          for(const p of perfis){
+            const key=(p.email||p.id||"").toLowerCase();
+            if(!key)continue;
+            mapa.set(key,{
+              name:p.nome||p.email||p.id,
+              email:p.email||p.id,
+              provider:"supabase",
+              role:p.role==="admin"?"admin":"user"
+            });
+          }
+        }
+      }catch(e){}
+      try{
+        const{data:contas}=await sb.from("progresso_contas").select("account_key,email,nome,provider,role");
+        if(Array.isArray(contas)){
+          for(const c of contas){
+            const key=(c.email||c.account_key||"").toLowerCase();
+            if(!key||mapa.has(key))continue;
+            mapa.set(key,{
+              name:c.nome||c.account_key,
+              email:c.email||c.account_key,
+              provider:c.provider||"local",
+              role:c.role==="admin"?"admin":"user"
+            });
+          }
+        }
+      }catch(e){}
+    }
+    const lista=[...mapa.values()];
+    if(!lista.length){
+      box.innerHTML='<p class="muted small">Nenhum usuário cadastrado ainda.</p>';
+      return;
+    }
+    box.innerHTML=lista.map(u=>`
+      <div class="admin-user-row">
+        <div class="admin-user-main">
+          <strong>${escapeHtml(u.name)}</strong>
+          <span>${escapeHtml(u.email)} · ${escapeHtml(u.provider)}</span>
+        </div>
+        <span class="role-badge ${u.role==="admin"?"is-admin":""}">${u.role==="admin"?"Admin":"Usuário"}</span>
+      </div>
+    `).join("");
+  }
+
+  function aplicarVisibilidadePorPapel(){
+    const isAdmin=usuario?.role==="admin";
+    for(const id of ["sidebar-role-badge","topbar-role-badge"]){
+      const elBadge=$(id);
+      if(!elBadge)continue;
+      elBadge.textContent=isAdmin?"Admin":"Usuário";
+      elBadge.classList.toggle("is-admin",isAdmin);
+    }
+    if($("admin-settings-group"))$("admin-settings-group").hidden=!isAdmin;
+    if(isAdmin)carregarUsuariosAdmin();
   }
 
   function atualizarUIAutenticacao(){
     const emailEl=$("email"), authLbl=$("sidebar-auth-label");
     if(usuario){
       const pNome=profile?.name?.split(" ")[0]||usuario.name||usuario.email;
-      const sufixo=usuario.provider==="google"?" · Google":"";
-      if(emailEl)emailEl.textContent=`${pNome}${sufixo}`;
+      if(emailEl)emailEl.textContent=pNome;
       if(authLbl)authLbl.textContent="Trocar conta";
     }else{
       if(emailEl)emailEl.textContent="Convidado";
       if(authLbl)authLbl.textContent="Entrar / Conta";
     }
+    aplicarVisibilidadePorPapel();
+    atualizarOnboardingBanner();
   }
 
   async function autenticarSessaoPessoa(dadosSessao,remember=true){
+    const roleInicial=resolverPapelUsuario(dadosSessao);
     usuario={
       id:dadosSessao.userId||dadosSessao.id||`user-${slug(dadosSessao.email||dadosSessao.name||"ativo")}`,
       userId:dadosSessao.userId||dadosSessao.id||`user-${slug(dadosSessao.email||dadosSessao.name||"ativo")}`,
       email:dadosSessao.email||"",
       name:dadosSessao.name||dadosSessao.username||"Usuário",
       provider:dadosSessao.provider||"password",
+      role:roleInicial,
       isSupabase:!!dadosSessao.isSupabase
     };
     activeNamespace=usuario.userId;
+
+    if(sb&&usuario.isSupabase&&usuario.id){
+      try{
+        const{data:perfilDb}=await sb.from("perfis").select("role").eq("id",usuario.id).maybeSingle();
+        if(perfilDb?.role){
+          usuario.role=perfilDb.role==="admin"||ehContaDoErick()?"admin":"user";
+        }else{
+          await sb.from("perfis").upsert({
+            id:usuario.id,
+            email:usuario.email||null,
+            nome:usuario.name,
+            role:usuario.role,
+            atualizado_em:new Date().toISOString()
+          });
+        }
+      }catch(e){}
+    }
 
     const sessaoSalva={...usuario,loggedInAt:new Date().toISOString(),remember};
     gravarGlobal("radar-active-session",sessaoSalva);
@@ -2142,7 +2238,7 @@
             userId:u.id,
             email:u.email,
             name:u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0],
-            provider:"google",
+            provider:"password",
             isSupabase:true
           },true);
           try{estado=await lerEstadoSupabase();gravarUser("progress",estado);render()}catch(e){}
@@ -2166,14 +2262,13 @@
       activeNamespace="guest";
       carregarPerfilUsuario();
       carregarPostsUsuario();
+      atualizarUIAutenticacao();
       render();
       if($("login"))$("login").hidden=false;
     }
     const supaForm=$("supa-custom-form");
-    if(supaForm){
-      if(customSupa?.url)supaForm.elements.url.value=customSupa.url;
-      const gcid=obterGoogleClientId();
-      if(gcid&&supaForm.elements.googleClientId)supaForm.elements.googleClientId.value=gcid;
+    if(supaForm&&customSupa?.url){
+      supaForm.elements.url.value=customSupa.url;
     }
   }
 
@@ -2246,139 +2341,6 @@
   }
   $("form-setup")?.addEventListener("input",validarRegrasSenha);
 
-  function abrirPainelOAuthLogin(abrir=true){
-    const painel=$("login-oauth-panel");
-    if(!painel)return;
-    painel.hidden=!abrir;
-    if(abrir){
-      const customSupa=lerGlobal("supabase-custom",null);
-      if($("login-oauth-url"))$("login-oauth-url").value=customSupa?.url||window.SUPABASE?.url||"";
-      if($("login-oauth-anon"))$("login-oauth-anon").value=customSupa?.anon||window.SUPABASE?.anon||"";
-      if($("login-oauth-gcid"))$("login-oauth-gcid").value=obterGoogleClientId();
-    }
-  }
-
-  async function iniciarGoogleGis(googleClientId){
-    const btn=$("entrar");
-    if(btn)btn.disabled=true;
-    try{
-      await carregarScript("https://accounts.google.com/gsi/client",()=>!!window.google?.accounts?.id);
-      window.google.accounts.id.initialize({
-        client_id:googleClientId,
-        callback:async resp=>{
-          try{
-            const payload=decodificarJwtGoogle(resp?.credential);
-            const validIss=payload.iss==="https://accounts.google.com"||payload.iss==="accounts.google.com";
-            if(!validIss||payload.aud!==googleClientId||!payload.email_verified||!payload.email||(payload.exp*1000<=Date.now())){
-              exibirMsgLogin("Credencial Google inválida ou expirada. Tente novamente.","bad");
-              return;
-            }
-            const email=String(payload.email).toLowerCase();
-            const userId=email==="engerickgoncalves@gmail.com"?"erick":`google-${payload.sub||slug(email)}`;
-            const conta=registrarContaNoAparelho({
-              userId,
-              username:email.split("@")[0],
-              email,
-              name:payload.name||email.split("@")[0],
-              provider:"google"
-            });
-            await autenticarSessaoPessoa(conta,true);
-          }catch(err){
-            exibirMsgLogin("Falha ao validar o token retornado pelo Google.","bad");
-          }
-        }
-      });
-      const gisBox=$("google-gis-btn");
-      if(gisBox&&typeof window.google.accounts.id.renderButton==="function"){
-        gisBox.hidden=false;
-        gisBox.innerHTML="";
-        window.google.accounts.id.renderButton(gisBox,{theme:"outline",size:"large",width:320,text:"continue_with"});
-      }
-      window.google.accounts.id.prompt(notification=>{
-        if(notification.isNotDisplayed()||notification.isSkippedMoment()){
-          exibirMsgLogin("Se o popup automático do Google não abrir, clique no botão oficial do Google abaixo ou use Criar acesso.","warn");
-        }
-      });
-    }catch(e){
-      exibirMsgLogin("Não foi possível carregar o Google Identity Services. Verifique sua conexão ou use Criar acesso.","bad");
-    }finally{
-      if(btn)btn.disabled=false;
-    }
-  }
-
-  // Botão "Continuar com Google" (#entrar) — Apenas OAuth real (Supabase OAuth ou Google Identity Services)
-  $("entrar")?.addEventListener("click",async()=>{
-    exibirMsgLogin("");
-    if(sb){
-      try{
-        const{error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
-        if(error)throw error;
-        return;
-      }catch(e){
-        exibirMsgLogin("Não foi possível iniciar o login com Google via Supabase. Verifique a configuração OAuth ou use Criar acesso.","bad");
-        abrirPainelOAuthLogin(true);
-        return;
-      }
-    }
-    const googleClientId=obterGoogleClientId();
-    if(googleClientId){
-      await iniciarGoogleGis(googleClientId);
-      return;
-    }
-    exibirMsgLogin("OAuth do Google ainda não configurado neste navegador. Configure abaixo (Admin) ou entre como convidado para buscar vagas agora.","warn");
-    abrirPainelOAuthLogin(true);
-  });
-
-  $("btn-open-login-oauth")?.addEventListener("click",()=>{
-    const painel=$("login-oauth-panel");
-    abrirPainelOAuthLogin(painel?painel.hidden:true);
-  });
-
-  $("login-oauth-close")?.addEventListener("click",()=>abrirPainelOAuthLogin(false));
-
-  $("login-quick-guest-btn")?.addEventListener("click",async()=>{
-    await autenticarSessaoPessoa({
-      userId:"guest",
-      email:"",
-      name:"Visitante",
-      provider:"guest"
-    },false);
-    setView("jobs");
-  });
-
-  $("login-oauth-form")?.addEventListener("submit",async e=>{
-    e.preventDefault();
-    const fd=new FormData(e.target);
-    const url=String(fd.get("url")||"").trim();
-    const anon=String(fd.get("anon")||"").trim();
-    const googleClientId=String(fd.get("googleClientId")||"").trim();
-    if(googleClientId)gravarGlobal("google-client-id",googleClientId);
-    else gravarGlobal("google-client-id","");
-
-    if(url&&anon){
-      gravarGlobal("supabase-custom",{url,anon});
-      exibirMsgLogin("Supabase OAuth salvo! Ativando conexão…","ok");
-      try{
-        await carregarScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js",()=>!!window.supabase);
-        sb=window.supabase.createClient(url,anon);
-        abrirPainelOAuthLogin(false);
-        exibirMsgLogin("Supabase OAuth ativado! Clique em Continuar com Google.","ok");
-      }catch(err){
-        location.reload();
-      }
-      return;
-    }
-
-    if(googleClientId){
-      abrirPainelOAuthLogin(false);
-      exibirMsgLogin("Google Client ID salvo! Iniciando login com Google…","ok");
-      await iniciarGoogleGis(googleClientId);
-      return;
-    }
-
-    exibirMsgLogin("Informe um Google Client ID ou URL + Anon Key do Supabase para ativar o login com Google.","warn");
-  });
-
   // Formulário "Entrar" (#auth-email-form) com controle de bloqueio após 5 tentativas erradas
   $("auth-email-form")?.addEventListener("submit",async e=>{
     e.preventDefault();
@@ -2386,7 +2348,7 @@
     const lockUntil=lerGlobal("radar-login-lock-until",0);
     if(lockUntil>Date.now()){
       const min=Math.ceil((lockUntil-Date.now())/60000);
-      exibirMsgLogin(`Muitas tentativas incorretas. Aguarde ${min} min ou entre com Google.`,"warn");
+      exibirMsgLogin(`Muitas tentativas incorretas. Aguarde ${min} min.`,"warn");
       return;
     }
 
@@ -2398,8 +2360,9 @@
       return;
     }
 
-    if(sb&&rawUser.includes("@")){
-      const{data,error}=await sb.auth.signInWithPassword({email:rawUser,password:pass});
+    if(sb){
+      const emailLogin=rawUser.includes("@")?rawUser:`${rawUser}@radar.local`;
+      const{data,error}=await sb.auth.signInWithPassword({email:emailLogin,password:pass});
       if(!error&&data?.user){
         await autenticarSessaoPessoa({
           userId:data.user.id,
@@ -2408,6 +2371,10 @@
           provider:"password",
           isSupabase:true
         },remember);
+        return;
+      }
+      if(error&&rawUser.includes("@")){
+        exibirMsgLogin(error.message||"E-mail ou senha inválidos.","bad");
         return;
       }
     }
@@ -2467,14 +2434,34 @@
     }
 
     const passHash=await sha256Hex(pass);
-    const userId=`user-${slug(rawUser)}`;
+    const emailSignup=rawUser.includes("@")?rawUser:`${rawUser}@radar.local`;
+    const ehErickSignup=rawUser==="erick"||rawUser==="engerickgoncalves@gmail.com";
+    let supaUser=null;
+    if(sb){
+      try{
+        const{data,error}=await sb.auth.signUp({
+          email:emailSignup,
+          password:pass,
+          options:{data:{full_name:nome}}
+        });
+        if(error){
+          exibirMsgLogin(error.message||"Não foi possível criar a conta no Supabase.","bad");
+          return;
+        }
+        supaUser=data?.user||null;
+      }catch(err){}
+    }
+
+    const userId=supaUser?.id||(ehErickSignup?"erick":`user-${slug(rawUser)}`);
     const novaConta=registrarContaNoAparelho({
       userId,
       username:rawUser.split("@")[0],
       email:rawUser.includes("@")?rawUser:"",
       name:nome,
       passwordHash:passHash,
-      provider:"password"
+      provider:"password",
+      role:ehErickSignup?"admin":"user",
+      isSupabase:!!supaUser
     });
 
     // Cria perfil inicial para a nova pessoa
@@ -2951,21 +2938,21 @@
     e.preventDefault();
     const fd=new FormData(e.target);
     const url=String(fd.get("url")||"").trim(), anon=String(fd.get("anon")||"").trim();
-    const googleClientId=String(fd.get("googleClientId")||"").trim();
-    if(googleClientId)gravarGlobal("google-client-id",googleClientId);
-    else gravarGlobal("google-client-id","");
     if(url&&anon){
       gravarGlobal("supabase-custom",{url,anon});
-      showToast("Conexão OAuth / Supabase salva! Recarregando…");
+      showToast("Conexão Supabase salva! Recarregando…");
       setTimeout(()=>location.reload(),600);
-    }else if(googleClientId){
-      showToast("Google Client ID salvo para login OAuth!");
+    }else{
+      showToast("Informe URL e Anon Key do Supabase.");
     }
   });
   $("supa-clear-btn")?.addEventListener("click",()=>{
     gravarGlobal("supabase-custom",null);
-    gravarGlobal("google-client-id","");
     showToast("Usando Base Dinâmica Local.");
+  });
+  $("btn-refresh-admin-users")?.addEventListener("click",()=>{
+    carregarUsuariosAdmin();
+    showToast("Lista de usuários atualizada.");
   });
 
   $("btn-export-data")?.addEventListener("click",()=>{

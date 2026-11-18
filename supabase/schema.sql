@@ -189,6 +189,7 @@ create table if not exists public.progresso_contas (
   email text,
   nome text,
   provider text not null default 'local',
+  role text not null default 'user' check (role in ('admin', 'user')),
   perfil jsonb default '{}'::jsonb,
   estado jsonb default '{}'::jsonb,
   leads jsonb default '[]'::jsonb,
@@ -198,10 +199,77 @@ create table if not exists public.progresso_contas (
   fila_erros jsonb default '[]'::jsonb,
   atualizado_em timestamptz not null default now()
 );
+alter table public.progresso_contas add column if not exists role text not null default 'user' check (role in ('admin', 'user'));
+
+-- Tabela de perfis e papéis (admin vs user)
+create table if not exists public.perfis (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  nome text,
+  role text not null default 'user' check (role in ('admin', 'user')),
+  atualizado_em timestamptz not null default now()
+);
+alter table public.perfis add column if not exists role text not null default 'user' check (role in ('admin', 'user'));
+
+create or replace function public.eh_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select auth.uid() is not null and (
+    lower(coalesce(auth.jwt() ->> 'email', '')) = 'engerickgoncalves@gmail.com'
+    or exists (
+      select 1 from public.perfis
+      where id = auth.uid() and role = 'admin'
+    )
+  )
+$$;
+grant execute on function public.eh_admin() to authenticated;
+
+create or replace function public.impedir_autopromocao_role() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  jwt_email text := lower(coalesce(auth.jwt() ->> 'email', ''));
+  row_email text := lower(coalesce(new.email, ''));
+begin
+  if row_email = 'engerickgoncalves@gmail.com' or jwt_email = 'engerickgoncalves@gmail.com' then
+    new.role := 'admin';
+  elsif new.role = 'admin' and not public.eh_admin() then
+    new.role := 'user';
+  elsif new.role is null then
+    new.role := 'user';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_perfis_role on public.perfis;
+create trigger trg_perfis_role
+  before insert or update on public.perfis
+  for each row execute function public.impedir_autopromocao_role();
+
+drop trigger if exists trg_progresso_contas_role on public.progresso_contas;
+create trigger trg_progresso_contas_role
+  before insert or update on public.progresso_contas
+  for each row execute function public.impedir_autopromocao_role();
+
+alter table public.perfis enable row level security;
+drop policy if exists "ler perfis proprio ou admin" on public.perfis;
+create policy "ler perfis proprio ou admin" on public.perfis for select to authenticated
+  using (id = auth.uid() or public.eh_admin());
+drop policy if exists "inserir proprio perfil" on public.perfis;
+create policy "inserir proprio perfil" on public.perfis for insert to authenticated
+  with check (id = auth.uid() and (role = 'user' or lower(coalesce(email, auth.jwt() ->> 'email', '')) = 'engerickgoncalves@gmail.com'));
+drop policy if exists "atualizar proprio perfil ou admin" on public.perfis;
+create policy "atualizar proprio perfil ou admin" on public.perfis for update to authenticated
+  using (id = auth.uid() or public.eh_admin())
+  with check (id = auth.uid() or public.eh_admin());
+
 alter table public.progresso_contas enable row level security;
 drop policy if exists "acesso progresso_contas" on public.progresso_contas;
-create policy "acesso progresso_contas" on public.progresso_contas for all to anon, authenticated
-  using (true)
-  with check (true);
+drop policy if exists "ler progresso_contas proprio ou admin" on public.progresso_contas;
+create policy "ler progresso_contas proprio ou admin" on public.progresso_contas for select to authenticated
+  using (user_id = auth.uid() or public.eh_admin());
+drop policy if exists "gravar progresso_contas proprio ou admin" on public.progresso_contas;
+create policy "gravar progresso_contas proprio ou admin" on public.progresso_contas for all to authenticated
+  using (user_id = auth.uid() or public.eh_admin())
+  with check (user_id = auth.uid() or public.eh_admin());
 
-grant select, insert, update on public.progresso_contas to anon, authenticated;
+grant select, insert, update on public.perfis, public.progresso_contas to authenticated;

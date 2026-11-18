@@ -9,10 +9,9 @@ Guia prático para qualquer pessoa usar o **Radar de Vagas** (`https://egoncalve
 Ao abrir o link, você verá a tela de entrada do Radar:
 
 1. **Criar acesso (usuário e senha)**:
-   - Clique na aba **Criar acesso**, informe seu nome/usuário ou e-mail e defina uma senha forte (o medidor valida tamanho mínimo e combinação de caracteres; a senha é protegida com hash `SHA-256`).
-2. **Continuar com Google (OAuth real)**:
-   - Quando o administrador configurar o **Supabase Auth (Google)** ou o **Google Client ID** em `docs/supabase-config.js` (ou em **Configurações**), o botão **Continuar com Google** abre a autenticação oficial do Google com validação real de conta.
-   - Enquanto as credenciais OAuth não estiverem configuradas, o sistema bloqueia logins simulados e orienta usar **Criar acesso** ou **Continuar como convidado**.
+   - Clique na aba **Criar acesso**, informe seu nome, usuário ou e-mail e defina uma senha forte (o medidor valida tamanho mínimo e combinação de caracteres; a senha é protegida com hash `SHA-256` localmente ou via Supabase Auth quando configurado).
+2. **Entrar**:
+   - Informe seu usuário/e-mail e senha para abrir seu painel individual.
 3. **Continuar como convidado**:
    - Permite testar o painel imediatamente no navegador atual sem cadastro prévio.
 
@@ -70,13 +69,10 @@ Se você usa o painel no celular e no computador sem login Supabase configurado:
 
 ---
 
-## 6. Para o Administrador: Ativar Login Real com Google
+## 6. Para o Administrador: Ativar Sincronização em Nuvem (Supabase)
 
-Para habilitar o botão **Continuar com Google** para todos os usuários no GitHub Pages:
+Para sincronizar contas e perfis na nuvem para todos os usuários no GitHub Pages:
 
-1. **Opção A — Supabase Auth (recomendada, com banco na nuvem)**:
-   - Crie um projeto no Supabase, execute `supabase/schema.sql` e ative o provedor **Google** em *Authentication → Providers* com a URL de redirecionamento `https://egoncalvess.github.io/painel-vagas/`.
-   - Preencha `url` e `anon` (chave pública `anon`, nunca a `service_role`) em `docs/supabase-config.js`.
-2. **Opção B — Google Identity Services (somente login Google)**:
-   - Crie um **OAuth 2.0 Client ID (Web)** no Google Cloud Console autorizando a origem `https://egoncalvess.github.io`.
-   - Preencha `googleClientId` em `docs/supabase-config.js`.
+1. Crie um projeto no Supabase, execute `supabase/schema.sql` e mantenha o provedor **Email** ativo em *Authentication → Providers*.
+2. Preencha `url` e `anon` (chave pública `anon`, nunca a `service_role`) em `docs/supabase-config.js`.
+3. A conta administradora (`engerickgoncalves@gmail.com`) recebe automaticamente o papel `admin`, liberando a gestão de usuários e controles avançados em **Configurações**.
