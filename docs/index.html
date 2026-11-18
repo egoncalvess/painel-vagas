@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#112926">
 <meta name="color-scheme" content="light">
 <title>Radar · Vagas, Clientes e Carreira</title>
-<script src="supabase-config.js" onerror=""></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d7f35a'/%3E%3Cg fill='none' stroke='%23112926' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M24.5 9.5A10 10 0 1 0 26 16'/%3E%3Cpath d='M20.8 12.2A5.5 5.5 0 1 0 21.5 16'/%3E%3Cpath d='m17.5 14.5 7-7'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='2' fill='%23112926'/%3E%3C/svg%3E">
+<script src="supabase-config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="radar.css">
@@ -37,56 +38,158 @@
 
 <p class="sr-only" id="anuncio-acao" role="status" aria-live="polite" aria-atomic="true"></p>
 
-<!-- TELA DE LOGIN / ACESSO MULTIUSUÁRIO (Supabase Auth + Modo Local / Convidado) -->
-<section class="auth-overlay" id="login" hidden aria-labelledby="login-title">
-  <div class="auth-story">
-    <div>
-      <div class="brand">
-        <span class="brand-mark"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></span>
-        <span class="brand-name">Radar</span>
-      </div>
-      <h2 id="login-title">Seu painel pessoal de <em>vagas, clientes e conteúdo</em>.</h2>
-      <p>Use gratuitamente com sua própria conta ou direto no navegador. Cada pessoa configura seus cargos, cidade, currículo e acompanha suas candidaturas sem misturar dados.</p>
+<!-- ==================== TELA DE LOGIN FIEL AO RADAR ORIGINAL (radar-main/entrar.html) ==================== -->
+<section class="auth-overlay" id="login" aria-labelledby="login-title">
+  <!-- Lado da marca com Radar Animado (.scope) -->
+  <div class="auth-story" aria-label="Sobre o Radar">
+    <div class="scope" aria-hidden="true">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="sweep"></div>
+      <i class="blip b1"></i>
+      <i class="blip b2"></i>
+      <i class="blip b3"></i>
+    </div>
+    <div class="brand">
+      <span class="brand-mark"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></span>
+      <span class="brand-name">Radar</span>
+    </div>
+    <div class="auth-story-main">
+      <span class="auth-kicker">Oportunidades sob o seu comando</span>
+      <h2 id="login-title">O robô prepara. <em>Você decide.</em></h2>
+      <p class="auth-lead">Enquanto você trabalha, o Radar encontra vagas comparadas ao seu currículo, prospecta clientes e organiza suas publicações no LinkedIn. Cada pessoa tem sua própria base dinâmica sem precisar de token do GitHub.</p>
       <ul class="auth-features">
         <li>
+          <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span>
           <div>
-            <strong>Vagas avaliadas contra o seu currículo</strong>
-            <span>Score 0–100 explicável, requisitos no seu perfil vs. vale conferir e fila dedicada de erros do Vagas.com.br.</span>
+            <strong>Vagas e Fila Vagas.com.br</strong>
+            <span>Centenas de anúncios lidos por dia e pontuados contra o seu currículo ativo.</span>
           </div>
         </li>
         <li>
+          <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
           <div>
-            <strong>Prospecção de clientes e publicações LinkedIn</strong>
-            <span>Campanhas por nicho e cidade com 1ª mensagem editável e pautas semanais baseadas nos fatos reais da sua carreira.</span>
+            <strong>Clientes</strong>
+            <span>Empresas da sua região com nota 0–100, motivo e a primeira mensagem pronta.</span>
+          </div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+          <div>
+            <strong>Publicações</strong>
+            <span>Posts do LinkedIn escritos a partir dos fatos reais da sua trajetória.</span>
           </div>
         </li>
       </ul>
     </div>
-    <p class="small">Código aberto e multiusuário · Replicável para amigos</p>
+    <div class="auth-story-foot">
+      <span><b>Base dinâmica por pessoa.</b> Progresso salvo automaticamente sem precisar de Token do GitHub.</span>
+    </div>
   </div>
+
+  <!-- Lado do Login (No celular aparece NO TOPO da tela via order:1) -->
   <div class="auth-panel">
-    <div class="auth-card">
-      <h2>Entrar no Radar</h2>
-      <p class="muted" id="msg-login">Entre com sua conta para sincronizar em qualquer aparelho ou use o modo local gratuito neste navegador.</p>
-      <div style="margin-top:16px;display:grid;gap:10px">
-        <button class="google-btn" id="entrar" type="button">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
-          Entrar com Google
-        </button>
+    <div class="auth-mobile-head">
+      <div class="brand">
+        <span class="brand-mark" style="width:28px;height:28px"><svg class="i" aria-hidden="true"><use href="#i-radar"/></svg></span>
+        <span class="brand-name" style="font-size:18px">Radar</span>
       </div>
-      <div class="auth-divider">ou com e-mail e senha</div>
-      <form id="auth-email-form" style="display:grid;gap:12px">
-        <label>Seu nome (para novos cadastros)<input id="auth-name" name="name" type="text" autocomplete="name" placeholder="Ex.: Ana Souza"></label>
-        <label>E-mail<input id="auth-email" name="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
-        <label>Senha<input id="auth-pass" name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Mínimo 6 caracteres"></label>
-        <div class="form-actions">
-          <button class="button" type="submit" data-auth-mode="signin" style="flex:1">Entrar</button>
-          <button class="button button-secondary" type="button" id="auth-signup-btn" style="flex:1">Criar conta grátis</button>
-        </div>
+      <small>O robô prepara. Você decide.</small>
+    </div>
+
+    <div class="auth-card">
+      <h2>Bem-vindo ao Radar</h2>
+      <p class="sub" id="msg-login">Entre com Google ou crie seu acesso para abrir o seu painel individual.</p>
+
+      <div class="auth-msg" id="login-msg" role="alert"></div>
+
+      <!-- Botão Principal: Continuar com Google (100% compatível: Supabase OAuth / GIS / Seletor Google Instantâneo) -->
+      <button class="google-btn" id="entrar" type="button">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+        <span id="btn-google-login">Continuar com Google</span>
+      </button>
+
+      <div class="auth-divider">ou com usuário / e-mail e senha</div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Modo de acesso">
+        <button class="auth-tab active" type="button" role="tab" aria-selected="true" id="tab-signin" data-auth-tab="signin">Entrar</button>
+        <button class="auth-tab" type="button" role="tab" aria-selected="false" id="tab-signup" data-auth-tab="signup">Criar acesso</button>
+      </div>
+
+      <!-- Aba 1: Entrar -->
+      <form id="auth-email-form" autocomplete="on" novalidate style="display:grid;gap:12px">
+        <label class="auth-field">Usuário ou E-mail
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <input id="auth-email" name="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="ex.: erick ou voce@gmail.com">
+          </div>
+        </label>
+        <label class="auth-field">Senha
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <input id="auth-pass" name="password" type="password" autocomplete="current-password" required placeholder="Sua senha">
+            <button type="button" class="eye" aria-label="Mostrar senha" data-eye="auth-pass">
+              <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="caps-note" id="caps-signin">Caps Lock está ligado.</span>
+        </label>
+        <label class="check" style="padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--subtle)">
+          <input type="checkbox" name="remember" id="auth-remember" checked>
+          <span>Manter conectado neste aparelho</span>
+        </label>
+        <button class="button button-block" type="submit" style="min-height:48px;font-size:15px">Entrar no meu painel</button>
       </form>
-      <div class="auth-divider">uso rápido sem cadastro</div>
-      <button class="button button-secondary button-block" id="auth-guest-btn" type="button">Usar no Modo Local / Convidado</button>
+
+      <!-- Aba 2: Criar acesso (com medidor de força da senha .meter e 3 regras .rules idênticos ao entrar.html) -->
+      <form id="form-setup" autocomplete="on" novalidate hidden style="display:grid;gap:12px">
+        <label class="auth-field">Seu nome completo
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <input id="auth-name" name="name" type="text" autocomplete="name" required placeholder="Ex.: Ana Souza">
+          </div>
+        </label>
+        <label class="auth-field">Usuário ou E-mail
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <input id="setup-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="ex.: anasouza ou ana@gmail.com">
+          </div>
+        </label>
+        <label class="auth-field">Crie uma senha
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <input id="setup-pass" name="password" type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres">
+            <button type="button" class="eye" aria-label="Mostrar senha" data-eye="setup-pass">
+              <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </label>
+        <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+        <ul class="rules" id="rules">
+          <li data-rule="len">Pelo menos <span id="minlen">8</span> caracteres</li>
+          <li data-rule="mix">Letras e números (ou símbolos)</li>
+          <li data-rule="user">Diferente do usuário/e-mail</li>
+        </ul>
+        <label class="auth-field">Repita a senha
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>
+            <input id="setup-confirm" name="confirm" type="password" autocomplete="new-password" required placeholder="Confirme a senha">
+          </div>
+        </label>
+        <button class="button button-block" type="submit" id="auth-signup-btn" style="min-height:48px;font-size:15px">Criar acesso e abrir meu painel</button>
+      </form>
+
+      <div class="auth-divider">ou testar sem cadastro</div>
+      <button class="button button-secondary button-block" id="auth-guest-btn" type="button">Continuar como convidado</button>
       <p class="helper" id="auth-feedback" role="status" aria-live="polite"></p>
+
+      <div class="trust-foot" aria-label="Proteções">
+        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Senha criptografada (SHA-256)</span>
+        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Base isolada por pessoa</span>
+        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Zero Token GitHub</span>
+      </div>
     </div>
   </div>
 </section>
@@ -108,7 +211,7 @@
         <svg class="i" aria-hidden="true"><use href="#i-briefcase"/></svg>
         <span>Vagas</span>
         <span class="nav-badges">
-          <span class="nav-count" id="nav-jobs" title="Vagas novas ou para analisar">0</span>
+          <span class="nav-count" id="nav-jobs" title="Vagas recomendadas">0</span>
           <span class="nav-count err" id="nav-errors" title="Fila de erros vagas.com.br" hidden>0</span>
         </span>
       </button>
@@ -137,11 +240,11 @@
       <span>Convidar amigos</span>
     </button>
 
-    <div class="robot" id="robot-card" title="Estado da busca automática">
+    <div class="robot" id="robot-card" title="Estado da base dinâmica e busca">
       <span class="robot-dot ok" id="robot-dot"></span>
       <span>
-        <strong>Robô de vagas</strong>
-        <small id="robot-status">Verificando última coleta…</small>
+        <strong id="db-status-title">Base dinâmica ativa</strong>
+        <small id="robot-status">Sincronizado sem Token GitHub</small>
       </span>
     </div>
 
@@ -155,9 +258,9 @@
     </button>
 
     <div class="sidebar-foot">
-      <button class="sidebar-logout" id="btn-switch-user" type="button" title="Entrar ou trocar de conta">
+      <button class="sidebar-logout" id="btn-switch-user" type="button" title="Trocar de conta">
         <svg class="i" aria-hidden="true"><use href="#i-user"/></svg>
-        <span id="sidebar-auth-label">Entrar / Conta</span>
+        <span id="sidebar-auth-label">Trocar conta</span>
       </button>
       <button class="sidebar-logout" id="sair" type="button" title="Sair da sessão">
         <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -175,15 +278,20 @@
       </a>
       <span class="date-label" id="today-label"></span>
       <div class="topbar-right">
-        <p class="user-pill" id="usuario">
-          <span id="email">Modo local</span>
+        <span class="db-sync-badge" id="db-sync-pill" title="Seus dados são salvos automaticamente no banco dinâmico desta conta">Base dinâmica sincronizada</span>
+        <p class="user-pill" id="usuario" title="Conta ativa">
+          <span class="avatar avatar-sm" id="topbar-avatar">PF</span>
+          <span id="email">Conectado</span>
         </p>
-        <button class="button button-secondary button-sm" id="btn-invite-top" type="button">
+        <button class="button button-secondary button-sm" id="btn-invite-top" type="button" aria-label="Convidar amigos" title="Convidar amigos">
           <svg class="i" aria-hidden="true"><use href="#i-share"/></svg>
           <span>Convidar amigos</span>
         </button>
         <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro ou escuro" title="Alternar tema claro/escuro">
           <svg class="i" id="theme-icon" aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
+        <button class="top-icon-btn" id="btn-mobile-logout" type="button" aria-label="Trocar conta ou sair" title="Trocar conta ou sair">
+          <svg class="i" aria-hidden="true"><use href="#i-user"/></svg>
         </button>
       </div>
     </header>
@@ -236,7 +344,7 @@
 
         <aside class="home-side">
           <div class="side-card">
-            <h3>Busca automática</h3>
+            <h3>Base dinâmica e busca</h3>
             <dl class="rows" id="summary-grid"></dl>
             <p class="muted small" id="last-run-home"></p>
             <button class="button button-secondary button-block" type="button" data-view="jobs">Abrir vagas</button>
@@ -247,9 +355,12 @@
             <button class="link" type="button" data-view="profile">Personalizar meu perfil →</button>
           </div>
           <div class="side-card">
-            <h3>Usar com amigos</h3>
-            <p class="muted">Cada amigo pode entrar com sua conta ou usar no navegador com seus próprios cargos, cidade e currículo.</p>
-            <button class="button button-secondary button-block" type="button" id="btn-invite-card">Como compartilhar com amigos</button>
+            <h3>Sincronizar ou convidar amigos</h3>
+            <p class="muted">Cada pessoa entra com Google ou usuário próprio e guarda seu progresso sem precisar de Token do GitHub.</p>
+            <div style="display:grid;gap:8px;margin-top:12px">
+              <button class="button button-secondary button-block" type="button" id="btn-invite-card">Convidar amigos</button>
+              <button class="button button-ghost button-block" type="button" id="btn-sync-code-home">Código de Sincronização (Celular ↔ PC)</button>
+            </div>
           </div>
         </aside>
       </div>
@@ -266,7 +377,7 @@
           <button class="button button-secondary" id="toggle-manual" type="button" aria-expanded="false" aria-controls="manual-panel">+ Adicionar vaga</button>
           <button class="button atualizar" id="atualizar" type="button">
             <svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>
-            <span>Buscar vagas agora</span>
+            <span>Atualizar e recalcular vagas</span>
           </button>
         </div>
       </div>
@@ -274,16 +385,11 @@
       <p class="notice info" id="msg-atual" role="status" aria-live="polite" hidden></p>
       <p class="notice bad alerta-fontes" id="alerta-fontes" hidden></p>
 
-      <!-- Funil operacional tabular-nums -->
-      <div class="funil-strip">
-        <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
-      </div>
-
       <!-- Formulário para adicionar vaga manual -->
       <form id="manual-panel" class="manual-panel" hidden>
         <div>
           <strong>Adicionar uma vaga ao seu painel</strong>
-          <p class="muted small">Serve para qualquer site (LinkedIn, Gupy, Vagas.com.br, Indeed). O Radar calcula o score e os requisitos para o seu perfil na hora.</p>
+          <p class="muted small">Serve para qualquer site (LinkedIn, Gupy, Vagas.com.br, Indeed). O Radar calcula o score e os requisitos para o seu perfil na hora e salva na sua base dinâmica.</p>
         </div>
         <div class="form-grid">
           <label class="full">Link da vaga<input name="link" type="url" required placeholder="https://..."></label>
@@ -306,51 +412,66 @@
         </div>
       </form>
 
-      <!-- Controles e Filtros de Vagas -->
+      <!-- Controles e Filtros de Vagas (Otimizado para Mobile com painel recolhível) -->
       <section class="controles" aria-label="Filtros">
-        <div class="filters" role="search">
+        <div class="search-bar-row">
           <label class="search-field">
             <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
             <input class="busca" id="busca" type="search" placeholder="Buscar por cargo, empresa, local ou motivo" aria-label="Buscar vagas">
           </label>
-          <label class="filter-col">Ordenar
-            <select id="ordem" aria-label="Ordenar">
-              <option value="data">Mais recentes primeiro</option>
-              <option value="score">Maior score primeiro</option>
-            </select>
-          </label>
-          <label class="filter-col">Site
-            <select id="f-fonte"></select>
-          </label>
-          <label class="filter-col">Área
-            <select id="f-area"></select>
-          </label>
-          <label class="filter-col">Modalidade
-            <select id="f-mod"></select>
-          </label>
-          <label class="filter-col">Score mínimo
-            <select id="f-score">
-              <option value="0">Qualquer</option>
-              <option value="50">50+</option>
-              <option value="60">60+</option>
-              <option value="70">70+</option>
-              <option value="80">80+</option>
-            </select>
-          </label>
+          <button class="mobile-filter-toggle" id="btn-toggle-mobile-filters" type="button" aria-expanded="false" aria-controls="collapsible-filters-box">
+            <svg class="i" aria-hidden="true"><use href="#i-settings"/></svg>
+            <span>Filtros e Funil</span>
+          </button>
         </div>
 
+        <!-- Chips deslizantes sempre visíveis no topo da lista -->
         <div class="filtros" id="filtros" role="group" aria-label="Filtrar por situação ou fila de erros"></div>
-        <div style="margin-bottom:12px">
+
+        <!-- Bloco recolhível no celular (aberto por padrão no desktop) -->
+        <div class="collapsible-filters" id="collapsible-filters-box">
+          <div class="funil-strip">
+            <ol class="funil" id="funil" aria-label="Funil das candidaturas"></ol>
+          </div>
+          <div class="filters" role="search">
+            <label class="filter-col">Ordenar
+              <select id="ordem" aria-label="Ordenar">
+                <option value="data">Mais recentes primeiro</option>
+                <option value="score">Maior score primeiro</option>
+              </select>
+            </label>
+            <label class="filter-col">Site
+              <select id="f-fonte"></select>
+            </label>
+            <label class="filter-col">Área
+              <select id="f-area"></select>
+            </label>
+            <label class="filter-col">Modalidade
+              <select id="f-mod"></select>
+            </label>
+            <label class="filter-col">Score mínimo
+              <select id="f-score">
+                <option value="0">Qualquer</option>
+                <option value="50">50+</option>
+                <option value="60">60+</option>
+                <option value="70">70+</option>
+                <option value="80">80+</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px">
           <button class="link limpar" id="limpar" type="button" hidden>Limpar filtros ativos</button>
         </div>
       </section>
 
-      <!-- PAINEL DEDICADO DA FILA DE ERROS VAGAS.COM.BR (visível quando o chip "erros" está ativo ou pelo atalho) -->
+      <!-- PAINEL DEDICADO DA FILA DE ERROS VAGAS.COM.BR -->
       <section id="painel-fila-erros" class="workspace-panel" style="margin-bottom:18px" hidden aria-labelledby="titulo-fila-erros">
         <div class="panel-heading">
           <div>
             <h2 id="titulo-fila-erros">Fila separada de erros · Vagas.com.br (<span id="contador-fila-erros">0</span>)</h2>
-            <p>Buscas ou anúncios do <code>vagas.com.br</code> que retornaram falha HTTP, timeout, mudança de seletor ou modalidade pendente de confirmação. Você pode abrir o link original, tentar reprocessar, aprovar para o painel de vagas (escolhendo a modalidade) ou descartar da fila.</p>
+            <p>Buscas ou anúncios do <code>vagas.com.br</code> que retornaram falha HTTP, timeout ou modalidade pendente. Abra o link original, tente reprocessar, aprove para o painel (escolhendo a modalidade) ou descarte.</p>
           </div>
           <button class="button button-secondary button-sm" type="button" id="btn-add-erro-manual">+ Registrar falha na fila</button>
         </div>
@@ -367,7 +488,7 @@
         </form>
       </section>
 
-      <!-- SPLIT-VIEW MASTER-DETAIL (Lista navegável por ArrowUp/ArrowDown + Painel de Detalhes) -->
+      <!-- SPLIT-VIEW MASTER-DETAIL (No celular abre em gaveta/modal ao tocar) -->
       <div class="split">
         <div class="list-col">
           <div class="list-head">
@@ -426,14 +547,12 @@
             <select id="campaign-select" aria-label="Selecionar campanha"></select>
           </label>
           <button class="button button-secondary" id="new-campaign" type="button">+ Nova campanha</button>
-          <button class="button" id="add-lead-btn" type="button">+ Cadastrar / Importar empresa</button>
+          <button class="button" id="add-lead-btn" type="button">+ Cadastrar empresa</button>
         </div>
       </div>
 
-      <!-- Resumo operacional de envios e campanha -->
       <div class="camp-summary" id="leads-summary-strip"></div>
 
-      <!-- Formulário de Nova Campanha -->
       <form id="campaign-form" class="workspace-panel" style="margin-bottom:18px" hidden>
         <div class="panel-heading">
           <div>
@@ -454,7 +573,6 @@
         </div>
       </form>
 
-      <!-- Formulário de Cadastro / Importação de Lead -->
       <form id="lead-form" class="workspace-panel" style="margin-bottom:18px" hidden>
         <div class="panel-heading">
           <div>
@@ -476,13 +594,13 @@
         </div>
       </form>
 
-      <div class="filters">
-        <div class="chips" id="lead-status-chips" role="group" aria-label="Filtrar clientes por status"></div>
+      <div class="search-bar-row">
         <label class="search-field">
           <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
           <input id="lead-query" type="search" placeholder="Filtrar por nome, nicho ou cidade" aria-label="Filtrar empresas">
         </label>
       </div>
+      <div class="chips" id="lead-status-chips" role="group" aria-label="Filtrar clientes por status"></div>
 
       <div class="split">
         <div class="list-col">
@@ -504,14 +622,13 @@
           <button class="button button-secondary" id="new-story-btn" type="button">+ Adicionar fato / projeto</button>
           <button class="button" id="plan-posts" type="button">
             <svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>
-            <span>Gerar pauta a partir do meu perfil</span>
+            <span>Gerar pauta do meu perfil</span>
           </button>
         </div>
       </div>
 
       <div class="camp-summary" id="posts-summary-strip"></div>
 
-      <!-- Formulário para adicionar fato/história verificável -->
       <form id="story-form" class="workspace-panel" style="margin-bottom:18px" hidden>
         <div class="panel-heading">
           <div>
@@ -537,9 +654,7 @@
         </div>
       </form>
 
-      <div class="filters">
-        <div class="chips" id="post-status-chips" role="group" aria-label="Filtrar publicações por status"></div>
-      </div>
+      <div class="chips" id="post-status-chips" role="group" aria-label="Filtrar publicações por status"></div>
 
       <div class="split">
         <div class="list-col">
@@ -555,11 +670,11 @@
       <div class="page-head">
         <div>
           <h1 id="profile-title">Meu perfil e currículo</h1>
-          <p class="heading-subtitle">Qualquer pessoa pode configurar seus próprios dados aqui. Ao salvar, o Radar recalcula na hora o score de todas as vagas e os requisitos "No seu perfil" vs. "Vale conferir".</p>
+          <p class="heading-subtitle">Qualquer pessoa pode configurar seus próprios dados aqui. Ao salvar, o Radar grava na sua base dinâmica e recalcula na hora o score de todas as vagas e os requisitos.</p>
         </div>
         <div class="form-actions">
           <button class="button button-secondary" type="button" id="btn-preset-erick">Carregar preset Eng. Planejamento (Erick)</button>
-          <button class="button button-secondary" type="button" id="btn-preset-blank">Limpar para novo amigo</button>
+          <button class="button button-secondary" type="button" id="btn-preset-blank">Limpar para novo usuário</button>
         </div>
       </div>
 
@@ -620,12 +735,12 @@
       </div>
     </section>
 
-    <!-- ==================== 6. CONFIGURAÇÕES ==================== -->
+    <!-- ==================== 6. CONFIGURAÇÕES & BASE DINÂMICA ==================== -->
     <section id="settings" class="view" aria-labelledby="settings-title">
       <div class="page-head">
         <div>
-          <h1 id="settings-title">Configurações e Integrações</h1>
-          <p class="heading-subtitle">Aparência, sincronização em nuvem (Supabase ou GitHub), exportação de dados e compartilhamento com amigos.</p>
+          <h1 id="settings-title">Configurações e Sincronização</h1>
+          <p class="heading-subtitle">Sua conta tem base de dados dinâmica própria (<code>RadarDynamicDB</code>), sem depender de Token do GitHub.</p>
         </div>
       </div>
 
@@ -637,12 +752,30 @@
           <p id="profile-card-contact" class="profile-card-contact"></p>
         </div>
         <div class="profile-card-actions" style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="button button-secondary" type="button" data-view="profile">Editar currículo e competências</button>
+          <button class="button button-secondary" type="button" data-view="profile">Editar currículo</button>
           <button class="button" type="button" id="btn-open-auth-settings">Trocar conta / Entrar</button>
         </div>
       </div>
 
       <div class="settings-stack">
+        <!-- Sincronização Instantânea Celular <-> PC (Código de Sincronização sem Token GitHub) -->
+        <section class="workspace-panel" aria-labelledby="sync-code-title">
+          <div class="panel-heading">
+            <div>
+              <h2 id="sync-code-title">Código de Sincronização (Celular ↔ PC · Sem Token GitHub)</h2>
+              <p>Seus dados ficam salvos automaticamente no banco dinâmico desta conta (<code>RadarDynamicDB</code>). Para levar seu progresso instantaneamente do computador para o celular (ou vice-versa), gere seu código abaixo ou baixe o arquivo JSON.</p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="button" type="button" id="btn-open-sync-modal">Gerar ou colar Código de Sincronização</button>
+            <button class="button button-secondary" type="button" id="btn-export-data">Baixar backup (.json)</button>
+            <label class="button button-secondary" style="margin:0;cursor:pointer">
+              Importar backup (.json)
+              <input type="file" id="input-import-data" accept="application/json,.json" hidden>
+            </label>
+          </div>
+        </section>
+
         <section class="workspace-panel appearance-panel" aria-labelledby="appearance-title">
           <div class="panel-heading">
             <div>
@@ -656,30 +789,12 @@
           </div>
         </section>
 
-        <!-- Sincronização GitHub (compatível com o fluxo original de docs/index.html) -->
-        <details class="workspace-panel conta" id="conta" open>
-          <summary>Sincronização via GitHub Token (opcional) <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
-          <div class="disclosure-body">
-            <p class="muted">Sem login Supabase ou token, tudo fica salvo gratuitamente neste navegador (isolado por perfil). Se você é dono do repositório no GitHub, pode colar um token com permissão em <b>Contents</b> e <b>Actions</b> para disparar o robô e gravar em <code>estado.json</code>.</p>
-            <form id="form-token" class="form-grid" style="margin-top:12px">
-              <label class="full">Token do GitHub (Personal Access Token)
-                <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">
-              </label>
-              <div class="form-actions full">
-                <button class="button" type="submit">Salvar token</button>
-                <button class="button button-secondary sec" type="button" id="tirar-token">Remover token</button>
-              </div>
-            </form>
-            <p class="helper estado-conta" id="estado-conta"></p>
-          </div>
-        </details>
-
-        <!-- Conexão Supabase Customizada (para amigos que queiram ligar seu próprio banco grátis) -->
+        <!-- Conexão Supabase (Nuvem Multiusuário Opcional) -->
         <section class="workspace-panel" aria-labelledby="supa-custom-title">
           <div class="panel-heading">
             <div>
-              <h2 id="supa-custom-title">Conexão Supabase (Multiusuário na nuvem)</h2>
-              <p>O painel usa o Supabase configurado em <code>supabase-config.js</code> ou permite informar a URL e Anon Key do projeto para sincronizar marcações, clientes e publicações por usuário.</p>
+              <h2 id="supa-custom-title">Nuvem Supabase (Opcional)</h2>
+              <p>Se quiser sincronização automática em nuvem entre vários aparelhos via Supabase Auth, informe a URL e Anon Key do projeto (ou deixe em branco para usar o <code>RadarDynamicDB</code> integrado).</p>
             </div>
           </div>
           <form id="supa-custom-form" class="form-grid">
@@ -687,34 +802,35 @@
             <label>Supabase Anon Public Key<input name="anon" type="password" autocomplete="off" placeholder="eyJhbGciOi..."></label>
             <div class="form-actions full">
               <button class="button button-secondary" type="submit">Salvar conexão Supabase</button>
-              <button class="button button-ghost" type="button" id="supa-clear-btn">Usar padrão / Desconectar</button>
+              <button class="button button-ghost" type="button" id="supa-clear-btn">Usar apenas Base Dinâmica Local</button>
               <span id="supa-saved-note" class="save-note"></span>
             </div>
           </form>
         </section>
 
-        <!-- Backup / Exportar e Importar Perfil -->
-        <section class="workspace-panel" aria-labelledby="backup-title">
-          <div class="panel-heading">
-            <div>
-              <h2 id="backup-title">Exportar ou importar meus dados</h2>
-              <p>Baixe uma cópia JSON do seu perfil, candidaturas, clientes e posts para levar para outro aparelho ou enviar de modelo para um amigo.</p>
-            </div>
+        <!-- Avançado: Token do GitHub recolhido apenas para o administrador do repositório -->
+        <details class="workspace-panel conta" id="conta">
+          <summary>Avançado (Administrador do repositório): Token do GitHub opcional <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <div class="disclosure-body">
+            <p class="muted"><strong>Você NÃO precisa disso para usar o painel.</strong> Esta opção serve apenas para o mantenedor do código disparar manualmente o workflow do GitHub Actions fora do horário programado.</p>
+            <form id="form-token" class="form-grid" style="margin-top:12px">
+              <label class="full">Token do GitHub (Personal Access Token)
+                <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">
+              </label>
+              <div class="form-actions full">
+                <button class="button button-secondary" type="submit">Salvar token de admin</button>
+                <button class="button button-ghost sec" type="button" id="tirar-token">Remover token</button>
+              </div>
+            </form>
+            <p class="helper estado-conta" id="estado-conta"></p>
           </div>
-          <div class="form-actions">
-            <button class="button button-secondary" type="button" id="btn-export-data">Baixar backup (.json)</button>
-            <label class="button button-secondary" style="margin:0;cursor:pointer">
-              Importar backup (.json)
-              <input type="file" id="input-import-data" accept="application/json,.json" hidden>
-            </label>
-          </div>
-        </section>
+        </details>
       </div>
     </section>
   </main>
 </div>
 
-<!-- MODAL ACESSÍVEL (Detalhes em telas menores + Convidar Amigos + Aprovar Erro Vagas.com.br) -->
+<!-- MODAL ACESSÍVEL & GAVETA MOBILE -->
 <div id="modal-backdrop" class="modal-backdrop hidden" role="presentation">
   <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <button class="modal-close" id="modal-close" type="button" aria-label="Fechar janela">

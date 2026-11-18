@@ -181,3 +181,27 @@ create policy "minhas publicacoes posts" on public.publicacoes_posts for all to 
 grant select on public.vagas, public.buscas, public.fila_erros_vagas to authenticated;
 grant update on public.fila_erros_vagas to authenticated;
 grant select, insert, update, delete on public.marcacoes, public.perfis_usuarios, public.clientes_leads, public.publicacoes_posts to authenticated;
+
+-- Base dinâmica por conta (sincroniza progresso de cada pessoa sem precisar de token do GitHub)
+create table if not exists public.progresso_contas (
+  account_key text primary key,
+  user_id uuid references auth.users(id) on delete set null,
+  email text,
+  nome text,
+  provider text not null default 'local',
+  perfil jsonb default '{}'::jsonb,
+  estado jsonb default '{}'::jsonb,
+  leads jsonb default '[]'::jsonb,
+  posts jsonb default '[]'::jsonb,
+  stories jsonb default '[]'::jsonb,
+  vagas_manuais jsonb default '[]'::jsonb,
+  fila_erros jsonb default '[]'::jsonb,
+  atualizado_em timestamptz not null default now()
+);
+alter table public.progresso_contas enable row level security;
+drop policy if exists "acesso progresso_contas" on public.progresso_contas;
+create policy "acesso progresso_contas" on public.progresso_contas for all to anon, authenticated
+  using (true)
+  with check (true);
+
+grant select, insert, update on public.progresso_contas to anon, authenticated;

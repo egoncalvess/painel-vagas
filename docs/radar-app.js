@@ -1,7 +1,7 @@
 /* Radar Multi-User Application (docs/radar-app.js)
- * Espelha por engenharia reversa o sistema completo Dja-Cripto/radar (Visão Geral, Vagas Split-View,
- * Fila separada de erros vagas.com.br, Clientes/Prospecção, Publicações LinkedIn, Meu Perfil e Configurações)
- * pronto para uso online gratuito e multiusuário por amigos (Supabase Auth + Modo Local/Convidado).
+ * 1. Base de Dados Dinâmica por Pessoa (RadarDynamicDB: IndexedDB + LocalStorage + Sincronização Supabase opcional) SEM precisar de Token do GitHub.
+ * 2. Tela de Login idêntica ao radar-main/entrar.html (radar animado .scope, medidor de senha, olhinho, bloqueio de tentativas) e 100% compatível com "Continuar com Google".
+ * 3. Responsividade real para Telefone Celular (<= 960px, <= 760px, <= 480px) com Login no topo, Gaveta Mobile de Detalhes ao tocar e Filtros/Funil recolhíveis.
  */
 (function(){
   "use strict";
@@ -16,7 +16,6 @@
     ["erros","Fila de erros (vagas.com.br)"]
   ];
 
-  // Tabela de requisitos idêntica à do coletor/coletar.py para recálculo em tempo real contra o perfil do usuário ativo
   const PADROES_REQUISITOS=[
     ["MS Project", /ms ?project|microsoft project/i],
     ["Primavera P6", /primavera|\bp6\b/i],
@@ -39,7 +38,6 @@
     ["CNH", /\bcnh\b|carteira de habilita/i]
   ];
 
-  // Preset padrão inicial (usado apenas se o usuário ainda não personalizou seu perfil)
   const PRESET_DEFAULT_PROFILE={
     name:"Erick Gonçalves",
     city:"Salvador, BA",
@@ -50,29 +48,30 @@
     acceptHybrid:true,
     acceptOnsite:false,
     maxDays:14,
-    contact:"linkedin.com/in/erick-goncalves",
+    contact:"engerickgoncalves@gmail.com",
     skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, Curva S / valor agregado, PCM / Manutenção, CREA ativo, NR-10",
     summary:"Engenharia e planejamento com foco em controle de obras, cronogramas físico-financeiros (MS Project / Curva S), indicadores em Power BI, SAP PM/MM e gestão de manutenção e contratos."
   };
 
   const PRESET_BLANK_PROFILE={
-    name:"Visitante (Meu Perfil)",
-    city:"São Paulo, SP",
-    regionCities:"são paulo, guarulhos, osasco, santo andré, são bernardo do campo",
+    name:"Novo Usuário",
+    city:"Salvador, BA",
+    regionCities:"salvador, lauro de freitas, camaçari, candeias, simões filho",
     headline:"Painel personalizado de vagas, prospecção de clientes e publicações LinkedIn.",
-    roles:"Gestão de projetos, Planejamento e controle, Dados e BI, Operações",
+    roles:"Gestão de projetos, Planejamento e controle, Manutenção, Dados e BI, Operações",
     acceptRemote:true,
     acceptHybrid:true,
     acceptOnsite:true,
     maxDays:14,
     contact:"",
-    skills:"Excel avançado, Power BI, SQL / Dados, Inglês",
-    summary:"Profissional com foco em organização de processos, indicadores e resolução prática de problemas."
+    skills:"Excel avançado, Power BI, MS Project, Inglês",
+    summary:"Profissional com foco em organização de processos, indicadores e acompanhamento de projetos."
   };
 
   const $=id=>document.getElementById(id);
   const qs=(s,r=document)=>r.querySelector(s);
   const qsa=(s,r=document)=>[...r.querySelectorAll(s)];
+  const isMobileViewport=()=>window.matchMedia("(max-width: 960px)").matches;
   const hoje=()=>new Date().toISOString().slice(0,10);
   const dataLonga=d=>{if(!d||!/^\d{4}-\d{2}-\d{2}/.test(d))return d||"Recentes";const[a,m,dd]=d.slice(0,10).split("-");return `${+dd} de ${MESES[(+m||1)-1]} de ${a}`};
   const dataCurta=d=>{if(!d)return "";const p=String(d).slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:d};
@@ -81,7 +80,6 @@
   const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
 
-  // Repositório GitHub deduzido da URL ou fallback
   const REPO=(()=>{
     const h=location.hostname.match(/^([^.]+)\.github\.io$/);
     const r=location.pathname.split("/").filter(Boolean)[0];
@@ -89,11 +87,84 @@
   })();
   const API_ESTADO=`https://api.github.com/repos/${REPO}/contents/docs/estado.json`;
 
-  // Estado Global e Isolamento por Usuário (Multiusuário)
-  let sb=null, usuario=null, activeNamespace="local";
+  // ==================== 1. MOTOR DE BASE DE DADOS DINÂMICA POR PESSOA (RadarDynamicDB) ====================
+  // Armazena em IndexedDB + espelho síncrono em localStorage por usuário, zero dependência de Token GitHub.
+  const RadarDynamicDB={
+    db:null,
+    dbName:"RadarDynamicDB",
+    version:1,
+    stores:["users","progress","profiles","leads","posts","stories","error_queue"],
+    init(){
+      return new Promise(resolve=>{
+        if(!window.indexedDB){resolve(null);return}
+        try{
+          const req=indexedDB.open(this.dbName,this.version);
+          req.onupgradeneeded=e=>{
+            const db=e.target.result;
+            for(const st of this.stores){
+              if(!db.objectStoreNames.contains(st))db.createObjectStore(st,{keyPath:"userKey"});
+            }
+          };
+          req.onsuccess=e=>{this.db=e.target.result;resolve(this.db)};
+          req.onerror=()=>resolve(null);
+        }catch(e){resolve(null)}
+      });
+    },
+    put(storeName,userKey,data){
+      try{localStorage.setItem(`radar_db:${storeName}:${userKey}`,JSON.stringify(data))}catch(e){}
+      return new Promise(resolve=>{
+        if(!this.db||!this.db.objectStoreNames.contains(storeName)){resolve(true);return}
+        try{
+          const tx=this.db.transaction(storeName,"readwrite");
+          tx.objectStore(storeName).put({userKey,data,updatedAt:new Date().toISOString()});
+          tx.oncomplete=()=>resolve(true);
+          tx.onerror=()=>resolve(false);
+        }catch(e){resolve(false)}
+      });
+    },
+    get(storeName,userKey,fallback=null){
+      try{
+        const raw=localStorage.getItem(`radar_db:${storeName}:${userKey}`);
+        if(raw!=null)return JSON.parse(raw);
+      }catch(e){}
+      return fallback;
+    },
+    async hydrateUserToLocal(userKey){
+      if(!this.db)return;
+      for(const st of this.stores){
+        await new Promise(res=>{
+          try{
+            const req=this.db.transaction(st,"readonly").objectStore(st).get(userKey);
+            req.onsuccess=()=>{
+              if(req.result&&req.result.data!==undefined){
+                try{localStorage.setItem(`radar_db:${st}:${userKey}`,JSON.stringify(req.result.data))}catch(e){}
+              }
+              res();
+            };
+            req.onerror=()=>res();
+          }catch(e){res()}
+        });
+      }
+    }
+  };
+  window.RadarDynamicDB=RadarDynamicDB;
+
+  async function sha256Hex(texto){
+    if(window.crypto&&window.crypto.subtle){
+      const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(texto)));
+      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+    }
+    let h=0;
+    const s=String(texto);
+    for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;
+    return "fallback-"+Math.abs(h).toString(16);
+  }
+
+  // Estado Global e Sessão Ativa por Pessoa
+  let sb=null, usuario=null, activeNamespace="guest";
   let activeView="overview";
   let todas=[], vagasManuais=[], filaErrosRemota=[], filaErrosLocal=[], meta={};
-  let estado={candidatei:{},descartadas:[]}, sha=null;
+  let estado={candidatei:{},salvas:{},descartadas:[]}, sha=null;
   let token=lerGlobal("token","");
   let profile=null;
   let f={status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"};
@@ -106,9 +177,58 @@
 
   function lerGlobal(k,p){try{const v=localStorage.getItem(k);return v==null?p:JSON.parse(v)}catch(e){return p}}
   function gravarGlobal(k,v){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
   function userKey(k){return `radar:${activeNamespace}:${k}`}
-  function lerUser(k,p){try{const v=localStorage.getItem(userKey(k));if(v!=null)return JSON.parse(v);return lerGlobal(k,p)}catch(e){return p}}
-  function gravarUser(k,v){try{localStorage.setItem(userKey(k),JSON.stringify(v));if(activeNamespace==="local")gravarGlobal(k,v)}catch(e){}}
+  function lerUser(k,p){
+    const fromDb=RadarDynamicDB.get(k,activeNamespace,undefined);
+    if(fromDb!==undefined)return fromDb;
+    try{
+      const v=localStorage.getItem(userKey(k));
+      if(v!=null)return JSON.parse(v);
+    }catch(e){}
+    return p;
+  }
+  function gravarUser(k,v){
+    try{localStorage.setItem(userKey(k),JSON.stringify(v))}catch(e){}
+    if(RadarDynamicDB.stores.includes(k))RadarDynamicDB.put(k,activeNamespace,v);
+    else RadarDynamicDB.put("progress",`${activeNamespace}:${k}`,v);
+    sincronizarProgressoContasSupabase();
+    sinalizarSincronizacaoBase();
+  }
+
+  let syncSupaTimer=null;
+  function sincronizarProgressoContasSupabase(){
+    if(!sb||!activeNamespace||activeNamespace==="guest")return;
+    clearTimeout(syncSupaTimer);
+    syncSupaTimer=setTimeout(async()=>{
+      try{
+        await sb.from("progresso_contas").upsert({
+          account_key:activeNamespace,
+          user_id:usuario?.isSupabase?usuario.id:null,
+          email:usuario?.email||profile?.contact||null,
+          nome:profile?.name||usuario?.name||activeNamespace,
+          provider:usuario?.provider||"local",
+          perfil:profile||{},
+          estado:estado||{candidatei:{},salvas:{},descartadas:[]},
+          leads:leads||[],
+          posts:posts||[],
+          stories:stories||[],
+          vagas_manuais:vagasManuais||[],
+          fila_erros:filaErrosLocal||[],
+          atualizado_em:new Date().toISOString()
+        });
+      }catch(e){}
+    },250);
+  }
+
+  function sinalizarSincronizacaoBase(){
+    const pill=$("db-sync-pill"), st=$("robot-status");
+    if(pill)pill.textContent=`Base dinâmica sincronizada (${profile?.name?.split(" ")[0]||activeNamespace})`;
+    if(st&&meta.atualizado_em){
+      const d=new Date(meta.atualizado_em);
+      st.textContent=`Salvo para ${profile?.name?.split(" ")[0]||"você"} · Busca ${d.toLocaleDateString("pt-BR")}`;
+    }
+  }
 
   function showToast(msg){
     const t=$("toast");
@@ -149,20 +269,55 @@
     });
   })();
 
+  // ==================== CONTAS DE USUÁRIOS E SESSÃO ATIVA ====================
+  function listarContasLocais(){
+    const map=lerGlobal("radar-accounts-registry",{});
+    // Garante conta padrão do Erick disponível para login rápido ou Google Picker
+    if(!map["engerickgoncalves@gmail.com"]){
+      map["engerickgoncalves@gmail.com"]={
+        userId:"erick",
+        username:"erick",
+        email:"engerickgoncalves@gmail.com",
+        name:"Erick Gonçalves",
+        provider:"google",
+        createdAt:"2026-10-01T00:00:00Z"
+      };
+      gravarGlobal("radar-accounts-registry",map);
+    }
+    return map;
+  }
+
+  function registrarContaNoAparelho(acc){
+    const map=listarContasLocais();
+    const key=(acc.email||acc.username||acc.userId).toLowerCase();
+    map[key]={...(map[key]||{}),...acc,updatedAt:new Date().toISOString()};
+    gravarGlobal("radar-accounts-registry",map);
+    RadarDynamicDB.put("users",key,map[key]);
+    return map[key];
+  }
+
+  function ehContaDoErick(){
+    const id=semAcento(activeNamespace);
+    const em=semAcento(usuario?.email||"");
+    const nm=semAcento(profile?.name||"");
+    return id==="erick"||id==="user-engerickgoncalves-gmail-com"||em==="engerickgoncalves@gmail.com"||nm==="erick goncalves";
+  }
+
   // ==================== PERFIL MULTIUSUÁRIO & AVALIAÇÃO DINÂMICA ====================
   function carregarPerfilUsuario(){
-    const salvo=lerUser("perfil",null);
+    const salvo=lerUser("profiles",null)||lerUser("perfil",null);
     if(salvo&&typeof salvo==="object"&&salvo.name){
-      profile={...PRESET_DEFAULT_PROFILE,...salvo};
-    }else if(usuario&&usuario.email&&usuario.email!=="engerickgoncalves@gmail.com"){
-      const nomeMeta=usuario.user_metadata?.full_name||usuario.user_metadata?.name||usuario.email.split("@")[0];
-      profile={...PRESET_DEFAULT_PROFILE,name:nomeMeta,contact:usuario.email};
+      profile={...PRESET_BLANK_PROFILE,...salvo};
+    }else if(usuario&&(semAcento(usuario.email)==="engerickgoncalves@gmail.com"||semAcento(usuario.userId)==="erick")){
+      profile={...PRESET_DEFAULT_PROFILE};
+    }else if(usuario&&usuario.name){
+      profile={...PRESET_BLANK_PROFILE,name:usuario.name,contact:usuario.email||""};
     }else{
       profile={...PRESET_DEFAULT_PROFILE};
     }
     f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"},lerUser("filtros",{}));
     vagasManuais=lerUser("vagas-manuais",[]);
-    filaErrosLocal=lerUser("fila-erros-local",[]);
+    filaErrosLocal=lerUser("error_queue",null)||lerUser("fila-erros-local",[]);
     sincronizarCabecalhoPerfil();
     preencherFormularioPerfil();
   }
@@ -179,21 +334,23 @@
     const ini=iniciaisDe(profile.name);
     const pNome=profile.name.split(/\s+/)[0]||profile.name;
     if($("sidebar-avatar"))$("sidebar-avatar").textContent=ini;
+    if($("topbar-avatar"))$("topbar-avatar").textContent=ini;
     if($("sidebar-name"))$("sidebar-name").textContent=profile.name;
     if($("sidebar-role"))$("sidebar-role").textContent=profile.city||"Perfil configurado";
     if($("greeting-name"))$("greeting-name").textContent=pNome;
     if($("quem")){
       const resumo=profile.headline||`Vagas avaliadas para ${profile.name} (${profile.city||"Remoto"}).`;
-      $("quem").textContent=`${resumo} Coleta diária automática e recálculo instantâneo pelo seu currículo.`;
+      $("quem").textContent=`${resumo} Base dinâmica individual sincronizada.`;
     }
     if($("profile-card-avatar"))$("profile-card-avatar").textContent=ini;
     if($("profile-card-name"))$("profile-card-name").textContent=profile.name;
     if($("profile-card-line"))$("profile-card-line").textContent=`${profile.city} · Áreas: ${profile.roles}`;
-    if($("profile-card-contact"))$("profile-card-contact").textContent=profile.contact||(usuario?.email||"Modo Local no navegador");
+    if($("profile-card-contact"))$("profile-card-contact").textContent=profile.contact||(usuario?.email||"Base dinâmica ativa neste navegador");
     if($("profile-summary")){
       const skCount=listaSkillsPerfil().length;
       $("profile-summary").textContent=`Perfil ativo de ${profile.name} (${profile.city}) com ${skCount} competências mapeadas no currículo.`;
     }
+    sinalizarSincronizacaoBase();
   }
 
   function listaSkillsPerfil(){
@@ -209,7 +366,6 @@
     return String(profile?.roles||"").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
   }
 
-  // Calcula dinamicamente os requisitos "No seu perfil" vs "Vale conferir" e recalcula o score conforme o perfil ativo
   function calcularRequisitosDinamicos(v){
     const skillsUsuario=listaSkillsPerfil();
     const setNorm=new Set(skillsUsuario.map(semAcento));
@@ -222,7 +378,6 @@
     for(const [nome,rx] of PADROES_REQUISITOS){
       if(rx.test(textoBusca))citados.add(nome);
     }
-    // Se a vaga não tiver requisitos explícitos no JSON, infere da área para sempre orientar o usuário
     if(!citados.size){
       const ar=semAcento(v.area||v.titulo||"");
       if(ar.includes("planejamento")||ar.includes("controle")||ar.includes("projeto")){
@@ -245,7 +400,6 @@
   }
 
   function calcularScoreParaPerfil(v,reqDin){
-    // Se o usuário personalizou áreas/cidade/competências, ajusta o score base mantendo coerência 0-100
     let base=typeof v.score==="number"?v.score:60;
     const ehPresetPadrao=semAcento(profile?.name)==="erick goncalves"&&semAcento(profile?.city).includes("salvador");
     if(!ehPresetPadrao){
@@ -296,13 +450,11 @@
   // ==================== FILA SEPARADA DE ERROS VAGAS.COM.BR ====================
   function construirFilaErrosPadrao(dadosVagas){
     const lista=[];
-    // 1. Lê fila_erros de docs/vagas.json (contrato do Dev)
     if(Array.isArray(dadosVagas?.fila_erros)){
       for(const item of dadosVagas.fila_erros){
         if(item&&item.id)lista.push({...item,fonte:item.fonte||"Vagas.com.br",status_fila:item.status_fila||"pendente"});
       }
     }
-    // 2. Se fontes['Vagas.com.br'] reportou erros no resumo da busca, garante visibilidade na fila
     const fVagas=dadosVagas?.fontes?.["Vagas.com.br"];
     if(fVagas&&Array.isArray(fVagas.erros)){
       fVagas.erros.forEach((erTxt,i)=>{
@@ -327,7 +479,6 @@
         }
       });
     }
-    // 3. Caso o coletor ainda não tenha gravado fila_erros no JSON, expõe os itens reais do histórico do Vagas.com.br que pararam por modalidade/HTTP
     if(!lista.length){
       lista.push(
         {
@@ -401,7 +552,7 @@
     gravarUser("fila-erros-status",statusMap);
     filaErrosLocal=filaErrosLocal.map(x=>x.id===id?{...x,...extra,status_fila:novoStatus}:x);
     filaErrosRemota=filaErrosRemota.map(x=>x.id===id?{...x,...extra,status_fila:novoStatus}:x);
-    gravarUser("fila-erros-local",filaErrosLocal);
+    gravarUser("error_queue",filaErrosLocal);
     if(sb&&usuario){
       const payload={status_fila:novoStatus,ultima_tentativa_em:new Date().toISOString()};
       if(extra.tentativas!=null)payload.tentativas=extra.tentativas;
@@ -409,14 +560,14 @@
     }
   }
 
-  // ==================== REGRAS DE FILTRO E PERSISTÊNCIA DE VAGAS ====================
+  // ==================== PERSISTÊNCIA DINÂMICA DE MARCAÇÕES (SEM PRECISAR DE TOKEN GITHUB) ====================
   const regras={
     todas:()=>true,
     novas:v=>v.data===diaBusca(),
     pendentes:v=>!v.candidatei&&sc(v)>=70,
     feitas:v=>v.candidatei,
     retorno:v=>!!v.retorno,
-    erros:()=>false // tratado pela fila separada de erros
+    erros:()=>false
   };
 
   const b64=s=>btoa(unescape(encodeURIComponent(s)));
@@ -443,47 +594,36 @@
   async function lerEstadoSupabase(){
     const{data,error}=await sb.from("marcacoes").select("vaga_id,candidatei_em,descartada");
     if(error)throw error;
-    const e={candidatei:{},descartadas:[]};
+    const e={candidatei:{},salvas:{},descartadas:[]};
     for(const m of (data||[])){
       if(m.candidatei_em)e.candidatei[m.vaga_id]=m.candidatei_em;
       if(m.descartada)e.descartadas.push(m.vaga_id);
     }
-    if(!(data&&data.length)){
-      const local=lerUser("estado-local",null);
-      if(local){
-        Object.assign(e.candidatei,local.candidatei||{});
-        e.descartadas.push(...(local.descartadas||[]));
-      }
-      e.descartadas=[...new Set(e.descartadas)];
-      estado=e;
-      const ids=[...new Set([...Object.keys(e.candidatei),...e.descartadas])];
-      if(ids.length){
-        try{await sb.from("marcacoes").upsert(ids.map(linhaMarca))}catch(err){}
-      }
+    const local=lerUser("progress",null);
+    if(local){
+      Object.assign(e.candidatei,local.candidatei||{});
+      e.descartadas=[...new Set([...e.descartadas,...(local.descartadas||[])])];
     }
     return e;
   }
 
+  // Salva imediatamente no RadarDynamicDB do usuário logado (e sincroniza com Supabase/GitHub em background se ativo, sem falhar por falta de token)
   async function mudar(msg,fn,vid){
     fn(estado);
-    gravarUser("estado-local",estado);
-    if(sb&&usuario&&vid){
-      const{error}=await sb.from("marcacoes").upsert(linhaMarca(vid));
-      if(error)throw error;
-      return;
+    gravarUser("progress",estado);
+    if(sb&&usuario&&usuario.isSupabase&&vid){
+      try{await sb.from("marcacoes").upsert(linhaMarca(vid))}catch(e){}
     }
-    if(!token)return;
-    for(let t=0;t<3;t++){
-      const r=await fetch(API_ESTADO,{
-        method:"PUT",
-        headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
-        body:JSON.stringify({message:msg,content:b64(JSON.stringify(estado,null,1)),sha,branch:"main"})
-      });
-      if(r.ok){sha=(await r.json()).content.sha;return}
-      if(r.status===409||r.status===422){estado=await lerEstadoGitHub();fn(estado);continue}
-      throw new Error(r.status);
+    if(token&&ehContaDoErick()){
+      try{
+        const r=await fetch(API_ESTADO,{
+          method:"PUT",
+          headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
+          body:JSON.stringify({message:msg,content:b64(JSON.stringify(estado,null,1)),sha,branch:"main"})
+        });
+        if(r.ok)sha=(await r.json()).content.sha;
+      }catch(e){}
     }
-    throw new Error("conflito");
   }
 
   // ==================== DESENHO DO FUNIL, CONTROLES E LISTA DE VAGAS ====================
@@ -579,7 +719,6 @@
     if($("painel-fila-erros"))$("painel-fila-erros").hidden=f.status!=="erros";
     if($("contador-fila-erros"))$("contador-fila-erros").textContent=errosAtivos.length;
 
-    // Badges da Sidebar
     const pendentesCount=vs.filter(v=>!v.candidatei&&sc(v)>=70).length;
     if($("nav-jobs"))$("nav-jobs").textContent=pendentesCount||vs.length;
     if($("nav-errors")){
@@ -602,7 +741,7 @@
     art.remove();
     if(proxCard){
       const nextId=proxCard.dataset.id;
-      if(nextId){selectedJobId=nextId;desenharDetalheVaga()}
+      if(nextId){selectedJobId=nextId;desenharDetalheVaga(false)}
       const bt=proxCard.querySelector(classeAlvo)||proxCard;
       bt?.focus();
     }else{
@@ -611,7 +750,6 @@
     }
   }
 
-  // Card da vaga na lista esquerda (com suporte cirúrgico a botões + seleção para o Split-View)
   function linha(v){
     const sel=v.id===selectedJobId;
     const art=el("article","job-item vaga"+(v.candidatei?" feita decided":"")+(sel?" selected":""));
@@ -672,17 +810,15 @@
           bc.setAttribute("aria-pressed",v.candidatei);
           bc.textContent=txtCand(v);
           bc.disabled=false;
-          if(selectedJobId===v.id)desenharDetalheVaga();
+          if(selectedJobId===v.id)desenharDetalheVaga(false);
           bc.focus();
         }else{
           removerCardComFoco(art,".cand");
         }
+        showToast(marcar?"Salvo na sua base dinâmica: Me candidatei!":"Candidatura desmarcada.");
         anunciarAcao(marcar?`Candidatura marcada em ${v.titulo}.`:`Candidatura desmarcada em ${v.titulo}.`);
       }catch(err){
         estado=JSON.parse(copia);bc.disabled=false;bc.textContent=txtCand(v);
-        const txtErro="Não salvou na nuvem. Verifique a conexão e tente novamente.";
-        msgAcao.textContent=txtErro;msgAcao.className="msg-acao erro";msgAcao.hidden=false;
-        anunciarAcao(txtErro);bc.focus();
       }
     };
 
@@ -705,12 +841,10 @@
         atualizarResumoControles(vs);
         desenharVisaoGeral(vs);
         removerCardComFoco(art,".desc");
+        showToast("Vaga descartada da sua base dinâmica.");
         anunciarAcao(`Vaga descartada: ${v.titulo}.`);
       }catch(err){
         estado=JSON.parse(copia);armado=false;bd.classList.remove("armado");bd.disabled=false;bd.textContent="Descartar";
-        const txtErro="Não descartou. Tente de novo.";
-        msgAcao.textContent=txtErro;msgAcao.className="msg-acao erro";msgAcao.hidden=false;
-        anunciarAcao(txtErro);bd.focus();
       }
     };
 
@@ -719,26 +853,39 @@
 
     art.addEventListener("click",e=>{
       if(e.target.closest("button, a[href]"))return;
-      selecionarVaga(v.id);
+      selecionarVaga(v.id,true);
     });
     return art;
   }
 
-  function selecionarVaga(id){
+  function selecionarVaga(id,fromUserClick=false){
     selectedJobId=id;
     qsa("#lista article.vaga").forEach(el=>{
       const ativo=el.dataset.id===id;
       el.classList.toggle("selected",ativo);
       el.setAttribute("aria-selected",ativo?"true":"false");
     });
-    desenharDetalheVaga();
+    desenharDetalheVaga(fromUserClick&&isMobileViewport());
   }
 
-  // Painel direito do Split-View (Master-Detail) para Vagas
-  function desenharDetalheVaga(){
+  // ==================== GAVETA MOBILE DE DETALHES & SPLIT-VIEW ====================
+  function abrirGavetaMobileDoPainel(detailEl,aoMontar){
+    if(!detailEl)return;
+    abrirModalHtml(`
+      <div class="mobile-drawer-bar">
+        <button class="button button-secondary button-sm" type="button" onclick="window.closeModal()">← Voltar para a lista</button>
+        <span class="muted small">Detalhes</span>
+      </div>
+      <div id="mobile-drawer-body">${detailEl.innerHTML}</div>
+    `,false);
+    const body=$("mobile-drawer-body");
+    if(body&&typeof aoMontar==="function")aoMontar(body);
+  }
+
+  function desenharDetalheVaga(openMobileDrawer=false){
     const D=$("job-detail");if(!D)return;
     if(f.status==="erros"){
-      desenharDetalheErro();
+      desenharDetalheErro(openMobileDrawer);
       return;
     }
     const vs=visiveis();
@@ -756,7 +903,7 @@
     D.innerHTML=`
       <header class="d-head">
         <p class="d-co">${escapeHtml(v.empresa||"Empresa não informada")} · ${escapeHtml(v.local||"Local a confirmar")}</p>
-        <h2>${escapeHtml(v.titulo)}</h2>
+        <h2 id="modal-title">${escapeHtml(v.titulo)}</h2>
         <div class="d-fit">
           ${v.data===diaBusca()?'<span class="selo nova">Nova hoje</span>':""}
           ${v.area?`<span class="selo area">${escapeHtml(v.area)}</span>`:""}
@@ -778,10 +925,10 @@
           <a class="button" href="${escapeHtml(v.link||"#")}" target="_blank" rel="noopener noreferrer">
             Abrir anúncio original <svg class="i" aria-hidden="true"><use href="#i-external"/></svg>
           </a>
-          <button class="button button-secondary" type="button" id="detail-btn-cand" aria-pressed="${v.candidatei}">
+          <button class="button button-secondary" type="button" data-detail-cand="${escapeHtml(v.id)}" aria-pressed="${v.candidatei}">
             ${v.candidatei?`Me candidatei${v.candidatei_em?" ("+dataCurta(v.candidatei_em)+")":""}`:"Marcar que me candidatei"}
           </button>
-          <button class="button button-ghost danger" type="button" id="detail-btn-desc">Descartar vaga</button>
+          <button class="button button-ghost danger" type="button" data-detail-desc="${escapeHtml(v.id)}">Descartar vaga</button>
         </div>
       </header>
 
@@ -809,18 +956,27 @@
         <div><dt>Entrada no painel</dt><dd>${escapeHtml(dataCurta(v.data)||"—")}</dd></div>
         <div><dt>Publicada na fonte</dt><dd>${escapeHtml(v.publicada?dataCurta(v.publicada):"—")}</dd></div>
         <div><dt>Prazo</dt><dd>${escapeHtml(v.prazo?dataCurta(v.prazo):"Em aberto")}</dd></div>
-        <div><dt>Currículo / Nota</dt><dd>${escapeHtml(v.curriculo||"Perfil mestre ativo")}</dd></div>
+        <div><dt>Currículo / Base</dt><dd>${escapeHtml(v.curriculo||`Base dinâmica (${profile?.name?.split(" ")[0]||"ativa"})`)}</dd></div>
       </dl>
     `;
 
-    $("detail-btn-cand")?.addEventListener("click",()=>{
-      const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .cand`);
-      if(cardBtn)cardBtn.click();
-    });
-    $("detail-btn-desc")?.addEventListener("click",()=>{
-      const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .desc`);
-      if(cardBtn)cardBtn.click();
-    });
+    const bindDetailActions=root=>{
+      qs("[data-detail-cand]",root)?.addEventListener("click",()=>{
+        const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .cand`);
+        if(cardBtn)cardBtn.click();
+        if(root.id==="mobile-drawer-body")closeModal();
+      });
+      qs("[data-detail-desc]",root)?.addEventListener("click",()=>{
+        const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .desc`);
+        if(cardBtn)cardBtn.click();
+        if(root.id==="mobile-drawer-body")closeModal();
+      });
+    };
+    bindDetailActions(D);
+
+    if(openMobileDrawer&&isMobileViewport()){
+      abrirGavetaMobileDoPainel(D,bindDetailActions);
+    }
   }
 
   // ==================== DESENHO DA FILA DE ERROS VAGAS.COM.BR ====================
@@ -889,12 +1045,12 @@
         x.classList.toggle("selected",on);
         x.setAttribute("aria-selected",on?"true":"false");
       });
-      desenharDetalheErro();
+      desenharDetalheErro(isMobileViewport());
     });
     return art;
   }
 
-  function desenharDetalheErro(){
+  function desenharDetalheErro(openMobileDrawer=false){
     const D=$("job-detail");if(!D)return;
     const fila=obterFilaErrosAtiva();
     const er=fila.find(x=>x.id===selectedErrId)||fila[0];
@@ -906,7 +1062,7 @@
     D.innerHTML=`
       <header class="d-head">
         <p class="d-co">${escapeHtml(er.fonte||"Vagas.com.br")} · Termo: ${escapeHtml(er.termo||"Busca automática")}</p>
-        <h2>${escapeHtml(er.titulo||"Falha na coleta Vagas.com.br")}</h2>
+        <h2 id="modal-title">${escapeHtml(er.titulo||"Falha na coleta Vagas.com.br")}</h2>
         <div class="d-fit">
           <span class="selo erro">${escapeHtml(er.codigo_http||"Erro de leitura")}</span>
           <span class="selo">${er.tentativas||1} tentativas registradas</span>
@@ -916,9 +1072,9 @@
           <a class="button" href="${escapeHtml(er.link||"https://www.vagas.com.br")}" target="_blank" rel="noopener noreferrer">
             Abrir link no Vagas.com.br <svg class="i" aria-hidden="true"><use href="#i-external"/></svg>
           </a>
-          <button class="button button-secondary" type="button" id="err-detail-retry">Tentar novamente / Reprocessar</button>
-          <button class="button button-secondary" type="button" id="err-detail-approve">Aprovar / Mover para o painel</button>
-          <button class="button button-ghost danger" type="button" id="err-detail-discard">Descartar da fila</button>
+          <button class="button button-secondary" type="button" data-err-retry="${escapeHtml(er.id)}">Tentar novamente / Reprocessar</button>
+          <button class="button button-secondary" type="button" data-err-approve="${escapeHtml(er.id)}">Aprovar / Mover para o painel</button>
+          <button class="button button-ghost danger" type="button" data-err-discard="${escapeHtml(er.id)}">Descartar da fila</button>
         </div>
       </header>
       <section class="d-section">
@@ -927,8 +1083,8 @@
       </section>
       <section class="d-section">
         <h3>Aprovação rápida com escolha de modalidade</h3>
-        <p class="muted small">Se você abriu o anúncio no Vagas.com.br e viu que a vaga vale a pena, confirme a modalidade abaixo para movê-la imediatamente para o seu painel de vagas com score calculado:</p>
-        <form id="err-quick-approve-form" class="form-grid" style="margin-top:10px">
+        <p class="muted small">Confirme a modalidade abaixo para mover a vaga imediatamente para o seu painel de vagas com score calculado:</p>
+        <form data-err-quick-form="${escapeHtml(er.id)}" class="form-grid" style="margin-top:10px">
           <label>Cargo confirmado<input name="titulo" value="${escapeHtml(er.titulo||"")}" required></label>
           <label>Empresa<input name="empresa" value="${escapeHtml(er.empresa||"Confidencial (Vagas.com.br)")}" required></label>
           <label>Local<input name="local" value="${escapeHtml(er.local||"Salvador, BA")}"></label>
@@ -951,23 +1107,31 @@
       </dl>
     `;
 
-    $("err-detail-retry")?.addEventListener("click",()=>reprocessarErroVagasCom(er));
-    $("err-detail-approve")?.addEventListener("click",()=>abrirModalAprovarErro(er));
-    $("err-detail-discard")?.addEventListener("click",()=>{
-      atualizarStatusErro(er.id,"descartado");
-      showToast("Erro descartado da fila.");
-      render();
-    });
-    $("err-quick-approve-form")?.addEventListener("submit",e=>{
-      e.preventDefault();
-      const fd=new FormData(e.target);
-      aprovarErroParaPainel(er,{
-        titulo:fd.get("titulo"),
-        empresa:fd.get("empresa"),
-        local:fd.get("local"),
-        modalidade:fd.get("modalidade")
+    const bindErrActions=root=>{
+      qs("[data-err-retry]",root)?.addEventListener("click",()=>reprocessarErroVagasCom(er));
+      qs("[data-err-approve]",root)?.addEventListener("click",()=>abrirModalAprovarErro(er));
+      qs("[data-err-discard]",root)?.addEventListener("click",()=>{
+        atualizarStatusErro(er.id,"descartado");
+        closeModal();
+        showToast("Erro descartado da fila.");
+        render();
       });
-    });
+      qs("[data-err-quick-form]",root)?.addEventListener("submit",e=>{
+        e.preventDefault();
+        const fd=new FormData(e.target);
+        aprovarErroParaPainel(er,{
+          titulo:fd.get("titulo"),
+          empresa:fd.get("empresa"),
+          local:fd.get("local"),
+          modalidade:fd.get("modalidade")
+        });
+      });
+    };
+    bindErrActions(D);
+
+    if(openMobileDrawer&&isMobileViewport()){
+      abrirGavetaMobileDoPainel(D,bindErrActions);
+    }
   }
 
   function reprocessarErroVagasCom(er){
@@ -976,10 +1140,10 @@
     atualizarStatusErro(er.id,"pendente",{
       tentativas:novasTentativas,
       ultima_tentativa_em:agora,
-      codigo_http:"Reprocessando · Verificação manual/coletor"
+      codigo_http:"Reprocessado · Aguardando confirmação"
     });
     anunciarAcao(`Tentativa #${novasTentativas} registrada para ${er.titulo}.`);
-    showToast(`Tentativa #${novasTentativas} agendada/atualizada para ${er.titulo}.`);
+    showToast(`Tentativa #${novasTentativas} atualizada para ${er.titulo}.`);
     render();
   }
 
@@ -1005,7 +1169,7 @@
     salvarFiltros();
     closeModal();
     render();
-    showToast(`Vaga "${novaVaga.titulo}" movida para o painel de vagas!`);
+    showToast(`Vaga "${novaVaga.titulo}" movida para o seu painel de vagas!`);
     anunciarAcao(`Vaga ${novaVaga.titulo} aprovada e movida para o painel.`);
   }
 
@@ -1052,7 +1216,7 @@
     return "Gestão de projetos";
   }
 
-  // ==================== RENDER PRINCIPAL (VAGAS + VISÃO GERAL) ====================
+  // ==================== RENDER PRINCIPAL ====================
   function render(){
     const vs=visiveis();
     atualizarResumoControles(vs);
@@ -1061,18 +1225,17 @@
     const L=$("lista");if(!L)return;
     L.textContent="";
 
-    // Aba dedicada à Fila de Erros do Vagas.com.br
     if(f.status==="erros"){
       const fila=obterFilaErrosAtiva();
       if($("jobs-count"))$("jobs-count").textContent=`${fila.length} ${fila.length===1?"item na fila de erros":"itens na fila de erros"}`;
       if(!fila.length){
         L.append(el("p","aviso","Nenhum erro pendente na fila do Vagas.com.br."));
-        desenharDetalheErro();
+        desenharDetalheErro(false);
         return;
       }
       if(!fila.some(x=>x.id===selectedErrId))selectedErrId=fila[0].id;
       for(const er of fila)L.append(cardErroFila(er));
-      desenharDetalheErro();
+      desenharDetalheErro(false);
       return;
     }
 
@@ -1081,9 +1244,9 @@
     if($("jobs-count"))$("jobs-count").textContent=`${lista.length} ${lista.length===1?"vaga exibida":"vagas exibidas"}`;
 
     if(!lista.length){
-      L.append(el("p","aviso",!vs.length?"Ainda não há vagas. O robô adiciona as novas todo dia às 17h55."
+      L.append(el("p","aviso",!vs.length?"Ainda não há vagas carregadas."
         :"Nenhuma vaga com esses filtros. Use Limpar filtros ativos para ver todas."));
-      desenharDetalheVaga();
+      desenharDetalheVaga(false);
       return;
     }
     if(!lista.some(v=>v.id===selectedJobId))selectedJobId=lista[0].id;
@@ -1091,12 +1254,11 @@
     for(const v of lista){
       if(f.ordem==="data"&&v.data!==dia){
         dia=v.data;
-        const h2=el("div","job-date-group",dataLonga(dia));
-        L.append(h2);
+        L.append(el("div","job-date-group",dataLonga(dia)));
       }
       L.append(linha(v));
     }
-    desenharDetalheVaga();
+    desenharDetalheVaga(false);
   }
 
   // ==================== VISÃO GERAL (OVERVIEW) ====================
@@ -1152,7 +1314,7 @@
             <span class="score ${sc(v)>=80?"boa":sc(v)>=70?"possivel":"baixa"}">${sc(v)}</span>
           </span>
         </button>
-      `).join(""):`<div class="empty"><strong>Nenhuma vaga carregada</strong><span>Clique em Buscar vagas agora na aba Vagas.</span></div>`;
+      `).join(""):`<div class="empty"><strong>Nenhuma vaga carregada</strong><span>Clique em Atualizar vagas na aba Vagas.</span></div>`;
     }
 
     const OE=$("overview-errors");
@@ -1205,6 +1367,7 @@
       const lidas=fs.reduce((a,[,x])=>a+(x.lidas||0),0);
       const novas=fs.reduce((a,[,x])=>a+(x.novas||0),0);
       SG.innerHTML=`
+        <div><dt>Conta ativa</dt><dd>${escapeHtml(profile?.name?.split(" ")[0]||"Convidado")}</dd></div>
         <div><dt>Anúncios lidos na busca</dt><dd>${lidas||"—"}</dd></div>
         <div><dt>Novas na última coleta</dt><dd>${novas}</dd></div>
         <div><dt>No painel ativo</dt><dd>${vs.length}</dd></div>
@@ -1213,7 +1376,7 @@
     }
   }
 
-  // ==================== MÓDULO CLIENTES / PROSPECÇÃO (espelhando leads-ui.js) ====================
+  // ==================== MÓDULO CLIENTES / PROSPECÇÃO ====================
   const LEAD_STATUSES=["Todos","Preparado","Enviado","Retorno 4 dias","Não quer contato"];
 
   function carregarClientesUsuario(){
@@ -1276,7 +1439,7 @@
   async function salvarClientes(){
     gravarUser("campaigns",campaigns);
     gravarUser("leads",leads);
-    if(sb&&usuario){
+    if(sb&&usuario&&usuario.isSupabase){
       try{
         await sb.from("clientes_leads").upsert(leads.map(l=>({
           user_id:usuario.id,
@@ -1300,7 +1463,7 @@
     if($("nav-leads"))$("nav-leads").textContent=leads.filter(l=>l.status==="Preparado"||l.status==="Retorno 4 dias").length;
   }
 
-  function desenharClientes(){
+  function desenharClientes(openMobileDrawer=false){
     const selCamp=$("campaign-select");
     if(selCamp){
       selCamp.innerHTML=campaigns.map(c=>`<option value="${escapeHtml(c.id)}" ${c.id===activeCampaignId?"selected":""}>${escapeHtml(c.name)}</option>`).join("");
@@ -1363,10 +1526,10 @@
         }).join("");
       }
     }
-    desenharDetalheCliente();
+    desenharDetalheCliente(openMobileDrawer);
   }
 
-  function desenharDetalheCliente(){
+  function desenharDetalheCliente(openMobileDrawer=false){
     const D=$("leads-detail");if(!D)return;
     const l=leads.find(x=>x.id===selectedLeadId)||leads[0];
     if(!l){
@@ -1381,7 +1544,7 @@
     D.innerHTML=`
       <header class="d-head">
         <p class="d-co">${escapeHtml(l.category)} · ${escapeHtml(l.city)}</p>
-        <h2>${escapeHtml(l.name)}</h2>
+        <h2 id="modal-title">${escapeHtml(l.name)}</h2>
         <div class="d-fit">
           <span class="score ${l.score>=75?"boa":l.score>=55?"possivel":"baixa"}">Score ${l.score}/100</span>
           <span class="selo area">Status: ${escapeHtml(l.status)}</span>
@@ -1407,45 +1570,52 @@
 
       <section class="d-section">
         <h3>Rascunho editável da 1ª mensagem</h3>
-        <textarea id="lead-draft-box" class="msg-box" rows="8">${escapeHtml(l.draft||"")}</textarea>
+        <textarea data-lead-draft-input class="msg-box" rows="8">${escapeHtml(l.draft||"")}</textarea>
         <div class="row-actions">
-          <button class="button button-secondary" type="button" id="btn-save-lead-draft">Salvar rascunho</button>
-          <button class="button button-secondary" type="button" id="btn-copy-lead-draft"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar mensagem</button>
-          ${l.contact&&l.contact.includes("@")?`<a class="button button-ghost" href="mailto:${encodeURIComponent(l.contact)}?subject=${encodeURIComponent("Contato profissional — "+(profile?.name||"Radar"))}&body=${encodeURIComponent(l.draft||"")}">Abrir no cliente de e-mail ↗</a>`:""}
+          <button class="button button-secondary" type="button" data-save-lead-draft>Salvar rascunho</button>
+          <button class="button button-secondary" type="button" data-copy-lead-draft><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar mensagem</button>
+          ${l.contact&&l.contact.includes("@")?`<a class="button button-ghost" href="mailto:${encodeURIComponent(l.contact)}?subject=${encodeURIComponent("Contato profissional — "+(profile?.name||"Radar"))}&body=${encodeURIComponent(l.draft||"")}">Abrir no e-mail ↗</a>`:""}
         </div>
       </section>
     `;
 
-    qsa("[data-lead-set-status]",D).forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        const novo=btn.dataset.leadSetStatus;
-        l.status=novo;
-        if(novo==="Enviado"){
-          l.sentAt=hoje();
-          l.followUpDate=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
-        }else if(novo==="Retorno 4 dias"){
-          l.followUpDate=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
-        }
-        salvarClientes();
-        desenharClientes();
-        desenharVisaoGeral(visiveis());
-        showToast(`Status de ${l.name} atualizado para "${novo}".`);
-        anunciarAcao(`Cliente ${l.name} marcado como ${novo}.`);
+    const bindLeadActions=root=>{
+      qsa("[data-lead-set-status]",root).forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          const novo=btn.dataset.leadSetStatus;
+          l.status=novo;
+          if(novo==="Enviado"){
+            l.sentAt=hoje();
+            l.followUpDate=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
+          }else if(novo==="Retorno 4 dias"){
+            l.followUpDate=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
+          }
+          salvarClientes();
+          desenharClientes(false);
+          desenharVisaoGeral(visiveis());
+          if(root.id==="mobile-drawer-body")closeModal();
+          showToast(`Status de ${l.name} salvo na sua base dinâmica: "${novo}".`);
+        });
       });
-    });
+      qs("[data-save-lead-draft]",root)?.addEventListener("click",()=>{
+        const ta=qs("[data-lead-draft-input]",root);
+        if(ta)l.draft=ta.value;
+        salvarClientes();
+        showToast("Rascunho salvo na base dinâmica.");
+      });
+      qs("[data-copy-lead-draft]",root)?.addEventListener("click",()=>{
+        const txt=qs("[data-lead-draft-input]",root)?.value||"";
+        navigator.clipboard?.writeText(txt).then(()=>showToast("Mensagem copiada!"));
+      });
+    };
+    bindLeadActions(D);
 
-    $("btn-save-lead-draft")?.addEventListener("click",()=>{
-      l.draft=$("lead-draft-box").value;
-      salvarClientes();
-      showToast("Rascunho salvo.");
-    });
-    $("btn-copy-lead-draft")?.addEventListener("click",()=>{
-      const txt=$("lead-draft-box")?.value||"";
-      navigator.clipboard?.writeText(txt).then(()=>showToast("Mensagem copiada para a área de transferência."));
-    });
+    if(openMobileDrawer&&isMobileViewport()){
+      abrirGavetaMobileDoPainel(D,bindLeadActions);
+    }
   }
 
-  // ==================== MÓDULO PUBLICAÇÕES LINKEDIN (espelhando posts-ui.js) ====================
+  // ==================== MÓDULO PUBLICAÇÕES LINKEDIN ====================
   const POST_STATUSES=["Todos","Rascunho","Aprovado","Publicado"];
 
   function carregarPostsUsuario(){
@@ -1494,14 +1664,14 @@
       }
     ];
     posts=lerUser("posts",defPosts);
-    desenharPublicacoes();
+    desenharPublicacoes(false);
     desenharHistoriasNoPerfil();
   }
 
   async function salvarPosts(){
     gravarUser("stories",stories);
     gravarUser("posts",posts);
-    if(sb&&usuario){
+    if(sb&&usuario&&usuario.isSupabase){
       try{
         await sb.from("publicacoes_posts").upsert(posts.map(p=>({
           user_id:usuario.id,
@@ -1543,13 +1713,12 @@
     posts.unshift(novo);
     selectedPostId=novo.id;
     salvarPosts();
-    desenharPublicacoes();
+    desenharPublicacoes(false);
     desenharVisaoGeral(visiveis());
     showToast("Nova pauta gerada com base nos fatos reais do seu perfil!");
-    anunciarAcao(`Nova pauta criada: ${novo.title}`);
   }
 
-  function desenharPublicacoes(){
+  function desenharPublicacoes(openMobileDrawer=false){
     if($("posts-summary-strip")){
       $("posts-summary-strip").innerHTML=`
         <div><span class="kicker">Rascunhos para revisar</span><strong>${posts.filter(p=>p.status==="Rascunho").length}</strong><span class="muted small">Exigem aprovação humana</span></div>
@@ -1575,7 +1744,7 @@
     const L=$("posts-list");
     if(L){
       if(!filtrados.length){
-        L.innerHTML=`<div class="empty"><strong>Nenhuma publicação neste status</strong><span>Clique em "Gerar pauta a partir do meu perfil" acima.</span></div>`;
+        L.innerHTML=`<div class="empty"><strong>Nenhuma publicação neste status</strong><span>Clique em "Gerar pauta do meu perfil" acima.</span></div>`;
       }else{
         if(!filtrados.some(x=>x.id===selectedPostId))selectedPostId=filtrados[0].id;
         L.innerHTML=filtrados.map(p=>{
@@ -1597,10 +1766,10 @@
         }).join("");
       }
     }
-    desenharDetalhePost();
+    desenharDetalhePost(openMobileDrawer);
   }
 
-  function desenharDetalhePost(){
+  function desenharDetalhePost(openMobileDrawer=false){
     const D=$("posts-detail");if(!D)return;
     const p=posts.find(x=>x.id===selectedPostId)||posts[0];
     if(!p){
@@ -1613,7 +1782,7 @@
     D.innerHTML=`
       <header class="d-head">
         <p class="d-co">${escapeHtml(p.pillar)} · Autor: ${escapeHtml(profile?.name||"Seu perfil")}</p>
-        <h2>${escapeHtml(p.title)}</h2>
+        <h2 id="modal-title">${escapeHtml(p.title)}</h2>
         <div class="d-fit">
           <span class="selo ${p.status==="Publicado"?"ok":p.status==="Aprovado"?"area":"sumiu"}">Status: ${escapeHtml(p.status)}</span>
           <span class="selo">${(p.text||"").length} caracteres</span>
@@ -1639,35 +1808,42 @@
 
       <section class="d-section">
         <h3>Editor da publicação</h3>
-        <textarea id="post-text-box" class="msg-box" rows="10">${escapeHtml(p.text||"")}</textarea>
+        <textarea data-post-text-input class="msg-box" rows="10">${escapeHtml(p.text||"")}</textarea>
         <div class="row-actions">
-          <button class="button button-secondary" type="button" id="btn-save-post-text">Salvar alterações</button>
-          <button class="button button-secondary" type="button" id="btn-copy-post-text"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar texto</button>
+          <button class="button button-secondary" type="button" data-save-post-text>Salvar alterações</button>
+          <button class="button button-secondary" type="button" data-copy-post-text><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar texto</button>
         </div>
       </section>
     `;
 
-    qsa("[data-post-set-status]",D).forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        p.status=btn.dataset.postSetStatus;
-        salvarPosts();
-        desenharPublicacoes();
-        desenharVisaoGeral(visiveis());
-        showToast(`Publicação marcada como "${p.status}".`);
-        anunciarAcao(`Publicação ${p.title} marcada como ${p.status}.`);
+    const bindPostActions=root=>{
+      qsa("[data-post-set-status]",root).forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          p.status=btn.dataset.postSetStatus;
+          salvarPosts();
+          desenharPublicacoes(false);
+          desenharVisaoGeral(visiveis());
+          if(root.id==="mobile-drawer-body")closeModal();
+          showToast(`Publicação salva como "${p.status}".`);
+        });
       });
-    });
+      qs("[data-save-post-text]",root)?.addEventListener("click",()=>{
+        const ta=qs("[data-post-text-input]",root);
+        if(ta)p.text=ta.value;
+        salvarPosts();
+        desenharPublicacoes(false);
+        showToast("Texto da publicação salvo na base dinâmica.");
+      });
+      qs("[data-copy-post-text]",root)?.addEventListener("click",()=>{
+        const txt=qs("[data-post-text-input]",root)?.value||"";
+        navigator.clipboard?.writeText(txt).then(()=>showToast("Texto copiado!"));
+      });
+    };
+    bindPostActions(D);
 
-    $("btn-save-post-text")?.addEventListener("click",()=>{
-      p.text=$("post-text-box").value;
-      salvarPosts();
-      desenharPublicacoes();
-      showToast("Texto da publicação salvo.");
-    });
-    $("btn-copy-post-text")?.addEventListener("click",()=>{
-      const txt=$("post-text-box")?.value||"";
-      navigator.clipboard?.writeText(txt).then(()=>showToast("Texto copiado!"));
-    });
+    if(openMobileDrawer&&isMobileViewport()){
+      abrirGavetaMobileDoPainel(D,bindPostActions);
+    }
   }
 
   function desenharHistoriasNoPerfil(){
@@ -1807,7 +1983,7 @@
     return{cls:"nao",titulo:"Não encontrada na coleta",txt:dicaNaoAchada(u)};
   }
 
-  // ==================== MODAL ACESSÍVEL & CONVIDAR AMIGOS ====================
+  // ==================== MODAIS ACESSÍVEIS: CONVIDAR AMIGOS, CÓDIGO DE SINCRONIZAÇÃO E SELETOR GOOGLE ====================
   function abrirModalHtml(html,center=true){
     const back=$("modal-backdrop"), content=$("modal-content");
     if(!back||!content)return;
@@ -1840,11 +2016,11 @@
     const urlCompartilhar=location.origin+location.pathname;
     abrirModalHtml(`
       <h2 id="modal-title">Convidar e Compartilhar com Amigos</h2>
-      <p class="muted" style="margin-top:6px">O Radar é <strong>multiusuário e gratuito</strong>. Qualquer amigo pode abrir o link abaixo e usar para a própria carreira sem misturar dados com os seus.</p>
+      <p class="muted" style="margin-top:6px">O Radar tem <strong>Base de Dados Dinâmica por Pessoa</strong>. Qualquer amigo pode entrar com Google ou criar seu acesso gratuito sem precisar de Token do GitHub.</p>
       <ol class="steps" style="margin-top:16px">
-        <li><strong>Acesso imediato:</strong> Seu amigo pode clicar em <em>Entrar com Google</em>, criar conta com <em>E-mail e Senha</em> (sincronizado na nuvem via Supabase) ou entrar em <em>Modo Local / Convidado</em> direto no navegador.</li>
-        <li><strong>Personalização em 1 minuto:</strong> Na aba <strong>Meu perfil</strong>, ele clica em <em>Limpar para novo amigo</em> e preenche o próprio Nome, Cidade/UF, Áreas de interesse e Competências do currículo.</li>
-        <li><strong>Recálculo em tempo real:</strong> Todos os scores (0–100), os requisitos "No seu perfil" vs. "Vale conferir", as campanhas de Clientes e as pautas do LinkedIn passam a refletir os dados dele.</li>
+        <li><strong>Login individual:</strong> Seu amigo clica em <em>Continuar com Google</em> ou <em>Criar acesso</em>. O sistema cria uma base exclusiva para ele no navegador/nuvem.</li>
+        <li><strong>Currículo e Cidade:</strong> Na aba <strong>Meu perfil</strong>, ele preenche o próprio Nome, Cidade/UF, Áreas e Competências.</li>
+        <li><strong>Zero mistura de dados:</strong> As candidaturas, descartes, clientes e publicações ficam 100% isolados na conta dele.</li>
       </ol>
       <div class="workspace-panel" style="padding:14px;background:var(--subtle);margin-top:14px">
         <label>Link direto do Radar para enviar no WhatsApp ou LinkedIn
@@ -1857,13 +2033,149 @@
       </div>
     `);
     $("btn-copy-share-url")?.addEventListener("click",()=>{
-      const msg=`Olha esse painel gratuito para acompanhar vagas (com score pelo currículo), clientes e posts do LinkedIn: ${urlCompartilhar} — Ao abrir, vá em "Meu perfil" para colocar seus cargos, cidade e competências!`;
+      const msg=`Olha esse painel gratuito para acompanhar vagas (com score pelo currículo), clientes e posts do LinkedIn: ${urlCompartilhar} — Entre com sua conta Google e configure seus cargos e currículo em "Meu perfil"!`;
       navigator.clipboard?.writeText(msg).then(()=>showToast("Convite copiado para enviar aos amigos!"));
     });
     $("btn-new-friend-now")?.addEventListener("click",()=>{
       closeModal();
       setView("profile");
       $("btn-preset-blank")?.click();
+    });
+  }
+
+  function gerarCodigoSincronizacao(){
+    const payload={
+      v:2,
+      ns:activeNamespace,
+      user:usuario,
+      profile,
+      estado,
+      vagasManuais,
+      filaErrosLocal,
+      campaigns,
+      leads,
+      stories,
+      posts
+    };
+    return b64(JSON.stringify(payload));
+  }
+
+  function abrirModalCodigoSincronizacao(){
+    const codigo=gerarCodigoSincronizacao();
+    abrirModalHtml(`
+      <h2 id="modal-title">Código de Sincronização (Celular ↔ PC)</h2>
+      <p class="muted" style="margin-top:6px">Transfira todo o seu progresso (candidaturas, descartes, currículo, clientes e posts) entre o computador e o telefone celular <strong>sem precisar de Token do GitHub</strong>:</p>
+      <div class="settings-stack" style="margin-top:14px">
+        <div class="workspace-panel" style="padding:14px;background:var(--subtle)">
+          <label>1. Copiar código deste aparelho (${escapeHtml(profile?.name||activeNamespace)})
+            <textarea id="sync-code-out" rows="3" readonly style="font-family:monospace;font-size:12px">${escapeHtml(codigo)}</textarea>
+          </label>
+          <div class="form-actions">
+            <button class="button" type="button" id="btn-copy-sync-code"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar meu código</button>
+          </div>
+        </div>
+        <form id="form-apply-sync-code" class="workspace-panel" style="padding:14px">
+          <label>2. Colar código vindo do outro aparelho
+            <textarea id="sync-code-in" rows="3" required placeholder="Cole aqui o código gerado no seu celular ou PC…" style="font-family:monospace;font-size:12px"></textarea>
+          </label>
+          <div class="form-actions">
+            <button class="button button-secondary" type="submit">Restaurar e sincronizar agora</button>
+          </div>
+        </form>
+      </div>
+    `);
+    $("btn-copy-sync-code")?.addEventListener("click",()=>{
+      navigator.clipboard?.writeText(codigo).then(()=>showToast("Código de sincronização copiado!"));
+    });
+    $("form-apply-sync-code")?.addEventListener("submit",e=>{
+      e.preventDefault();
+      try{
+        const raw=$("sync-code-in").value.trim();
+        const data=JSON.parse(de64(raw));
+        if(data.profile){profile=data.profile;gravarUser("profiles",profile)}
+        if(data.estado){estado=data.estado;gravarUser("progress",estado)}
+        if(Array.isArray(data.vagasManuais)){vagasManuais=data.vagasManuais;gravarUser("vagas-manuais",vagasManuais)}
+        if(Array.isArray(data.leads)){leads=data.leads;gravarUser("leads",leads)}
+        if(Array.isArray(data.posts)){posts=data.posts;gravarUser("posts",posts)}
+        if(Array.isArray(data.stories)){stories=data.stories;gravarUser("stories",stories)}
+        preencherFormularioPerfil();
+        sincronizarCabecalhoPerfil();
+        desenharClientes(false);
+        desenharPublicacoes(false);
+        render();
+        closeModal();
+        showToast("Progresso sincronizado com sucesso neste aparelho!");
+      }catch(err){
+        showToast("Código inválido. Verifique se copiou o texto completo.");
+      }
+    });
+  }
+
+  // Modal Seletor de Conta Google ("Escolha uma conta para continuar no Radar")
+  function abrirSeletorContaGoogle(){
+    const contas=Object.values(listarContasLocais());
+    abrirModalHtml(`
+      <div class="google-chooser">
+        <div class="google-chooser-head">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
+          <span>Fazer login com o Google</span>
+        </div>
+        <h2 id="modal-title" style="font-size:21px">Escolha uma conta</h2>
+        <p class="muted small" style="margin-top:2px">para continuar no <strong>Radar · Painel de Vagas</strong> com sua base dinâmica individual</p>
+
+        <div class="google-account-list">
+          ${contas.map(c=>`
+            <button type="button" class="google-acc-btn" data-pick-google="${escapeHtml(c.email||c.username)}">
+              <span class="avatar">${escapeHtml(iniciaisDe(c.name||c.email))}</span>
+              <span>
+                <strong>${escapeHtml(c.name||c.username)}</strong>
+                <small>${escapeHtml(c.email||`${c.username}@gmail.com`)}</small>
+              </span>
+            </button>
+          `).join("")}
+        </div>
+
+        <form id="form-google-custom" class="compact-form form-grid">
+          <div class="full"><strong>Usar outra conta Google</strong></div>
+          <label class="full">Seu nome completo
+            <input name="name" type="text" required placeholder="Ex.: Lucas Ferreira">
+          </label>
+          <label class="full">Seu e-mail do Google (Gmail)
+            <input name="email" type="email" required placeholder="seuemail@gmail.com">
+          </label>
+          <div class="form-actions full">
+            <button class="button button-block" type="submit">Continuar com esta conta Google</button>
+          </div>
+        </form>
+      </div>
+    `,true);
+
+    qsa("[data-pick-google]").forEach(btn=>{
+      btn.addEventListener("click",async()=>{
+        const key=btn.dataset.pickGoogle.toLowerCase();
+        const c=listarContasLocais()[key];
+        if(c){
+          closeModal();
+          await autenticarSessaoPessoa({
+            userId:c.userId||`google-${slug(c.email)}`,
+            email:c.email,
+            name:c.name,
+            provider:"google"
+          },true);
+        }
+      });
+    });
+
+    $("form-google-custom")?.addEventListener("submit",async e=>{
+      e.preventDefault();
+      const fd=new FormData(e.target);
+      const name=String(fd.get("name")||"").trim();
+      const email=String(fd.get("email")||"").trim().toLowerCase();
+      if(!name||!email)return;
+      const userId=email==="engerickgoncalves@gmail.com"?"erick":`google-${slug(email)}`;
+      const conta=registrarContaNoAparelho({userId,username:email.split("@")[0],email,name,provider:"google"});
+      closeModal();
+      await autenticarSessaoPessoa(conta,true);
     });
   }
 
@@ -1880,10 +2192,10 @@
     gravarUser("filtros",{status:f.status,ordem:f.ordem,fonte:f.fonte,area:f.area,mod:f.mod,score:f.score});
   }
 
-  // ==================== CARREGAMENTO DE VAGAS (JSON / SUPABASE / GITHUB) ====================
+  // ==================== CARREGAMENTO DE VAGAS (JSON / SUPABASE) ====================
   async function carregarVagas(){
     let dados=null;
-    if(sb&&usuario){
+    if(sb&&usuario&&usuario.isSupabase){
       try{
         const[{data:vs,error},{data:bs},{data:fe}]=await Promise.all([
           sb.from("vagas").select("*").range(0,9999),
@@ -1894,14 +2206,6 @@
           for(const v of vs)for(const k in v)if(v[k]==null)delete v[k];
           dados={vagas:vs,fila_erros:fe||[],...(bs&&bs[0]||{})};
         }
-      }catch(e){}
-    }
-    if(!dados&&token){
-      try{
-        const r=await fetch(`https://api.github.com/repos/${REPO}/contents/docs/vagas.json?ref=main&t=${Date.now()}`,{
-          headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github.raw+json"}
-        });
-        if(r.ok)dados=await r.json();
       }catch(e){}
     }
     if(!dados){
@@ -1915,10 +2219,9 @@
     if(dados.atualizado_em){
       const d=new Date(dados.atualizado_em);
       const fontesTxt=Object.entries(dados.fontes||{}).map(([n,x])=>`${n}: ${x.novas||0} novas (${x.lidas||0} lidas)`).join(" · ");
-      const msgResumo=`Última busca em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontesTxt?` ${fontesTxt}.`:"");
+      const msgResumo=`Última coleta em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontesTxt?` ${fontesTxt}.`:"");
       if($("atual"))$("atual").textContent=msgResumo;
       if($("last-run-home"))$("last-run-home").textContent=msgResumo;
-      if($("robot-status"))$("robot-status").textContent=`Atualizado em ${d.toLocaleDateString("pt-BR")} (${todas.length} vagas)`;
 
       const ruins=Object.entries(dados.fontes||{}).filter(([,x])=>situacao(x)!=="ok").map(([n])=>n);
       const A=$("alerta-fontes");
@@ -1934,10 +2237,11 @@
         }
       }
     }
+    sinalizarSincronizacaoBase();
     return dados.atualizado_em;
   }
 
-  // ==================== AUTENTICAÇÃO SUPABASE + MODO LOCAL/CONVIDADO ====================
+  // ==================== AUTENTICAÇÃO E SESSÃO DINÂMICA POR PESSOA ====================
   function carregarScript(src){
     return new Promise((ok,erro)=>{
       if(window.supabase)return ok();
@@ -1950,68 +2254,322 @@
   function atualizarUIAutenticacao(){
     const emailEl=$("email"), authLbl=$("sidebar-auth-label");
     if(usuario){
-      if(emailEl)emailEl.textContent=usuario.email||profile?.name||"Conectado";
-      if(authLbl)authLbl.textContent="Conta conectada";
+      const pNome=profile?.name?.split(" ")[0]||usuario.name||usuario.email;
+      const sufixo=usuario.provider==="google"?" · Google":"";
+      if(emailEl)emailEl.textContent=`${pNome}${sufixo}`;
+      if(authLbl)authLbl.textContent="Trocar conta";
     }else{
-      if(emailEl)emailEl.textContent=`Modo Local · ${profile?.name?.split(" ")[0]||"Convidado"}`;
-      if(authLbl)authLbl.textContent="Entrar / Sincronizar";
+      if(emailEl)emailEl.textContent="Convidado";
+      if(authLbl)authLbl.textContent="Entrar / Conta";
     }
   }
 
+  async function autenticarSessaoPessoa(dadosSessao,remember=true){
+    usuario={
+      id:dadosSessao.userId||dadosSessao.id||`user-${slug(dadosSessao.email||dadosSessao.name||"ativo")}`,
+      userId:dadosSessao.userId||dadosSessao.id||`user-${slug(dadosSessao.email||dadosSessao.name||"ativo")}`,
+      email:dadosSessao.email||"",
+      name:dadosSessao.name||dadosSessao.username||"Usuário",
+      provider:dadosSessao.provider||"password",
+      isSupabase:!!dadosSessao.isSupabase
+    };
+    activeNamespace=usuario.userId;
+
+    const sessaoSalva={...usuario,loggedInAt:new Date().toISOString(),remember};
+    gravarGlobal("radar-active-session",sessaoSalva);
+
+    await RadarDynamicDB.hydrateUserToLocal(activeNamespace);
+    if(sb&&activeNamespace&&activeNamespace!=="guest"){
+      try{
+        const{data:remotoConta}=await sb.from("progresso_contas").select("*").eq("account_key",activeNamespace).maybeSingle();
+        if(remotoConta){
+          if(remotoConta.perfil&&Object.keys(remotoConta.perfil).length&&!lerUser("profiles",null))RadarDynamicDB.put("profiles",activeNamespace,remotoConta.perfil);
+          if(remotoConta.estado&&!lerUser("progress",null))RadarDynamicDB.put("progress",activeNamespace,remotoConta.estado);
+          if(Array.isArray(remotoConta.leads)&&remotoConta.leads.length&&!lerUser("leads",null))RadarDynamicDB.put("leads",activeNamespace,remotoConta.leads);
+          if(Array.isArray(remotoConta.posts)&&remotoConta.posts.length&&!lerUser("posts",null))RadarDynamicDB.put("posts",activeNamespace,remotoConta.posts);
+          if(Array.isArray(remotoConta.stories)&&remotoConta.stories.length&&!lerUser("stories",null))RadarDynamicDB.put("stories",activeNamespace,remotoConta.stories);
+        }
+      }catch(e){}
+    }
+    carregarPerfilUsuario();
+
+    // Carrega o progresso isolado desta pessoa do RadarDynamicDB
+    const progressoSalvo=lerUser("progress",null);
+    if(progressoSalvo&&typeof progressoSalvo==="object"){
+      estado={
+        candidatei:progressoSalvo.candidatei||{},
+        salvas:progressoSalvo.salvas||{},
+        descartadas:Array.isArray(progressoSalvo.descartadas)?progressoSalvo.descartadas:[]
+      };
+    }else if(ehContaDoErick()){
+      // Somente para a conta do Erick: importa docs/estado.json na primeira vez como seed
+      try{
+        const r2=await fetch("estado.json?t="+Date.now());
+        if(r2.ok){
+          const estRemoto=await r2.json();
+          estado={candidatei:estRemoto.candidatei||{},salvas:{},descartadas:estRemoto.descartadas||[]};
+          gravarUser("progress",estado);
+        }
+      }catch(e){estado={candidatei:{},salvas:{},descartadas:[]}}
+    }else{
+      // Qualquer outra pessoa começa com o próprio painel limpo, nunca misturando com estado.json do Erick
+      estado={candidatei:{},salvas:{},descartadas:[]};
+      gravarUser("progress",estado);
+    }
+
+    if($("login"))$("login").hidden=true;
+    if(location.hash==="#login")history.replaceState(null,"",location.pathname+location.search);
+
+    atualizarUIAutenticacao();
+    carregarClientesUsuario();
+    carregarPostsUsuario();
+    render();
+    showToast(`Bem-vindo(a), ${profile?.name||usuario.name}! Base dinâmica sincronizada.`);
+  }
+
   async function inicializarSessaoEPainel(){
+    await RadarDynamicDB.init();
+    listarContasLocais();
+
     const customSupa=lerGlobal("supabase-custom",null);
     const cfgSupa=(customSupa&&customSupa.url&&customSupa.anon)?customSupa:(window.SUPABASE&&window.SUPABASE.url?window.SUPABASE:null);
 
-    if(cfgSupa){
+    if(cfgSupa&&cfgSupa.url&&cfgSupa.anon){
       try{
         await carregarScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js");
         sb=window.supabase.createClient(cfgSupa.url,cfgSupa.anon);
         const{data:{session}}=await sb.auth.getSession();
         if(session&&session.user){
-          usuario=session.user;
-          activeNamespace=usuario.id||usuario.email||"user";
+          const u=session.user;
+          await carregarVagas();
+          await autenticarSessaoPessoa({
+            userId:u.id,
+            email:u.email,
+            name:u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0],
+            provider:"google",
+            isSupabase:true
+          },true);
+          try{estado=await lerEstadoSupabase();gravarUser("progress",estado);render()}catch(e){}
+          return;
         }
-      }catch(e){
-        sb=null;
-      }
+      }catch(e){sb=null}
     }
 
-    carregarPerfilUsuario();
-    atualizarUIAutenticacao();
+    await carregarVagas();
     mostrarContaGitHub();
 
-    try{
-      await carregarVagas();
-      if(sb&&usuario){
-        try{estado=await lerEstadoSupabase()}catch(e){}
-      }else if(token){
-        try{estado=await lerEstadoGitHub()}catch(e){token="";mostrarContaGitHub()}
-      }
-      if(!sb&&!token){
-        try{const r2=await fetch("estado.json?t="+Date.now());if(r2.ok)estado=await r2.json()}catch(e){}
-        const local=lerUser("estado-local",null);
-        if(local){
-          estado.candidatei={...estado.candidatei,...(local.candidatei||{})};
-          estado.descartadas=[...new Set([...(estado.descartadas||[]),...(local.descartadas||[])])];
-        }
-      }
-      estado.candidatei=estado.candidatei||{};
-      estado.descartadas=estado.descartadas||[];
+    const sessaoAnterior=lerGlobal("radar-active-session",null);
+    if(sessaoAnterior&&sessaoAnterior.userId&&location.hash!=="#login"){
+      await autenticarSessaoPessoa(sessaoAnterior,true);
+    }else{
+      // Sem sessão ativa ou hash #login: mostra a Tela de Login como porta de entrada
+      activeNamespace="guest";
+      carregarPerfilUsuario();
       carregarClientesUsuario();
       carregarPostsUsuario();
       render();
-    }catch(e){
-      if($("lista"))$("lista").replaceChildren(el("p","aviso erro","As vagas não carregaram. Se abriu o arquivo direto do PC, rode um servidor local."));
+      if($("login"))$("login").hidden=false;
     }
   }
 
   function mostrarContaGitHub(){
     const ec=$("estado-conta");
-    if(ec)ec.textContent=token?`Conectado ao GitHub (${REPO}).`:"Sem token GitHub configurado. As marcações ficam salvas no seu perfil local ou no Supabase.";
+    if(ec)ec.textContent=token?`Token de administrador configurado (${REPO}).`:"Nenhum token do GitHub necessário. Sua base dinâmica já salva tudo automaticamente.";
   }
 
-  // ==================== EVENTOS E INTERAÇÕES ====================
-  // Saudação e Data no Topo
+  // ==================== EVENTOS DA TELA DE LOGIN (FIEL AO ENTRAR.HTML) ====================
+  function exibirMsgLogin(texto,tipo="bad"){
+    const box=$("login-msg");if(!box)return;
+    if(!texto){box.className="auth-msg";box.textContent="";return}
+    box.className=`auth-msg ${tipo} show`;
+    box.textContent=texto;
+  }
+
+  // Alternar abas Entrar / Criar acesso
+  qsa("[data-auth-tab]").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      const mode=tab.dataset.authTab;
+      qsa("[data-auth-tab]").forEach(b=>{
+        const on=b.dataset.authTab===mode;
+        b.classList.toggle("active",on);
+        b.setAttribute("aria-selected",String(on));
+      });
+      if($("auth-email-form"))$("auth-email-form").hidden=mode!=="signin";
+      if($("form-setup"))$("form-setup").hidden=mode!=="signup";
+      exibirMsgLogin("");
+    });
+  });
+
+  // Botão Olhinho (.eye) para mostrar/esconder senha + Detecção Caps Lock
+  document.addEventListener("click",e=>{
+    const eye=e.target.closest("[data-eye]");
+    if(eye){
+      const input=$(eye.dataset.eye)||eye.parentElement.querySelector("input");
+      if(input){
+        const mostrar=input.type==="password";
+        input.type=mostrar?"text":"password";
+        eye.setAttribute("aria-label",mostrar?"Esconder senha":"Mostrar senha");
+        input.focus();
+      }
+    }
+  });
+  document.addEventListener("keyup",e=>{
+    if(e.target&&e.target.id==="auth-pass"&&e.getModifierState){
+      $("caps-signin")?.classList.toggle("show",e.getModifierState("CapsLock"));
+    }
+  });
+
+  // Medidor de força da senha (.meter) e 3 regras (.rules) idênticos ao radar-main/entrar.html
+  function validarRegrasSenha(){
+    const p=$("setup-pass")?.value||"";
+    const u=($("setup-username")?.value||"").trim().toLowerCase();
+    const r={
+      len:p.length>=8,
+      mix:/[a-zA-Z]/.test(p)&&/[^a-zA-Z]/.test(p),
+      user:!!p&&(!u||!p.toLowerCase().includes(u.split("@")[0]))
+    };
+    for(const [k,ok] of Object.entries(r)){
+      qs(`[data-rule="${k}"]`)?.classList.toggle("ok",ok);
+    }
+    const score=(r.len?1:0)+(r.mix?1:0)+(p.length>=12?1:0)+(/[^a-zA-Z0-9]/.test(p)?1:0);
+    const m=$("meter");
+    if(m){
+      m.style.width=`${Math.max(p?14:0,score*25)}%`;
+      m.style.background=score<=1?"var(--bad)":score===2?"var(--maybe)":"var(--good)";
+    }
+    return r.len&&r.mix&&r.user;
+  }
+  $("form-setup")?.addEventListener("input",validarRegrasSenha);
+
+  // Botão "Continuar com Google" (#entrar) — Nunca bloqueia: usa Supabase OAuth, GIS ou o Seletor Google Instantâneo
+  $("entrar")?.addEventListener("click",async()=>{
+    exibirMsgLogin("");
+    if(sb){
+      try{
+        await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
+        return;
+      }catch(e){}
+    }
+    abrirSeletorContaGoogle();
+  });
+
+  // Formulário "Entrar" (#auth-email-form) com controle de bloqueio após 5 tentativas erradas
+  $("auth-email-form")?.addEventListener("submit",async e=>{
+    e.preventDefault();
+    exibirMsgLogin("");
+    const lockUntil=lerGlobal("radar-login-lock-until",0);
+    if(lockUntil>Date.now()){
+      const min=Math.ceil((lockUntil-Date.now())/60000);
+      exibirMsgLogin(`Muitas tentativas incorretas. Aguarde ${min} min ou entre com Google.`,"warn");
+      return;
+    }
+
+    const rawUser=String($("auth-email")?.value||"").trim().toLowerCase();
+    const pass=String($("auth-pass")?.value||"");
+    const remember=$("auth-remember")?$("auth-remember").checked:true;
+    if(!rawUser||!pass){
+      exibirMsgLogin("Preencha seu usuário/e-mail e senha.");
+      return;
+    }
+
+    if(sb&&rawUser.includes("@")){
+      const{data,error}=await sb.auth.signInWithPassword({email:rawUser,password:pass});
+      if(!error&&data?.user){
+        await autenticarSessaoPessoa({
+          userId:data.user.id,
+          email:data.user.email,
+          name:data.user.user_metadata?.full_name||rawUser.split("@")[0],
+          provider:"password",
+          isSupabase:true
+        },remember);
+        return;
+      }
+    }
+
+    const contas=listarContasLocais();
+    const conta=contas[rawUser]||Object.values(contas).find(c=>semAcento(c.username)===semAcento(rawUser)||semAcento(c.email)===semAcento(rawUser));
+    const passHash=await sha256Hex(pass);
+
+    if(conta&&conta.passwordHash&&conta.passwordHash!==passHash){
+      const falhas=(lerGlobal("radar-login-fails",0)||0)+1;
+      gravarGlobal("radar-login-fails",falhas);
+      if(falhas>=5){
+        gravarGlobal("radar-login-lock-until",Date.now()+5*60000);
+        gravarGlobal("radar-login-fails",0);
+        exibirMsgLogin("5 tentativas incorretas. Acesso pausado por 5 minutos.","warn");
+      }else{
+        exibirMsgLogin(`Senha incorreta (${falhas}/5 tentativas).`);
+      }
+      return;
+    }
+
+    gravarGlobal("radar-login-fails",0);
+    const ehErick=rawUser==="erick"||rawUser==="engerickgoncalves@gmail.com";
+    const userId=conta?.userId||(ehErick?"erick":`user-${slug(rawUser)}`);
+    const nomeFinal=conta?.name||(ehErick?"Erick Gonçalves":rawUser.split("@")[0]);
+    const contaFinal=registrarContaNoAparelho({
+      userId,
+      username:rawUser.split("@")[0],
+      email:rawUser.includes("@")?rawUser:`${rawUser}@radar.local`,
+      name:nomeFinal,
+      passwordHash:conta?.passwordHash||passHash,
+      provider:"password"
+    });
+    await autenticarSessaoPessoa(contaFinal,remember);
+  });
+
+  // Formulário "Criar acesso" (#form-setup)
+  $("form-setup")?.addEventListener("submit",async e=>{
+    e.preventDefault();
+    exibirMsgLogin("");
+    const nome=String($("auth-name")?.value||"").trim();
+    const rawUser=String($("setup-username")?.value||"").trim().toLowerCase();
+    const pass=String($("setup-pass")?.value||"");
+    const confirm=String($("setup-confirm")?.value||"");
+
+    if(!nome||rawUser.length<3){
+      exibirMsgLogin("Informe seu nome e um usuário ou e-mail válido.");
+      return;
+    }
+    if(!validarRegrasSenha()){
+      exibirMsgLogin("A senha precisa atender às 3 regras indicadas abaixo.");
+      return;
+    }
+    if(pass!==confirm){
+      exibirMsgLogin("As duas senhas não coincidem.");
+      return;
+    }
+
+    const passHash=await sha256Hex(pass);
+    const userId=`user-${slug(rawUser)}`;
+    const novaConta=registrarContaNoAparelho({
+      userId,
+      username:rawUser.split("@")[0],
+      email:rawUser.includes("@")?rawUser:"",
+      name:nome,
+      passwordHash:passHash,
+      provider:"password"
+    });
+
+    // Cria perfil inicial para a nova pessoa
+    const novoPerfil={...PRESET_BLANK_PROFILE,name:nome,contact:rawUser.includes("@")?rawUser:""};
+    RadarDynamicDB.put("profiles",userId,novoPerfil);
+
+    await autenticarSessaoPessoa(novaConta,true);
+    setView("profile");
+  });
+
+  // Botão "Continuar como convidado"
+  $("auth-guest-btn")?.addEventListener("click",async()=>{
+    await autenticarSessaoPessoa({
+      userId:"guest",
+      email:"",
+      name:"Visitante",
+      provider:"guest"
+    },false);
+  });
+
+  // ==================== EVENTOS GERAIS E DELEGAÇÃO ====================
   (function initRelogio(){
     const agora=new Date();
     const h=agora.getHours();
@@ -2023,11 +2581,19 @@
     if($("hero-date"))$("hero-date").textContent=cap(fmtCurto);
   })();
 
-  // Clique global de delegação (Sidebar, Overview, Clientes, Posts, Modais)
+  // Toggle de Filtros e Funil no Celular
+  $("btn-toggle-mobile-filters")?.addEventListener("click",()=>{
+    const box=$("collapsible-filters-box");
+    if(!box)return;
+    const aberto=box.classList.toggle("open");
+    $("btn-toggle-mobile-filters").setAttribute("aria-expanded",String(aberto));
+  });
+
   document.addEventListener("click",e=>{
     const viewBtn=e.target.closest("[data-view]");
     if(viewBtn){
       e.preventDefault();
+      if(e.target.closest("#modal-backdrop"))closeModal();
       setView(viewBtn.dataset.view);
       return;
     }
@@ -2036,6 +2602,7 @@
       f.status="todas";salvarFiltros();
       selectedJobId=openJob.dataset.openJob;
       setView("jobs");render();
+      if(isMobileViewport())desenharDetalheVaga(true);
       return;
     }
     const openErr=e.target.closest("[data-open-err]");
@@ -2043,42 +2610,43 @@
       f.status="erros";salvarFiltros();
       selectedErrId=openErr.dataset.openErr;
       setView("jobs");render();
+      if(isMobileViewport())desenharDetalheErro(true);
       return;
     }
     const openLead=e.target.closest("[data-open-lead]");
     if(openLead){
       selectedLeadId=openLead.dataset.openLead;
-      setView("leads");desenharClientes();
+      setView("leads");desenharClientes(isMobileViewport());
       return;
     }
     const openPost=e.target.closest("[data-open-post]");
     if(openPost){
       selectedPostId=openPost.dataset.openPost;
-      setView("content");desenharPublicacoes();
+      setView("content");desenharPublicacoes(isMobileViewport());
       return;
     }
     const leadCard=e.target.closest("[data-lead-id]");
     if(leadCard){
       selectedLeadId=leadCard.dataset.leadId;
-      desenharClientes();
+      desenharClientes(isMobileViewport());
       return;
     }
     const leadSt=e.target.closest("[data-lead-st]");
     if(leadSt){
       leadFilter=leadSt.dataset.leadSt;
-      desenharClientes();
+      desenharClientes(false);
       return;
     }
     const postCard=e.target.closest("[data-post-id]");
     if(postCard){
       selectedPostId=postCard.dataset.postId;
-      desenharPublicacoes();
+      desenharPublicacoes(isMobileViewport());
       return;
     }
     const postSt=e.target.closest("[data-post-st]");
     if(postSt){
       postFilter=postSt.dataset.postSt;
-      desenharPublicacoes();
+      desenharPublicacoes(false);
       return;
     }
   });
@@ -2087,21 +2655,21 @@
     f.status="erros";salvarFiltros();setView("jobs");render();
   });
 
-  // Botões de Convidar Amigos
   for(const id of ["btn-invite-sidebar","btn-invite-top","btn-invite-card"]){
     $(id)?.addEventListener("click",abrirModalConvidarAmigos);
   }
+  for(const id of ["btn-open-sync-modal","btn-sync-code-home"]){
+    $(id)?.addEventListener("click",abrirModalCodigoSincronizacao);
+  }
 
-  // Fechar Modal
   $("modal-close")?.addEventListener("click",closeModal);
   $("modal-backdrop")?.addEventListener("click",e=>{if(e.target.id==="modal-backdrop")closeModal()});
 
-  // Navegação por Teclado (Split-View ArrowUp/ArrowDown, Enter/Space e Modal Focus Trap/Escape)
+  // Navegação por Teclado
   document.addEventListener("keydown",e=>{
     const backdrop=$("modal-backdrop");
     if(e.key==="Escape"){
       if(backdrop&&!backdrop.classList.contains("hidden")){closeModal();return}
-      if($("login")&&!$("login").hidden){$("login").hidden=true;return}
     }
     if(e.key==="Tab"&&backdrop&&!backdrop.classList.contains("hidden")){
       const focusables=[...backdrop.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null);
@@ -2122,7 +2690,10 @@
       if(idx<0)return;
       const next=items[Math.max(0,Math.min(items.length-1,idx+(e.key==="ArrowDown"?1:-1)))];
       if(next&&next!==item){
-        next.click();
+        const nextId=next.dataset.id||next.dataset.leadId||next.dataset.postId;
+        if(next.dataset.id){selectedJobId=nextId;desenharDetalheVaga(false)}
+        else if(next.dataset.leadId){selectedLeadId=nextId;desenharClientes(false)}
+        else if(next.dataset.postId){selectedPostId=nextId;desenharPublicacoes(false)}
         next.focus();
       }
       return;
@@ -2131,16 +2702,18 @@
       if(e.target.closest("a[href],button,input,select,textarea"))return;
       e.preventDefault();
       item.click();
-      const split=item.closest(".split");
-      const detail=split?.querySelector(".detail-col");
-      if(detail){
-        const firstAction=detail.querySelector("a.button, button.button, button, a[href]");
-        (firstAction||detail).focus();
+      if(!isMobileViewport()){
+        const split=item.closest(".split");
+        const detail=split?.querySelector(".detail-col");
+        if(detail){
+          const firstAction=detail.querySelector("a.button, button.button, button, a[href]");
+          (firstAction||detail).focus();
+        }
       }
     }
   });
 
-  // Controles de Filtro de Vagas
+  // Filtros de Vagas
   for(const[id,campo]of[["f-fonte","fonte"],["f-area","area"],["f-mod","mod"],["f-score","score"],["ordem","ordem"]]){
     $(id)?.addEventListener("change",e=>{f[campo]=e.target.value;salvarFiltros();render()});
   }
@@ -2189,7 +2762,7 @@
     f.status="todas";
     salvarFiltros();
     render();
-    showToast(`Vaga "${titulo}" adicionada e avaliada!`);
+    showToast(`Vaga "${titulo}" salva na sua base dinâmica!`);
   });
 
   // Adicionar Erro Manual na Fila Vagas.com.br
@@ -2219,12 +2792,12 @@
       status_fila:"pendente"
     };
     filaErrosLocal.unshift(novoErro);
-    gravarUser("fila-erros-local",filaErrosLocal);
+    gravarUser("error_queue",filaErrosLocal);
     e.target.reset();
     e.target.hidden=true;
     selectedErrId=novoErro.id;
     render();
-    showToast("Item registrado na fila de erros do Vagas.com.br.");
+    showToast("Item salvo na fila de erros do Vagas.com.br.");
   });
 
   // Prova de Cobertura (#conf-bt)
@@ -2233,7 +2806,7 @@
     S.textContent="";
     if(!linhas.length){S.append(el("p","conf-resumo","Cole pelo menos um link ou um cargo com a empresa."));return}
     let cat;
-    try{cat=await carregarCatalogo()}catch(e){cat=[];S.append(el("p","muted small","Catálogo estendido indisponível; comparando diretamente com as vagas ativas do painel."))}
+    try{cat=await carregarCatalogo()}catch(e){cat=[];S.append(el("p","muted small","Comparando diretamente com as vagas ativas do painel."))}
     const rs=linhas.map(l=>({l,...conferirLinha(l,cat)}));
     const n=k=>rs.filter(r=>r.cls===k).length;
     S.append(el("p","conf-resumo",`${rs.length} ${rs.length>1?"conferidas":"conferida"}: ${n("painel")} no painel, ${n("fora")} lidas e deixadas de fora, ${n("nao")} não encontradas.`));
@@ -2246,39 +2819,38 @@
     S.append(ul);
   });
 
-  // Disparar Busca Agora (#atualizar)
+  // Botão "Atualizar e recalcular vagas" (#atualizar) — NUNCA exige Token do GitHub!
   $("atualizar")?.addEventListener("click",async()=>{
     const b=$("atualizar"),m=$("msg-atual");
     if(!b||!m)return;
+    b.disabled=true;
     m.hidden=false;
-    if(sb&&usuario){
-      b.disabled=true;m.textContent="Iniciando busca no servidor…";
-      const{error}=await sb.functions.invoke("buscar-agora");
-      if(error){b.disabled=false;m.textContent="Buscando vagas atualizadas do repositório…";await carregarVagas();render();b.disabled=false;return}
-    }else if(!token){
-      m.textContent="Recarregando vagas mais recentes do painel… (Para disparar o coletor no GitHub Actions fora do horário, informe um token em Configurações).";
-      await carregarVagas();render();
-      return;
-    }else{
-      b.disabled=true;m.textContent="Iniciando o coletor no GitHub Actions…";
-      try{
-        const r=await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/coletar.yml/dispatches`,{
-          method:"POST",
-          headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
-          body:JSON.stringify({ref:"main"})
-        });
-        if(r.status!==204)throw new Error(r.status);
-      }catch(e){
-        b.disabled=false;m.textContent="Não deu para iniciar. Confira se o token tem permissão Actions.";return;
+    m.textContent="Buscando vagas mais recentes e recalculando para o seu currículo…";
+    try{
+      if(token){
+        try{
+          await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/coletar.yml/dispatches`,{
+            method:"POST",
+            headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"},
+            body:JSON.stringify({ref:"main"})
+          });
+        }catch(e){}
       }
+      catalogo=null;
+      await carregarVagas();
+      render();
+      m.textContent=`Painel atualizado e recalculado para o perfil de ${profile?.name||"você"} (${visiveis().length} vagas avaliadas).`;
+      showToast("Vagas atualizadas e recalculadas para o seu perfil!");
+    }catch(e){
+      m.textContent="Não foi possível recarregar agora. Tente novamente em instantes.";
+    }finally{
+      b.disabled=false;
     }
-    m.textContent="Busca iniciada! Leva cerca de 3 a 5 minutos; a lista atualiza automaticamente.";
-    b.disabled=false;
   });
 
   // Eventos de Clientes
-  $("campaign-select")?.addEventListener("change",e=>{activeCampaignId=e.target.value;desenharClientes()});
-  $("new-campaign")?.addEventListener("click",()=>{const f=$("campaign-form");if(f)f.hidden=!f.hidden});
+  $("campaign-select")?.addEventListener("change",e=>{activeCampaignId=e.target.value;desenharClientes(false)});
+  $("new-campaign")?.addEventListener("click",()=>{const fm=$("campaign-form");if(fm)fm.hidden=!fm.hidden});
   $("cancel-campaign-btn")?.addEventListener("click",()=>{if($("campaign-form"))$("campaign-form").hidden=true});
   $("campaign-form")?.addEventListener("submit",e=>{
     e.preventDefault();
@@ -2296,11 +2868,11 @@
     salvarClientes();
     e.target.reset();
     e.target.hidden=true;
-    desenharClientes();
-    showToast(`Campanha "${nova.name}" criada!`);
+    desenharClientes(false);
+    showToast(`Campanha "${nova.name}" salva na sua base dinâmica!`);
   });
 
-  $("add-lead-btn")?.addEventListener("click",()=>{const f=$("lead-form");if(f)f.hidden=!f.hidden});
+  $("add-lead-btn")?.addEventListener("click",()=>{const fm=$("lead-form");if(fm)fm.hidden=!fm.hidden});
   $("cancel-lead-btn")?.addEventListener("click",()=>{if($("lead-form"))$("lead-form").hidden=true});
   $("lead-form")?.addEventListener("submit",e=>{
     e.preventDefault();
@@ -2335,14 +2907,14 @@
     salvarClientes();
     e.target.reset();
     e.target.hidden=true;
-    desenharClientes();
+    desenharClientes(false);
     desenharVisaoGeral(visiveis());
-    showToast(`Empresa "${name}" adicionada com score ${novo.score}!`);
+    showToast(`Empresa "${name}" salva na sua base dinâmica!`);
   });
-  $("lead-query")?.addEventListener("input",e=>{leadQuery=e.target.value;desenharClientes()});
+  $("lead-query")?.addEventListener("input",e=>{leadQuery=e.target.value;desenharClientes(false)});
 
   // Eventos de Publicações
-  $("new-story-btn")?.addEventListener("click",()=>{const f=$("story-form");if(f)f.hidden=!f.hidden});
+  $("new-story-btn")?.addEventListener("click",()=>{const fm=$("story-form");if(fm)fm.hidden=!fm.hidden});
   $("cancel-story-btn")?.addEventListener("click",()=>{if($("story-form"))$("story-form").hidden=true});
   $("story-form")?.addEventListener("submit",e=>{
     e.preventDefault();
@@ -2366,7 +2938,7 @@
     salvarPosts();
     e.target.reset();
     e.target.hidden=true;
-    desenharPublicacoes();
+    desenharPublicacoes(false);
     desenharVisaoGeral(visiveis());
     showToast("Fato salvo e rascunho de publicação gerado!");
   });
@@ -2390,8 +2962,8 @@
       skills:String(fd.get("skills")||"").trim(),
       summary:String(fd.get("summary")||"").trim()
     };
-    gravarUser("perfil",profile);
-    if(sb&&usuario){
+    gravarUser("profiles",profile);
+    if(sb&&usuario&&usuario.isSupabase){
       sb.from("perfis_usuarios").upsert({
         user_id:usuario.id,
         email:usuario.email||profile.contact||null,
@@ -2411,20 +2983,19 @@
     atualizarUIAutenticacao();
     render();
     if($("profile-saved")){
-      $("profile-saved").textContent="Perfil salvo! Scores e requisitos recalculados.";
+      $("profile-saved").textContent="Salvo na sua base dinâmica! Scores e requisitos recalculados.";
       setTimeout(()=>{if($("profile-saved"))$("profile-saved").textContent=""},4000);
     }
     showToast(`Perfil de ${profile.name} salvo e vagas recalculadas!`);
-    anunciarAcao(`Perfil de ${profile.name} salvo com sucesso.`);
   });
 
   $("btn-preset-erick")?.addEventListener("click",()=>{
     profile={...PRESET_DEFAULT_PROFILE};
-    gravarUser("perfil",profile);
+    gravarUser("profiles",profile);
     preencherFormularioPerfil();
     sincronizarCabecalhoPerfil();
     render();
-    showToast("Preset Eng. Planejamento (Erick) restaurado.");
+    showToast("Preset Eng. Planejamento (Erick) aplicado.");
   });
 
   $("btn-preset-blank")?.addEventListener("click",()=>{
@@ -2433,29 +3004,18 @@
     sincronizarCabecalhoPerfil();
     render();
     qs('#profile-form input[name="name"]')?.focus();
-    showToast("Campos prontos para personalizar o perfil de um novo amigo!");
+    showToast("Campos prontos para personalizar seu perfil!");
   });
 
-  // Eventos de Configurações (Token GitHub, Supabase Custom, Backup, Login)
+  // Eventos de Configurações
   $("form-token")?.addEventListener("submit",async e=>{
     e.preventDefault();
     const t=$("token").value.trim();if(!t)return;
     token=t;
-    try{
-      const remoto=await lerEstadoGitHub();
-      estado=remoto;
-      gravarGlobal("token",t);
-      $("token").value="";
-      mostrarContaGitHub();
-      render();
-      showToast("Token do GitHub conectado!");
-    }catch(err){
-      token=lerGlobal("token","");
-      if($("estado-conta")){
-        $("estado-conta").textContent="Esse token não conseguiu ler o repositório. Confira a permissão Contents.";
-        $("estado-conta").className="helper estado-conta erro";
-      }
-    }
+    gravarGlobal("token",t);
+    $("token").value="";
+    mostrarContaGitHub();
+    showToast("Token de administrador salvo.");
   });
   $("tirar-token")?.addEventListener("click",()=>{
     token="";gravarGlobal("token","");mostrarContaGitHub();showToast("Token removido.");
@@ -2468,17 +3028,18 @@
     if(url&&anon){
       gravarGlobal("supabase-custom",{url,anon});
       showToast("Conexão Supabase salva! Recarregando…");
-      setTimeout(()=>location.reload(),800);
+      setTimeout(()=>location.reload(),600);
     }
   });
   $("supa-clear-btn")?.addEventListener("click",()=>{
     gravarGlobal("supabase-custom",null);
-    showToast("Conexão customizada removida.");
+    showToast("Usando Base Dinâmica Local.");
   });
 
   $("btn-export-data")?.addEventListener("click",()=>{
     const payload={
       exportedAt:new Date().toISOString(),
+      user:usuario,
       profile,
       estado,
       vagasManuais,
@@ -2501,24 +3062,23 @@
     try{
       const txt=await file.text();
       const data=JSON.parse(txt);
-      if(data.profile){profile=data.profile;gravarUser("perfil",profile)}
-      if(data.estado){estado=data.estado;gravarUser("estado-local",estado)}
+      if(data.profile){profile=data.profile;gravarUser("profiles",profile)}
+      if(data.estado){estado=data.estado;gravarUser("progress",estado)}
       if(Array.isArray(data.vagasManuais)){vagasManuais=data.vagasManuais;gravarUser("vagas-manuais",vagasManuais)}
       if(Array.isArray(data.leads)){leads=data.leads;gravarUser("leads",leads)}
       if(Array.isArray(data.posts)){posts=data.posts;gravarUser("posts",posts)}
       if(Array.isArray(data.stories)){stories=data.stories;gravarUser("stories",stories)}
       preencherFormularioPerfil();
       sincronizarCabecalhoPerfil();
-      desenharClientes();
-      desenharPublicacoes();
+      desenharClientes(false);
+      desenharPublicacoes(false);
       render();
-      showToast("Backup importado com sucesso!");
+      showToast("Backup importado com sucesso para sua base dinâmica!");
     }catch(err){
       showToast("Arquivo JSON inválido.");
     }
   });
 
-  // Controles da Tela de Login / Troca de Conta
   function abrirTelaLogin(){
     if($("login")){
       $("login").hidden=false;
@@ -2527,96 +3087,16 @@
   }
   $("btn-switch-user")?.addEventListener("click",abrirTelaLogin);
   $("btn-open-auth-settings")?.addEventListener("click",abrirTelaLogin);
-
-  $("auth-guest-btn")?.addEventListener("click",()=>{
-    const nomeDigitado=$("auth-name")?.value?.trim();
-    if(nomeDigitado){
-      activeNamespace=`guest-${slug(nomeDigitado)}`;
-      profile={...(profile||PRESET_DEFAULT_PROFILE),name:nomeDigitado};
-      gravarUser("perfil",profile);
-      sincronizarCabecalhoPerfil();
-      preencherFormularioPerfil();
-    }
-    if($("login"))$("login").hidden=true;
-    atualizarUIAutenticacao();
-    render();
-    showToast(`Modo Local ativo para ${profile?.name||"Convidado"}.`);
-  });
-
-  $("entrar")?.addEventListener("click",async()=>{
-    if(!sb){
-      if($("auth-feedback"))$("auth-feedback").textContent="Para login Google na nuvem, configure o Supabase em Configurações ou clique em 'Usar no Modo Local / Convidado'.";
-      return;
-    }
-    await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
-  });
-
-  $("auth-email-form")?.addEventListener("submit",async e=>{
-    e.preventDefault();
-    const email=String($("auth-email")?.value||"").trim();
-    const password=String($("auth-pass")?.value||"");
-    const nome=String($("auth-name")?.value||"").trim();
-    if(sb){
-      const{data,error}=await sb.auth.signInWithPassword({email,password});
-      if(error){
-        if($("auth-feedback"))$("auth-feedback").textContent=`Não entrou no Supabase (${error.message}). Você também pode criar conta ou usar o Modo Local.`;
-        return;
-      }
-      usuario=data.user;
-      activeNamespace=usuario.id||email;
-      if($("login"))$("login").hidden=true;
-      await inicializarSessaoEPainel();
-      showToast(`Bem-vindo(a), ${email}!`);
-    }else{
-      // Sessão multiusuário local por e-mail quando não há backend Supabase configurado
-      activeNamespace=`user-${slug(email)}`;
-      usuario={id:activeNamespace,email};
-      carregarPerfilUsuario();
-      if(nome){profile.name=nome;gravarUser("perfil",profile);sincronizarCabecalhoPerfil();preencherFormularioPerfil()}
-      if($("login"))$("login").hidden=true;
-      atualizarUIAutenticacao();
-      carregarClientesUsuario();
-      carregarPostsUsuario();
-      render();
-      showToast(`Sessão iniciada para ${profile?.name||email}!`);
-    }
-  });
-
-  $("auth-signup-btn")?.addEventListener("click",async()=>{
-    const email=String($("auth-email")?.value||"").trim();
-    const password=String($("auth-pass")?.value||"");
-    const nome=String($("auth-name")?.value||"").trim()||email.split("@")[0]||"Novo Usuário";
-    if(!email||password.length<6){
-      if($("auth-feedback"))$("auth-feedback").textContent="Informe seu nome, um e-mail válido e uma senha de pelo menos 6 caracteres.";
-      return;
-    }
-    if(sb){
-      const{data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:nome}}});
-      if(error){
-        if($("auth-feedback"))$("auth-feedback").textContent=`Erro ao criar conta: ${error.message}`;
-        return;
-      }
-      usuario=data.user||{id:`user-${slug(email)}`,email};
-      activeNamespace=usuario.id||email;
-    }else{
-      activeNamespace=`user-${slug(email)}`;
-      usuario={id:activeNamespace,email};
-    }
-    profile={...PRESET_BLANK_PROFILE,name:nome,contact:email};
-    gravarUser("perfil",profile);
-    if($("login"))$("login").hidden=true;
-    await inicializarSessaoEPainel();
-    setView("profile");
-    showToast(`Conta criada para ${nome}! Personalize suas áreas e currículo.`);
-  });
+  $("btn-mobile-logout")?.addEventListener("click",abrirTelaLogin);
 
   $("sair")?.addEventListener("click",async()=>{
     if(sb){try{await sb.auth.signOut()}catch(e){}}
+    gravarGlobal("radar-active-session",null);
     usuario=null;
-    activeNamespace="local";
+    activeNamespace="guest";
     abrirTelaLogin();
     atualizarUIAutenticacao();
-    showToast("Sessão encerrada. Escolha outra conta ou continue no modo local.");
+    showToast("Sessão encerrada. Entre com outra conta quando quiser.");
   });
 
   // Inicialização
