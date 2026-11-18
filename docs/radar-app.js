@@ -2246,6 +2246,66 @@
   }
   $("form-setup")?.addEventListener("input",validarRegrasSenha);
 
+  function abrirPainelOAuthLogin(abrir=true){
+    const painel=$("login-oauth-panel");
+    if(!painel)return;
+    painel.hidden=!abrir;
+    if(abrir){
+      const customSupa=lerGlobal("supabase-custom",null);
+      if($("login-oauth-url"))$("login-oauth-url").value=customSupa?.url||window.SUPABASE?.url||"";
+      if($("login-oauth-anon"))$("login-oauth-anon").value=customSupa?.anon||window.SUPABASE?.anon||"";
+      if($("login-oauth-gcid"))$("login-oauth-gcid").value=obterGoogleClientId();
+    }
+  }
+
+  async function iniciarGoogleGis(googleClientId){
+    const btn=$("entrar");
+    if(btn)btn.disabled=true;
+    try{
+      await carregarScript("https://accounts.google.com/gsi/client",()=>!!window.google?.accounts?.id);
+      window.google.accounts.id.initialize({
+        client_id:googleClientId,
+        callback:async resp=>{
+          try{
+            const payload=decodificarJwtGoogle(resp?.credential);
+            const validIss=payload.iss==="https://accounts.google.com"||payload.iss==="accounts.google.com";
+            if(!validIss||payload.aud!==googleClientId||!payload.email_verified||!payload.email||(payload.exp*1000<=Date.now())){
+              exibirMsgLogin("Credencial Google inválida ou expirada. Tente novamente.","bad");
+              return;
+            }
+            const email=String(payload.email).toLowerCase();
+            const userId=email==="engerickgoncalves@gmail.com"?"erick":`google-${payload.sub||slug(email)}`;
+            const conta=registrarContaNoAparelho({
+              userId,
+              username:email.split("@")[0],
+              email,
+              name:payload.name||email.split("@")[0],
+              provider:"google"
+            });
+            await autenticarSessaoPessoa(conta,true);
+          }catch(err){
+            exibirMsgLogin("Falha ao validar o token retornado pelo Google.","bad");
+          }
+        }
+      });
+      const gisBox=$("google-gis-btn");
+      if(gisBox&&typeof window.google.accounts.id.renderButton==="function"){
+        gisBox.hidden=false;
+        gisBox.innerHTML="";
+        window.google.accounts.id.renderButton(gisBox,{theme:"outline",size:"large",width:320,text:"continue_with"});
+      }
+      window.google.accounts.id.prompt(notification=>{
+        if(notification.isNotDisplayed()||notification.isSkippedMoment()){
+          exibirMsgLogin("Se o popup automático do Google não abrir, clique no botão oficial do Google abaixo ou use Criar acesso.","warn");
+        }
+      });
+    }catch(e){
+      exibirMsgLogin("Não foi possível carregar o Google Identity Services. Verifique sua conexão ou use Criar acesso.","bad");
+    }finally{
+      if(btn)btn.disabled=false;
+    }
+  }
+
   // Botão "Continuar com Google" (#entrar) — Apenas OAuth real (Supabase OAuth ou Google Identity Services)
   $("entrar")?.addEventListener("click",async()=>{
     exibirMsgLogin("");
@@ -2256,53 +2316,67 @@
         return;
       }catch(e){
         exibirMsgLogin("Não foi possível iniciar o login com Google via Supabase. Verifique a configuração OAuth ou use Criar acesso.","bad");
+        abrirPainelOAuthLogin(true);
         return;
       }
     }
     const googleClientId=obterGoogleClientId();
     if(googleClientId){
-      const btn=$("entrar");
-      if(btn)btn.disabled=true;
+      await iniciarGoogleGis(googleClientId);
+      return;
+    }
+    exibirMsgLogin("OAuth do Google ainda não configurado neste navegador. Configure abaixo (Admin) ou entre como convidado para buscar vagas agora.","warn");
+    abrirPainelOAuthLogin(true);
+  });
+
+  $("btn-open-login-oauth")?.addEventListener("click",()=>{
+    const painel=$("login-oauth-panel");
+    abrirPainelOAuthLogin(painel?painel.hidden:true);
+  });
+
+  $("login-oauth-close")?.addEventListener("click",()=>abrirPainelOAuthLogin(false));
+
+  $("login-quick-guest-btn")?.addEventListener("click",async()=>{
+    await autenticarSessaoPessoa({
+      userId:"guest",
+      email:"",
+      name:"Visitante",
+      provider:"guest"
+    },false);
+    setView("jobs");
+  });
+
+  $("login-oauth-form")?.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const fd=new FormData(e.target);
+    const url=String(fd.get("url")||"").trim();
+    const anon=String(fd.get("anon")||"").trim();
+    const googleClientId=String(fd.get("googleClientId")||"").trim();
+    if(googleClientId)gravarGlobal("google-client-id",googleClientId);
+    else gravarGlobal("google-client-id","");
+
+    if(url&&anon){
+      gravarGlobal("supabase-custom",{url,anon});
+      exibirMsgLogin("Supabase OAuth salvo! Ativando conexão…","ok");
       try{
-        await carregarScript("https://accounts.google.com/gsi/client",()=>!!window.google?.accounts?.id);
-        window.google.accounts.id.initialize({
-          client_id:googleClientId,
-          callback:async resp=>{
-            try{
-              const payload=decodificarJwtGoogle(resp?.credential);
-              const validIss=payload.iss==="https://accounts.google.com"||payload.iss==="accounts.google.com";
-              if(!validIss||payload.aud!==googleClientId||!payload.email_verified||!payload.email||(payload.exp*1000<=Date.now())){
-                exibirMsgLogin("Credencial Google inválida ou expirada. Tente novamente.","bad");
-                return;
-              }
-              const email=String(payload.email).toLowerCase();
-              const userId=email==="engerickgoncalves@gmail.com"?"erick":`google-${payload.sub||slug(email)}`;
-              const conta=registrarContaNoAparelho({
-                userId,
-                username:email.split("@")[0],
-                email,
-                name:payload.name||email.split("@")[0],
-                provider:"google"
-              });
-              await autenticarSessaoPessoa(conta,true);
-            }catch(err){
-              exibirMsgLogin("Falha ao validar o token retornado pelo Google.","bad");
-            }
-          }
-        });
-        window.google.accounts.id.prompt(notification=>{
-          if(notification.isNotDisplayed()||notification.isSkippedMoment()){
-            exibirMsgLogin("O prompt do Google foi bloqueado pelo navegador. Permita popups/cookies de terceiros ou use Criar acesso com usuário e senha.","warn");
-          }
-        });
-      }catch(e){
-        exibirMsgLogin("Não foi possível carregar o Google Identity Services. Verifique sua conexão ou use Criar acesso.","bad");
-      }finally{
-        if(btn)btn.disabled=false;
+        await carregarScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js",()=>!!window.supabase);
+        sb=window.supabase.createClient(url,anon);
+        abrirPainelOAuthLogin(false);
+        exibirMsgLogin("Supabase OAuth ativado! Clique em Continuar com Google.","ok");
+      }catch(err){
+        location.reload();
       }
       return;
     }
-    exibirMsgLogin('A autenticação real com Google exige configurar o Supabase OAuth ou um Google Client ID nas Configurações. Enquanto isso, use a aba "Criar acesso" (usuário e senha SHA-256) ou "Continuar como convidado".',"warn");
+
+    if(googleClientId){
+      abrirPainelOAuthLogin(false);
+      exibirMsgLogin("Google Client ID salvo! Iniciando login com Google…","ok");
+      await iniciarGoogleGis(googleClientId);
+      return;
+    }
+
+    exibirMsgLogin("Informe um Google Client ID ou URL + Anon Key do Supabase para ativar o login com Google.","warn");
   });
 
   // Formulário "Entrar" (#auth-email-form) com controle de bloqueio após 5 tentativas erradas
