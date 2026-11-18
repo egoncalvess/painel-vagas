@@ -57,35 +57,34 @@
       <span class="brand-name">Radar</span>
     </div>
     <div class="auth-story-main">
-      <span class="auth-kicker">Oportunidades sob o seu comando</span>
       <h2 id="login-title">O robô prepara. <em>Você decide.</em></h2>
-      <p class="auth-lead">Enquanto você trabalha, o Radar encontra vagas comparadas ao seu currículo e organiza suas publicações no LinkedIn. Cada pessoa tem sua própria base dinâmica sem precisar de token do GitHub.</p>
+      <p class="auth-lead">Encontre vagas alinhadas ao seu currículo e organize publicações no LinkedIn.</p>
       <ul class="auth-features">
         <li>
           <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span>
           <div>
             <strong>Vagas e Fila Vagas.com.br</strong>
-            <span>Centenas de anúncios lidos por dia e pontuados contra o seu currículo ativo.</span>
+            <span>Anúncios lidos por dia e pontuados contra o seu currículo.</span>
           </div>
         </li>
         <li>
           <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
           <div>
             <strong>Currículo e Score em tempo real</strong>
-            <span>Cada competência do seu perfil recalcula automaticamente os requisitos e a nota de cada vaga.</span>
+            <span>Suas competências recalculam os requisitos e a nota de cada vaga.</span>
           </div>
         </li>
         <li>
           <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
           <div>
             <strong>Publicações</strong>
-            <span>Posts do LinkedIn escritos a partir dos fatos reais da sua trajetória.</span>
+            <span>Posts do LinkedIn escritos a partir da sua trajetória.</span>
           </div>
         </li>
       </ul>
     </div>
     <div class="auth-story-foot">
-      <span><b>Base dinâmica por pessoa.</b> Progresso salvo automaticamente sem precisar de Token do GitHub.</span>
+      <span>Seu progresso fica salvo na sua conta.</span>
     </div>
   </div>
 
@@ -101,7 +100,7 @@
 
     <div class="auth-card">
       <h2>Bem-vindo ao Radar</h2>
-      <p class="sub" id="msg-login">Entre com Google ou crie seu acesso para abrir o seu painel individual.</p>
+      <p class="sub" id="msg-login">Entre ou crie seu acesso para abrir o painel.</p>
 
       <div class="auth-msg" id="login-msg" role="alert"></div>
 
@@ -208,9 +207,8 @@
       <p class="helper" id="auth-feedback" role="status" aria-live="polite"></p>
 
       <div class="trust-foot" aria-label="Proteções">
-        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Senha criptografada (SHA-256)</span>
-        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Base isolada por pessoa</span>
-        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Zero Token GitHub</span>
+        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Conta individual</span>
+        <span><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Progresso salvo</span>
       </div>
       <div style="margin-top:10px;text-align:center">
         <button type="button" class="link" id="btn-open-login-oauth" style="font-size:12px;opacity:.85">Configurar OAuth (Admin)</button>
@@ -227,7 +225,6 @@
       <span class="brand-name">Radar</span>
     </a>
     <nav class="tabs" aria-label="Seções">
-      <p class="sidebar-label">Espaço de trabalho</p>
       <button class="nav-item active" type="button" data-view="overview">
         <svg class="i" aria-hidden="true"><use href="#i-home"/></svg>
         <span class="long">Visão geral</span><span class="short">Início</span>
@@ -264,11 +261,11 @@
       <span>Convidar amigos</span>
     </button>
 
-    <div class="robot" id="robot-card" title="Estado da base dinâmica e busca">
+    <div class="robot" id="robot-card" title="Estado da sincronização e busca">
       <span class="robot-dot ok" id="robot-dot"></span>
       <span>
-        <strong id="db-status-title">Base dinâmica ativa</strong>
-        <small id="robot-status">Sincronizado sem Token GitHub</small>
+        <strong id="db-status-title">Sincronização</strong>
+        <small id="robot-status">Ativa</small>
       </span>
     </div>
 
@@ -302,7 +299,7 @@
       </a>
       <span class="date-label" id="today-label"></span>
       <div class="topbar-right">
-        <span class="db-sync-badge" id="db-sync-pill" title="Seus dados são salvos automaticamente no banco dinâmico desta conta">Base dinâmica sincronizada</span>
+        <span class="db-sync-badge" id="db-sync-pill" title="Dados salvos automaticamente nesta conta">Sincronizado</span>
         <p class="user-pill" id="usuario" title="Conta ativa">
           <span class="avatar avatar-sm" id="topbar-avatar">PF</span>
           <span id="email">Conectado</span>
@@ -327,10 +324,10 @@
           <div class="ops-strip" role="region" aria-labelledby="overview-title">
             <div class="hero">
               <h1 id="overview-title">Painel operacional<span class="dot">.</span></h1>
-              <p class="hero-kicker">Radar do dia <span class="hero-line"></span> <span id="hero-date"></span></p>
+              <span class="date-label" id="hero-date"></span>
               <p class="hero-sub">
                 <span id="greeting">Olá</span>, <strong id="greeting-name">visitante</strong>.
-                <span id="quem" class="quem">Vagas e publicações avaliadas conforme o seu perfil ativo.</span>
+                <span id="quem" class="quem">Vagas e publicações filtradas pelo seu perfil.</span>
               </p>
             </div>
             <div class="modules" id="modules"></div>
@@ -357,19 +354,19 @@
 
         <aside class="home-side">
           <div class="side-card">
-            <h3>Base dinâmica e busca</h3>
+            <h3>Resumo da busca</h3>
             <dl class="rows" id="summary-grid"></dl>
             <p class="muted small" id="last-run-home"></p>
             <button class="button button-secondary button-block" type="button" data-view="jobs">Abrir vagas</button>
           </div>
           <div class="side-card">
             <h3>Seu perfil e currículo</h3>
-            <p class="muted" id="profile-summary">O Radar calcula o score e os requisitos de cada vaga em tempo real usando suas competências e cidade.</p>
+            <p class="muted" id="profile-summary">Score e requisitos calculados pelo seu perfil.</p>
             <button class="link" type="button" data-view="profile">Personalizar meu perfil →</button>
           </div>
           <div class="side-card">
-            <h3>Sincronizar ou convidar amigos</h3>
-            <p class="muted">Cada pessoa entra com Google ou usuário próprio e guarda seu progresso sem precisar de Token do GitHub.</p>
+            <h3>Sincronizar e compartilhar</h3>
+            <p class="muted">Transfira seu progresso entre computador e celular ou convide amigos.</p>
             <div style="display:grid;gap:8px;margin-top:12px">
               <button class="button button-secondary button-block" type="button" id="btn-invite-card">Convidar amigos</button>
               <button class="button button-ghost button-block" type="button" id="btn-sync-code-home">Código de Sincronização (Celular ↔ PC)</button>
@@ -632,7 +629,6 @@
             <div class="panel-heading">
               <div>
                 <h2 id="base-title">Identificação, cargos e competências</h2>
-                <p>Esses campos alimentam o cabeçalho do painel, a avaliação de vagas e o gerador de publicações.</p>
               </div>
             </div>
             <form id="profile-form" class="form-grid">
@@ -661,8 +657,8 @@
           <section class="workspace-panel" aria-labelledby="stories-profile-title">
             <div class="panel-heading">
               <div>
-                <h2 id="stories-profile-title">Histórias e projetos verificáveis</h2>
-                <p>Base de fatos reais usada pelo módulo Publicações para criar posts sem clichês de IA.</p>
+                <h2 id="stories-profile-title">Histórias e projetos</h2>
+                <p>Fatos reais usados para gerar suas publicações.</p>
               </div>
             </div>
             <div id="profile-stories-list" class="profile-list"></div>
@@ -677,7 +673,7 @@
               </div>
             </div>
             <div id="profile-impact-box" class="rows"></div>
-            <p class="helper">Sempre que você adiciona ou remove uma competência (como <code>Power BI</code>, <code>SAP</code>, <code>Primavera P6</code>, <code>Inglês</code>), todas as vagas abertas são reavaliadas imediatamente.</p>
+            <p class="helper">Adicionar ou remover competências recalcula todas as vagas abertas.</p>
           </section>
         </aside>
       </div>
@@ -688,7 +684,7 @@
       <div class="page-head">
         <div>
           <h1 id="settings-title">Configurações e Sincronização</h1>
-          <p class="heading-subtitle">Sua conta tem base de dados dinâmica própria (<code>RadarDynamicDB</code>), sem depender de Token do GitHub.</p>
+          <p class="heading-subtitle">Gerencie sua conta, backup e aparência.</p>
         </div>
       </div>
 
@@ -710,8 +706,8 @@
         <section class="workspace-panel" aria-labelledby="sync-code-title">
           <div class="panel-heading">
             <div>
-              <h2 id="sync-code-title">Código de Sincronização (Celular ↔ PC · Sem Token GitHub)</h2>
-              <p>Seus dados ficam salvos automaticamente no banco dinâmico desta conta (<code>RadarDynamicDB</code>). Para levar seu progresso instantaneamente do computador para o celular (ou vice-versa), gere seu código abaixo ou baixe o arquivo JSON.</p>
+              <h2 id="sync-code-title">Sincronização (Celular ↔ PC)</h2>
+              <p>Gere um código para transferir seu progresso entre aparelhos ou baixe o backup em JSON.</p>
             </div>
           </div>
           <div class="form-actions">
@@ -727,8 +723,7 @@
         <section class="workspace-panel appearance-panel" aria-labelledby="appearance-title">
           <div class="panel-heading">
             <div>
-              <h2 id="appearance-title">Aparência e acessibilidade</h2>
-              <p>Contraste validado WCAG AA (>= 4,5:1) tanto no tema claro quanto no tema escuro.</p>
+              <h2 id="appearance-title">Aparência</h2>
             </div>
           </div>
           <div class="segmented" role="group" aria-label="Tema">
@@ -742,7 +737,7 @@
           <div class="panel-heading">
             <div>
               <h2 id="supa-custom-title">Nuvem Supabase e Google OAuth (Opcional)</h2>
-              <p>Se quiser sincronização automática em nuvem ou login real com Google, informe as credenciais do Supabase ou um Google Client ID (OAuth) — ou deixe em branco para usar o <code>RadarDynamicDB</code> integrado.</p>
+              <p>Opcional: informe suas credenciais do Supabase ou Google Client ID para sincronizar na nuvem.</p>
             </div>
           </div>
           <form id="supa-custom-form" class="form-grid">
@@ -751,7 +746,7 @@
             <label class="full">Google Client ID (OAuth Web — opcional)<input name="googleClientId" type="text" autocomplete="off" placeholder="1234567890-abc.apps.googleusercontent.com"></label>
             <div class="form-actions full">
               <button class="button button-secondary" type="submit">Salvar conexão OAuth / Supabase</button>
-              <button class="button button-ghost" type="button" id="supa-clear-btn">Usar apenas Base Dinâmica Local</button>
+              <button class="button button-ghost" type="button" id="supa-clear-btn">Usar apenas armazenamento local</button>
               <span id="supa-saved-note" class="save-note"></span>
             </div>
           </form>
@@ -759,9 +754,9 @@
 
         <!-- Avançado: Token do GitHub recolhido apenas para o administrador do repositório -->
         <details class="workspace-panel conta" id="conta">
-          <summary>Avançado (Administrador do repositório): Token do GitHub opcional <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+          <summary>Avançado: Token do GitHub (opcional) <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
           <div class="disclosure-body">
-            <p class="muted"><strong>Você NÃO precisa disso para usar o painel.</strong> Esta opção serve apenas para o mantenedor do código disparar manualmente o workflow do GitHub Actions fora do horário programado.</p>
+            <p class="muted">Apenas para administradores dispararem manualmente o workflow do repositório.</p>
             <form id="form-token" class="form-grid" style="margin-top:12px">
               <label class="full">Token do GitHub (Personal Access Token)
                 <input id="token" type="password" autocomplete="off" placeholder="github_pat_..." aria-label="Token do GitHub">

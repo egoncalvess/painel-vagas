@@ -226,10 +226,10 @@
 
   function sinalizarSincronizacaoBase(){
     const pill=$("db-sync-pill"), st=$("robot-status");
-    if(pill)pill.textContent=`Base dinâmica sincronizada (${profile?.name?.split(" ")[0]||activeNamespace})`;
+    if(pill)pill.textContent=`Sincronizado (${profile?.name?.split(" ")[0]||activeNamespace})`;
     if(st&&meta.atualizado_em){
       const d=new Date(meta.atualizado_em);
-      st.textContent=`Salvo para ${profile?.name?.split(" ")[0]||"você"} · Busca ${d.toLocaleDateString("pt-BR")}`;
+      st.textContent=`Atualizado em ${d.toLocaleDateString("pt-BR")}`;
     }
   }
 
@@ -334,12 +334,12 @@
     if($("greeting-name"))$("greeting-name").textContent=pNome;
     if($("quem")){
       const resumo=profile.headline||`Vagas avaliadas para ${profile.name} (${profile.city||"Remoto"}).`;
-      $("quem").textContent=`${resumo} Base dinâmica individual sincronizada.`;
+      $("quem").textContent=resumo;
     }
     if($("profile-card-avatar"))$("profile-card-avatar").textContent=ini;
     if($("profile-card-name"))$("profile-card-name").textContent=profile.name;
-    if($("profile-card-line"))$("profile-card-line").textContent=`${profile.city} · Áreas: ${profile.roles}`;
-    if($("profile-card-contact"))$("profile-card-contact").textContent=profile.contact||(usuario?.email||"Base dinâmica ativa neste navegador");
+    if($("profile-card-line"))$("profile-card-line").textContent=`${profile.city} · ${profile.roles}`;
+    if($("profile-card-contact"))$("profile-card-contact").textContent=profile.contact||(usuario?.email||"Conta ativa");
     if($("profile-summary")){
       const skCount=listaSkillsPerfil().length;
       $("profile-summary").textContent=`Perfil ativo de ${profile.name} (${profile.city}) com ${skCount} competências mapeadas no currículo.`;
@@ -1812,7 +1812,7 @@
   function abrirModalManualUso(){
     abrirModalHtml(`
       <h2 id="modal-title">Manual de uso do Radar</h2>
-      <p class="muted" style="margin-top:6px">Guia rápido para configurar seu currículo, filtrar vagas e salvar seu progresso sem precisar de Token do GitHub.</p>
+      <p class="muted" style="margin-top:6px">Guia rápido para configurar seu currículo, filtrar vagas e salvar seu progresso.</p>
       <ol class="steps" style="margin-top:16px">
         <li><strong>1. Configure seu currículo (Meu perfil):</strong> Informe sua cidade, modalidades aceitas (Remoto, Híbrido, Presencial) e suas competências. Todas as vagas são recalculadas na hora.</li>
         <li><strong>2. Busque e use filtros rápidos:</strong> Na aba <strong>Vagas</strong>, use a busca ou os atalhos <em>Score 80+</em>, <em>Remoto</em>, <em>Salvas ★</em> e <em>Novas hoje</em>. Clique em <strong>☆ Salvar</strong> para favoritar vagas importantes.</li>
@@ -1830,7 +1830,7 @@
     const urlCompartilhar=location.origin+location.pathname;
     abrirModalHtml(`
       <h2 id="modal-title">Convidar e Compartilhar com Amigos</h2>
-      <p class="muted" style="margin-top:6px">O Radar tem <strong>Base de Dados Dinâmica por Pessoa</strong>. Qualquer amigo pode criar seu acesso gratuito sem precisar de Token do GitHub.</p>
+      <p class="muted" style="margin-top:6px">Cada pessoa pode criar seu acesso gratuito e manter seu próprio histórico separado.</p>
       <ol class="steps" style="margin-top:16px">
         <li><strong>Login individual:</strong> Seu amigo clica em <em>Criar acesso</em> (ou entra com Google quando configurado). O sistema cria uma base exclusiva para ele no navegador/nuvem.</li>
         <li><strong>Currículo e Cidade:</strong> Na aba <strong>Meu perfil</strong>, ele preenche o próprio Nome, Cidade/UF, Áreas e Competências.</li>
@@ -1876,7 +1876,7 @@
     const codigo=gerarCodigoSincronizacao();
     abrirModalHtml(`
       <h2 id="modal-title">Código de Sincronização (Celular ↔ PC)</h2>
-      <p class="muted" style="margin-top:6px">Transfira todo o seu progresso (candidaturas, vagas salvas, descartes, currículo e posts) entre o computador e o telefone celular <strong>sem precisar de Token do GitHub</strong>:</p>
+      <p class="muted" style="margin-top:6px">Transfira suas candidaturas, vagas salvas, descartes, currículo e posts entre o computador e o celular:</p>
       <div class="settings-stack" style="margin-top:14px">
         <div class="workspace-panel" style="padding:14px;background:var(--subtle)">
           <label>1. Copiar código deste aparelho (${escapeHtml(profile?.name||activeNamespace)})
@@ -2116,7 +2116,7 @@
     atualizarUIAutenticacao();
     carregarPostsUsuario();
     render();
-    showToast(`Bem-vindo(a), ${profile?.name||usuario.name}! Base dinâmica sincronizada.`);
+    showToast(`Bem-vindo(a), ${profile?.name||usuario.name}!`);
   }
 
   async function inicializarSessaoEPainel(){
@@ -2179,7 +2179,7 @@
 
   function mostrarContaGitHub(){
     const ec=$("estado-conta");
-    if(ec)ec.textContent=token?`Token de administrador configurado (${REPO}).`:"Nenhum token do GitHub necessário. Sua base dinâmica já salva tudo automaticamente.";
+    if(ec)ec.textContent=token?`Token de administrador configurado (${REPO}).`:"Nenhum token configurado.";
   }
 
   // ==================== EVENTOS DA TELA DE LOGIN (FIEL AO ENTRAR.HTML) ====================
