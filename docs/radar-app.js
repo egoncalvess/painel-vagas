@@ -122,7 +122,7 @@
         }catch(e){resolve(false)}
       });
     },
-    get(storeName,userKey,fallback=null){
+    get(storeName,userKey,fallback){
       try{
         const raw=localStorage.getItem(`radar_db:${storeName}:${userKey}`);
         if(raw!=null)return JSON.parse(raw);
@@ -178,13 +178,17 @@
   function lerGlobal(k,p){try{const v=localStorage.getItem(k);return v==null?p:JSON.parse(v)}catch(e){return p}}
   function gravarGlobal(k,v){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
+  const DB_MISS=Symbol("db_miss");
   function userKey(k){return `radar:${activeNamespace}:${k}`}
   function lerUser(k,p){
-    const fromDb=RadarDynamicDB.get(k,activeNamespace,undefined);
-    if(fromDb!==undefined)return fromDb;
+    const fromDb=RadarDynamicDB.get(k,activeNamespace,DB_MISS);
+    if(fromDb!==DB_MISS&&fromDb!==undefined&&fromDb!==null)return fromDb;
     try{
       const v=localStorage.getItem(userKey(k));
-      if(v!=null)return JSON.parse(v);
+      if(v!=null){
+        const parsed=JSON.parse(v);
+        if(parsed!==undefined&&parsed!==null)return parsed;
+      }
     }catch(e){}
     return p;
   }
@@ -272,19 +276,7 @@
   // ==================== CONTAS DE USUÁRIOS E SESSÃO ATIVA ====================
   function listarContasLocais(){
     const map=lerGlobal("radar-accounts-registry",{});
-    // Garante conta padrão do Erick disponível para login rápido ou Google Picker
-    if(!map["engerickgoncalves@gmail.com"]){
-      map["engerickgoncalves@gmail.com"]={
-        userId:"erick",
-        username:"erick",
-        email:"engerickgoncalves@gmail.com",
-        name:"Erick Gonçalves",
-        provider:"google",
-        createdAt:"2026-10-01T00:00:00Z"
-      };
-      gravarGlobal("radar-accounts-registry",map);
-    }
-    return map;
+    return map&&typeof map==="object"&&!Array.isArray(map)?map:{};
   }
 
   function registrarContaNoAparelho(acc){
@@ -313,11 +305,14 @@
     }else if(usuario&&usuario.name){
       profile={...PRESET_BLANK_PROFILE,name:usuario.name,contact:usuario.email||""};
     }else{
-      profile={...PRESET_DEFAULT_PROFILE};
+      profile={...PRESET_BLANK_PROFILE};
     }
-    f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"},lerUser("filtros",{}));
-    vagasManuais=lerUser("vagas-manuais",[]);
-    filaErrosLocal=lerUser("error_queue",null)||lerUser("fila-erros-local",[]);
+    const filtrosSalvos=lerUser("filtros",{});
+    f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"},filtrosSalvos&&typeof filtrosSalvos==="object"?filtrosSalvos:{});
+    const vm=lerUser("vagas-manuais",[]);
+    vagasManuais=Array.isArray(vm)?vm:[];
+    const fe=lerUser("error_queue",null)||lerUser("fila-erros-local",[]);
+    filaErrosLocal=Array.isArray(fe)?fe:[];
     sincronizarCabecalhoPerfil();
     preencherFormularioPerfil();
   }
@@ -535,9 +530,12 @@
   }
 
   function obterFilaErrosAtiva(){
-    const statusMap=lerUser("fila-erros-status",{});
+    const rawMap=lerUser("fila-erros-status",{});
+    const statusMap=rawMap&&typeof rawMap==="object"&&!Array.isArray(rawMap)?rawMap:{};
+    const loc=Array.isArray(filaErrosLocal)?filaErrosLocal:[];
+    const rem=Array.isArray(filaErrosRemota)?filaErrosRemota:[];
     const map=new Map();
-    for(const item of [...filaErrosLocal,...filaErrosRemota]){
+    for(const item of [...loc,...rem]){
       if(!item||!item.id)continue;
       const st=statusMap[item.id]||item.status_fila||"pendente";
       if(st==="descartado"||st==="aprovado")continue;
@@ -1388,8 +1386,8 @@
       dailyLimit:20,
       offer:`Apoio em planejamento físico-financeiro, controle de cronograma (MS Project / Power BI) e organização de manutenção (PCM/SAP).`
     }];
-    campaigns=lerUser("campaigns",defCampaigns);
-    if(!campaigns.length)campaigns=defCampaigns;
+    const loadedCampaigns=lerUser("campaigns",defCampaigns);
+    campaigns=Array.isArray(loadedCampaigns)&&loadedCampaigns.length?loadedCampaigns:defCampaigns;
     activeCampaignId=campaigns[0].id;
 
     const defLeads=[
@@ -1432,7 +1430,8 @@
         draft:`Olá! Aqui é ${profile?.name||""}.\n\nTrabalho com estruturação de PCM, indicadores em Power BI e controle de contratos de manutenção em ${profile?.city||"Salvador e RMS"}.\n\nPreparei um fluxo enxuto para controle de ordens de serviço e carteira de manutenção que ajuda equipes técnicas a prever desvios de prazo e custo.\n\nPodemos conversar 10 minutos esta semana?`
       }
     ];
-    leads=lerUser("leads",defLeads);
+    const loadedLeads=lerUser("leads",defLeads);
+    leads=Array.isArray(loadedLeads)?loadedLeads:defLeads;
     desenharClientes();
   }
 
@@ -1641,7 +1640,8 @@
         ]
       }
     ];
-    stories=lerUser("stories",defStories);
+    const loadedStories=lerUser("stories",defStories);
+    stories=Array.isArray(loadedStories)?loadedStories:defStories;
 
     const defPosts=[
       {
@@ -1663,7 +1663,8 @@
         text:`Em rotinas de manutenção e PCM, ter muitos dados no sistema não significa ter visibilidade para decidir.\n\nAo estruturar indicadores com ${listaSkillsPerfil().slice(0,3).join(", ")||"SAP, Excel avançado e Power BI"}, o foco principal foi separar o que é urgência real do que é falta de janela programada.\n\nQuando a engenharia e a manutenção falam a mesma língua dos custos, o plano deixa de ser reativo e ganha previsibilidade.`
       }
     ];
-    posts=lerUser("posts",defPosts);
+    const loadedPosts=lerUser("posts",defPosts);
+    posts=Array.isArray(loadedPosts)?loadedPosts:defPosts;
     desenharPublicacoes(false);
     desenharHistoriasNoPerfil();
   }
@@ -2882,7 +2883,14 @@
         }catch(e){}
       }
       catalogo=null;
-      const res=await carregarVagas();
+      let res=null;
+      try{
+        res=await carregarVagas();
+      }catch(errCarga){
+        console.error("[Radar] Falha em carregarVagas:",errCarga);
+        m.textContent="Não foi possível recarregar agora e não há cache local disponível. Tente novamente em instantes.";
+        return;
+      }
       render();
       if(res&&res.usouCache){
         m.textContent=`Falha de rede ao buscar novas vagas; recálculo executado com dados do cache local (${visiveis().length} vagas avaliadas).`;
@@ -2892,7 +2900,8 @@
         showToast("Vagas atualizadas e recalculadas para o seu perfil!");
       }
     }catch(e){
-      m.textContent="Não foi possível recarregar agora e não há cache local disponível. Tente novamente em instantes.";
+      console.error("[Radar] Erro ao recalcular painel:",e);
+      m.textContent=`Erro ao recalcular painel: ${e?.message||"tente novamente."}`;
     }finally{
       b.disabled=false;
     }
@@ -3040,12 +3049,19 @@
   });
 
   $("btn-preset-erick")?.addEventListener("click",()=>{
-    profile={...PRESET_DEFAULT_PROFILE};
+    profile=ehContaDoErick()?{...PRESET_DEFAULT_PROFILE}:{
+      ...PRESET_BLANK_PROFILE,
+      name:"Profissional de Engenharia",
+      headline:"Planejamento, Projetos e Manutenção",
+      roles:"Planejamento e controle, Gestão de projetos, Manutenção, Engenharia elétrica",
+      skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, PCM / Manutenção",
+      summary:"Experiência em planejamento e controle de obras, cronogramas físico-financeiros, indicadores em Power BI e gestão de manutenção."
+    };
     gravarUser("profiles",profile);
     preencherFormularioPerfil();
     sincronizarCabecalhoPerfil();
     render();
-    showToast("Preset Eng. Planejamento (Erick) aplicado.");
+    showToast("Exemplo de currículo preenchido.");
   });
 
   $("btn-preset-blank")?.addEventListener("click",()=>{
