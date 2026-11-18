@@ -149,7 +149,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.9em;background:var(-
 .hero h1{color:var(--text);font-size:20px;line-height:1.25;margin:0}
 .hero .dot{color:var(--primary)}
 .hero-sub{flex:1 1 100%;margin:2px 0 0;font-size:13.5px;color:var(--text-2);max-width:none;font-variant-numeric:tabular-nums}
-.modules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0;background:var(--line);border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.modules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:0;background:var(--line);border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
 .module{position:relative;display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:2px 12px;min-height:44px;padding:14px 18px;background:var(--surface);border:0;border-radius:0;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums;transition:background-color .14s ease-out}
 .module:hover{background:var(--hover)}
 .module:focus-visible{z-index:1;outline:2px solid var(--primary);outline-offset:-2px}
@@ -212,6 +212,15 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.9em;background:var(-
 .search-field{display:flex;flex-direction:row;align-items:center;gap:8px;min-height:44px;padding:0 12px;flex:2 1 260px;min-width:200px;background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;color:var(--text-3);font-weight:400}
 .search-field:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
 .search-field input[type=search]{border:0;outline:0;background:transparent;padding:0;height:42px;flex:1;min-width:0;color:var(--text);box-shadow:none;border-radius:0}
+.search-field input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.search-clear{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:none;border:0;border-radius:6px;background:transparent;color:var(--text-3);cursor:pointer;transition:background-color .14s ease-out,color .14s ease-out}
+.search-clear:hover{background:var(--hover);color:var(--text)}
+.quick-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.quick-chip{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:4px 12px;border:1px solid var(--line-strong);border-radius:999px;background:var(--subtle);color:var(--text-2);font-size:12.5px;font-weight:600;cursor:pointer;transition:background-color .14s ease-out,border-color .14s ease-out,color .14s ease-out}
+.quick-chip:hover{background:var(--hover);color:var(--text)}
+.quick-chip.active,.quick-chip[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.kbd-hints{margin:0 0 12px;font-size:12px;color:var(--text-3)}
+.kbd-hints kbd{display:inline-block;padding:1px 6px;border:1px solid var(--line-strong);border-radius:4px;background:var(--subtle);font-family:inherit;font-size:11px;font-weight:600;color:var(--text-2)}
 .filters select{min-height:44px;width:100%;padding:0 34px 0 12px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2352655b' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;appearance:none;cursor:pointer;color:var(--text);font-size:13.5px}
 
 .chips,.filtros{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
@@ -274,7 +283,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.9em;background:var(-
 .regua-bar::before{left:70%}
 .regua-bar::after{left:80%}
 
-/* Detalhe da vaga / cliente / post */
+/* Detalhe da vaga / post */
 .detail-col{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 30px}
 .d-head{padding-bottom:20px;border-bottom:1px solid var(--line)}
 .d-co{color:var(--text-2);font-weight:600;font-size:13.5px}
@@ -285,6 +294,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:.9em;background:var(-
 .acoes button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-weight:600;font-size:13.5px;transition:background-color .14s ease-out,border-color .14s ease-out,color .14s ease-out}
 .acoes button:hover{background:var(--hover)}
 .acoes .cand[aria-pressed="true"]{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.acoes .save-btn[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
 .acoes .desc{color:var(--text-2)}
 .acoes .desc:hover,.acoes .desc.armado{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
 .d-section{padding:20px 0 0}
@@ -375,7 +385,7 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;accent-color:var(-
 .seg{min-height:44px;border:0;background:none;padding:6px 16px;border-radius:7px;font-weight:600;color:var(--text-2);cursor:pointer}
 .seg.active{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
-/* Clientes e Publicações */
+/* Publicações */
 .camp-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;font-variant-numeric:tabular-nums}
 .camp-summary>div{display:flex;flex-direction:column;gap:2px;padding:12px 16px;background:var(--surface);min-width:0}
 .camp-summary strong{font:600 16px/1.3 var(--display);color:var(--text)}
@@ -395,16 +405,6 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;accent-color:var(-
 .modal-close{position:absolute;top:12px;right:12px;min-width:44px;min-height:44px;width:44px;height:44px;display:grid;place-items:center;border-radius:8px;border:0;background:none;cursor:pointer;color:var(--text-2);transition:background-color .14s ease-out,color .14s ease-out}
 .modal-close:hover{background:var(--hover)}
 .mobile-drawer-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 14px;margin-bottom:16px;border-bottom:1px solid var(--line);position:sticky;top:-20px;background:var(--surface);z-index:5;padding-top:4px}
-
-/* ---------- Seletor de Conta Google (Modal estilo Google OAuth) ---------- */
-.google-chooser{max-width:440px;margin:0 auto}
-.google-chooser-head{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;font-size:14px;color:var(--text-2);font-weight:500}
-.google-chooser-head svg{width:20px;height:20px;flex:none}
-.google-account-list{display:grid;gap:8px;margin:14px 0}
-.google-acc-btn{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:10px 14px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--text);text-align:left;cursor:pointer;transition:background-color .14s ease-out,border-color .14s ease-out}
-.google-acc-btn:hover{background:var(--hover);border-color:var(--primary)}
-.google-acc-btn strong{display:block;font-size:14.5px;color:var(--text)}
-.google-acc-btn small{display:block;font-size:12.5px;color:var(--text-3)}
 
 /* ---------- Tela de Login Idêntica ao radar-main/entrar.html ---------- */
 .auth-overlay{position:fixed;inset:0;z-index:55;background:var(--page);overflow-y:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(420px,1fr);min-height:100vh}
@@ -580,8 +580,9 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;accent-color:var(-
   .collapsible-filters:not(.open){display:none}
   .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:12px}
   .filters label.filter-col{min-width:0}
-  .filtros,.chips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;margin-bottom:10px;scrollbar-width:thin}
-  .filtros button,.chip{flex:none}
+  .filtros,.chips,.quick-filters{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;margin-bottom:10px;scrollbar-width:thin}
+  .filtros button,.chip,.quick-chip{flex:none}
+  .kbd-hints{display:none}
 
   /* Previne zoom automático no iOS/Android ao focar inputs */
   input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea,.search-field input[type=search]{font-size:16px!important}

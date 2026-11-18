@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#112926">
 <meta name="color-scheme" content="light">
-<title>Radar · Vagas, Clientes e Carreira</title>
+<title>Radar · Vagas, Currículo e Carreira</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d7f35a'/%3E%3Cg fill='none' stroke='%23112926' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M24.5 9.5A10 10 0 1 0 26 16'/%3E%3Cpath d='M20.8 12.2A5.5 5.5 0 1 0 21.5 16'/%3E%3Cpath d='m17.5 14.5 7-7'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='2' fill='%23112926'/%3E%3C/svg%3E">
 <script src="supabase-config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +59,7 @@
     <div class="auth-story-main">
       <span class="auth-kicker">Oportunidades sob o seu comando</span>
       <h2 id="login-title">O robô prepara. <em>Você decide.</em></h2>
-      <p class="auth-lead">Enquanto você trabalha, o Radar encontra vagas comparadas ao seu currículo, prospecta clientes e organiza suas publicações no LinkedIn. Cada pessoa tem sua própria base dinâmica sem precisar de token do GitHub.</p>
+      <p class="auth-lead">Enquanto você trabalha, o Radar encontra vagas comparadas ao seu currículo e organiza suas publicações no LinkedIn. Cada pessoa tem sua própria base dinâmica sem precisar de token do GitHub.</p>
       <ul class="auth-features">
         <li>
           <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span>
@@ -71,8 +71,8 @@
         <li>
           <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
           <div>
-            <strong>Clientes</strong>
-            <span>Empresas da sua região com nota 0–100, motivo e a primeira mensagem pronta.</span>
+            <strong>Currículo e Score em tempo real</strong>
+            <span>Cada competência do seu perfil recalcula automaticamente os requisitos e a nota de cada vaga.</span>
           </div>
         </li>
         <li>
@@ -105,7 +105,7 @@
 
       <div class="auth-msg" id="login-msg" role="alert"></div>
 
-      <!-- Botão Principal: Continuar com Google (100% compatível: Supabase OAuth / GIS / Seletor Google Instantâneo) -->
+      <!-- Botão Principal: Continuar com Google (Supabase OAuth ou Google Identity Services) -->
       <button class="google-btn" id="entrar" type="button">
         <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
         <span id="btn-google-login">Continuar com Google</span>
@@ -215,11 +215,6 @@
           <span class="nav-count err" id="nav-errors" title="Fila de erros vagas.com.br" hidden>0</span>
         </span>
       </button>
-      <button class="nav-item" type="button" data-view="leads">
-        <svg class="i" aria-hidden="true"><use href="#i-target"/></svg>
-        <span>Clientes</span>
-        <span class="nav-count" id="nav-leads">0</span>
-      </button>
       <button class="nav-item" type="button" data-view="content">
         <svg class="i" aria-hidden="true"><use href="#i-pen"/></svg>
         <span class="long">Publicações</span><span class="short">Posts</span>
@@ -235,6 +230,10 @@
       </button>
     </nav>
 
+    <button class="sidebar-share" id="btn-open-manual" type="button">
+      <svg class="i" aria-hidden="true"><use href="#i-file"/></svg>
+      <span>Manual de uso</span>
+    </button>
     <button class="sidebar-share" id="btn-invite-sidebar" type="button">
       <svg class="i" aria-hidden="true"><use href="#i-share"/></svg>
       <span>Convidar amigos</span>
@@ -306,7 +305,7 @@
               <p class="hero-kicker">Radar do dia <span class="hero-line"></span> <span id="hero-date"></span></p>
               <p class="hero-sub">
                 <span id="greeting">Olá</span>, <strong id="greeting-name">visitante</strong>.
-                <span id="quem" class="quem">Vagas, prospecção e publicações avaliadas conforme o seu perfil ativo.</span>
+                <span id="quem" class="quem">Vagas e publicações avaliadas conforme o seu perfil ativo.</span>
               </p>
             </div>
             <div class="modules" id="modules"></div>
@@ -324,22 +323,11 @@
           </div>
           <div id="overview-errors" class="rec-list"></div>
 
-          <div class="home-two">
-            <div>
-              <div class="section-heading">
-                <h2>Publicações para revisar</h2>
-                <button class="link" type="button" data-view="content">Ver todas</button>
-              </div>
-              <div id="overview-content" class="rec-list"></div>
-            </div>
-            <div>
-              <div class="section-heading">
-                <h2>Clientes para contatar</h2>
-                <button class="link" type="button" data-view="leads">Ver todos</button>
-              </div>
-              <div id="overview-leads" class="rec-list"></div>
-            </div>
+          <div class="section-heading">
+            <h2>Publicações para revisar</h2>
+            <button class="link" type="button" data-view="content">Ver todas</button>
           </div>
+          <div id="overview-content" class="rec-list"></div>
         </div>
 
         <aside class="home-side">
@@ -417,13 +405,25 @@
         <div class="search-bar-row">
           <label class="search-field">
             <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
-            <input class="busca" id="busca" type="search" placeholder="Buscar por cargo, empresa, local ou motivo" aria-label="Buscar vagas">
+            <input class="busca" id="busca" type="search" placeholder="Buscar por cargo, empresa, local ou motivo (atalho /)" aria-label="Buscar vagas">
+            <button type="button" class="search-clear" id="btn-clear-busca" aria-label="Limpar busca" title="Limpar busca" hidden>
+              <svg class="i" aria-hidden="true"><use href="#i-x"/></svg>
+            </button>
           </label>
           <button class="mobile-filter-toggle" id="btn-toggle-mobile-filters" type="button" aria-expanded="false" aria-controls="collapsible-filters-box">
             <svg class="i" aria-hidden="true"><use href="#i-settings"/></svg>
             <span>Filtros e Funil</span>
           </button>
         </div>
+
+        <!-- Atalhos rápidos de filtro -->
+        <div class="quick-filters" id="quick-filters" role="group" aria-label="Atalhos rápidos de filtro">
+          <button type="button" class="quick-chip" id="qf-score80" aria-pressed="false">Score 80+</button>
+          <button type="button" class="quick-chip" id="qf-remoto" aria-pressed="false">Remoto</button>
+          <button type="button" class="quick-chip" id="qf-salvas" aria-pressed="false">Salvas ★</button>
+          <button type="button" class="quick-chip" id="qf-novas" aria-pressed="false">Novas hoje</button>
+        </div>
+        <p class="kbd-hints" aria-hidden="true">Atalhos: <kbd>/</kbd> buscar · <kbd>↑</kbd><kbd>↓</kbd> ou <kbd>J</kbd><kbd>K</kbd> navegar · <kbd>S</kbd> salvar · <kbd>Esc</kbd> fechar</p>
 
         <!-- Chips deslizantes sempre visíveis no topo da lista -->
         <div class="filtros" id="filtros" role="group" aria-label="Filtrar por situação ou fila de erros"></div>
@@ -534,84 +534,7 @@
       </div>
     </section>
 
-    <!-- ==================== 3. CLIENTES (PROSPECÇÃO) ==================== -->
-    <section id="leads" class="view" aria-labelledby="leads-title">
-      <div class="jobs-head">
-        <div>
-          <h1 id="leads-title">Clientes e Prospecção</h1>
-          <p class="summary-line">Empresas por nicho e cidade com score 0–100 explicável, motivos da indicação, rascunho editável da 1ª mensagem e controle de limite diário.</p>
-        </div>
-        <div class="search-actions">
-          <label class="period-field">
-            <span>Campanha</span>
-            <select id="campaign-select" aria-label="Selecionar campanha"></select>
-          </label>
-          <button class="button button-secondary" id="new-campaign" type="button">+ Nova campanha</button>
-          <button class="button" id="add-lead-btn" type="button">+ Cadastrar empresa</button>
-        </div>
-      </div>
-
-      <div class="camp-summary" id="leads-summary-strip"></div>
-
-      <form id="campaign-form" class="workspace-panel" style="margin-bottom:18px" hidden>
-        <div class="panel-heading">
-          <div>
-            <h2>Configurar campanha de prospecção</h2>
-            <p>Defina o serviço/automação oferecido, o nicho e a cidade-alvo para pontuar empresas e gerar o rascunho da 1ª mensagem.</p>
-          </div>
-        </div>
-        <div class="form-grid">
-          <label>Nome da campanha<input name="name" required placeholder="Ex.: Gestão de Manutenção e Obras — Salvador"></label>
-          <label>Cidade / Região<input name="city" required placeholder="Ex.: Salvador e RMS, BA"></label>
-          <label>Nicho / Tipo de empresa<input name="niche" required placeholder="Ex.: Construtoras, Indústrias e Clínicas"></label>
-          <label>Limite diário de envios<select name="dailyLimit"><option value="10">10 envios/dia</option><option value="20" selected>20 envios/dia (recomendado)</option><option value="30">30 envios/dia</option><option value="50">50 envios/dia</option></select></label>
-          <label class="full">Sua oferta / O que você resolve<textarea name="offer" rows="2" required placeholder="Ex.: Controle de cronograma, dashboards em Power BI e organização de manutenção preventiva sem planilhas soltas."></textarea></label>
-        </div>
-        <div class="form-actions">
-          <button class="button" type="submit">Salvar campanha</button>
-          <button class="button button-ghost" type="button" id="cancel-campaign-btn">Cancelar</button>
-        </div>
-      </form>
-
-      <form id="lead-form" class="workspace-panel" style="margin-bottom:18px" hidden>
-        <div class="panel-heading">
-          <div>
-            <h2>Cadastrar ou importar empresa</h2>
-            <p>Adicione uma empresa encontrada no Google Maps, LinkedIn ou indicação local. O Radar calcula o score 0–100 e prepara o rascunho personalizado.</p>
-          </div>
-        </div>
-        <div class="form-grid">
-          <label>Nome da empresa<input name="name" required placeholder="Ex.: Engenharia & Obras Bahia Ltda"></label>
-          <label>Nicho / Segmento<input name="category" required placeholder="Ex.: Construtora / Incorporadora"></label>
-          <label>Cidade / Bairro<input name="city" required placeholder="Ex.: Caminho das Árvores, Salvador - BA"></label>
-          <label>Contato (E-mail ou WhatsApp)<input name="contact" placeholder="Ex.: contato@empresa.com.br ou (71) 99999-0000"></label>
-          <label>Site ou Instagram (opcional)<input name="website" placeholder="https://..."></label>
-          <label>Sinal de oportunidade observado<input name="signal" placeholder="Ex.: Contratando auxiliar de planejamento / controle manual"></label>
-        </div>
-        <div class="form-actions">
-          <button class="button" type="submit">Adicionar empresa e gerar mensagem</button>
-          <button class="button button-ghost" type="button" id="cancel-lead-btn">Cancelar</button>
-        </div>
-      </form>
-
-      <div class="search-bar-row">
-        <label class="search-field">
-          <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
-          <input id="lead-query" type="search" placeholder="Filtrar por nome, nicho ou cidade" aria-label="Filtrar empresas">
-        </label>
-      </div>
-      <div class="chips" id="lead-status-chips" role="group" aria-label="Filtrar clientes por status"></div>
-
-      <div class="split">
-        <div class="list-col">
-          <p class="list-count" id="leads-count">0 empresas</p>
-          <div id="leads-list" class="job-list" role="listbox" aria-label="Lista de empresas para prospecção"></div>
-        </div>
-        <article class="detail-col" id="leads-detail" tabindex="-1" aria-live="polite"></article>
-      </div>
-    </section>
-
-    <!-- ==================== 4. PUBLICAÇÕES (LINKEDIN) ==================== -->
+    <!-- ==================== 3. PUBLICAÇÕES (LINKEDIN) ==================== -->
     <section id="content" class="view" aria-labelledby="content-title">
       <div class="jobs-head">
         <div>
@@ -684,7 +607,7 @@
             <div class="panel-heading">
               <div>
                 <h2 id="base-title">Identificação, cargos e competências</h2>
-                <p>Esses campos alimentam o cabeçalho do painel, a avaliação de vagas e os geradores de clientes e posts.</p>
+                <p>Esses campos alimentam o cabeçalho do painel, a avaliação de vagas e o gerador de publicações.</p>
               </div>
             </div>
             <form id="profile-form" class="form-grid">
@@ -789,19 +712,20 @@
           </div>
         </section>
 
-        <!-- Conexão Supabase (Nuvem Multiusuário Opcional) -->
+        <!-- Conexão Supabase e Google OAuth (Nuvem Multiusuário Opcional) -->
         <section class="workspace-panel" aria-labelledby="supa-custom-title">
           <div class="panel-heading">
             <div>
-              <h2 id="supa-custom-title">Nuvem Supabase (Opcional)</h2>
-              <p>Se quiser sincronização automática em nuvem entre vários aparelhos via Supabase Auth, informe a URL e Anon Key do projeto (ou deixe em branco para usar o <code>RadarDynamicDB</code> integrado).</p>
+              <h2 id="supa-custom-title">Nuvem Supabase e Google OAuth (Opcional)</h2>
+              <p>Se quiser sincronização automática em nuvem ou login real com Google, informe as credenciais do Supabase ou um Google Client ID (OAuth) — ou deixe em branco para usar o <code>RadarDynamicDB</code> integrado.</p>
             </div>
           </div>
           <form id="supa-custom-form" class="form-grid">
             <label>Supabase Project URL<input name="url" type="url" placeholder="https://xyz.supabase.co"></label>
             <label>Supabase Anon Public Key<input name="anon" type="password" autocomplete="off" placeholder="eyJhbGciOi..."></label>
+            <label class="full">Google Client ID (OAuth Web — opcional)<input name="googleClientId" type="text" autocomplete="off" placeholder="1234567890-abc.apps.googleusercontent.com"></label>
             <div class="form-actions full">
-              <button class="button button-secondary" type="submit">Salvar conexão Supabase</button>
+              <button class="button button-secondary" type="submit">Salvar conexão OAuth / Supabase</button>
               <button class="button button-ghost" type="button" id="supa-clear-btn">Usar apenas Base Dinâmica Local</button>
               <span id="supa-saved-note" class="save-note"></span>
             </div>

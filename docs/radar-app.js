@@ -11,6 +11,7 @@
     ["todas","Todas"],
     ["novas","Novas"],
     ["pendentes","Para me candidatar"],
+    ["salvas","Salvas ★"],
     ["feitas","Me candidatei"],
     ["retorno","Com retorno"],
     ["erros","Fila de erros (vagas.com.br)"]
@@ -57,7 +58,7 @@
     name:"Novo Usuário",
     city:"Salvador, BA",
     regionCities:"salvador, lauro de freitas, camaçari, candeias, simões filho",
-    headline:"Painel personalizado de vagas, prospecção de clientes e publicações LinkedIn.",
+    headline:"Painel personalizado de vagas, currículo e publicações LinkedIn.",
     roles:"Gestão de projetos, Planejamento e controle, Manutenção, Dados e BI, Operações",
     acceptRemote:true,
     acceptHybrid:true,
@@ -93,7 +94,7 @@
     db:null,
     dbName:"RadarDynamicDB",
     version:1,
-    stores:["users","progress","profiles","leads","posts","stories","error_queue"],
+    stores:["users","progress","profiles","posts","stories","error_queue"],
     init(){
       return new Promise(resolve=>{
         if(!window.indexedDB){resolve(null);return}
@@ -169,10 +170,9 @@
   let profile=null;
   let f={status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"};
   let busca="";
-  let selectedJobId=null, selectedErrId=null, selectedLeadId=null, selectedPostId=null;
-  let leadFilter="Todos", leadQuery="", activeCampaignId="camp-default";
+  let selectedJobId=null, selectedErrId=null, selectedPostId=null;
   let postFilter="Todos";
-  let campaigns=[], leads=[], stories=[], posts=[];
+  let stories=[], posts=[];
   let lastModalTrigger=null, toastTimer=null;
 
   function lerGlobal(k,p){try{const v=localStorage.getItem(k);return v==null?p:JSON.parse(v)}catch(e){return p}}
@@ -214,7 +214,6 @@
           provider:usuario?.provider||"local",
           perfil:profile||{},
           estado:estado||{candidatei:{},salvas:{},descartadas:[]},
-          leads:leads||[],
           posts:posts||[],
           stories:stories||[],
           vagas_manuais:vagasManuais||[],
@@ -434,7 +433,9 @@
         _req:req,
         _scoreCalculado:scoreCalc,
         candidatei:!!estado.candidatei[v.id],
-        candidatei_em:estado.candidatei[v.id]||null
+        candidatei_em:estado.candidatei[v.id]||null,
+        salva:!!estado.salvas[v.id],
+        salva_em:estado.salvas[v.id]||null
       });
     }
     return [...mapa.values()];
@@ -563,6 +564,7 @@
     todas:()=>true,
     novas:v=>v.data===diaBusca(),
     pendentes:v=>!v.candidatei&&sc(v)>=70,
+    salvas:v=>v.salva,
     feitas:v=>v.candidatei,
     retorno:v=>!!v.retorno,
     erros:()=>false
@@ -726,6 +728,17 @@
 
     desenharFontes();
     if($("limpar"))$("limpar").hidden=!(f.fonte||f.area||f.mod||f.score!=="0"||f.status!=="todas"||busca);
+    if($("btn-clear-busca"))$("btn-clear-busca").hidden=!busca;
+    const qfMap={
+      "qf-score80":f.score==="80",
+      "qf-remoto":f.mod==="Remoto",
+      "qf-salvas":f.status==="salvas",
+      "qf-novas":f.status==="novas"
+    };
+    for(const[qid,on]of Object.entries(qfMap)){
+      const qb=$(qid);
+      if(qb){qb.classList.toggle("active",on);qb.setAttribute("aria-pressed",String(on))}
+    }
     atualizarImpactoPerfil(vs);
   }
 
@@ -820,6 +833,39 @@
       }
     };
 
+    const txtSalva=cv=>cv.salva?"★ Salva":"☆ Salvar";
+    const bs=el("button","save-btn",txtSalva(v));
+    bs.type="button";
+    bs.title="Salvar ou remover dos favoritos (atalho S)";
+    bs.setAttribute("aria-pressed",String(!!v.salva));
+    bs.onclick=async e=>{
+      e.stopPropagation();
+      bs.disabled=true;
+      const copia=JSON.stringify(estado),salvar=!v.salva;
+      try{
+        await mudar((salvar?"Salvar vaga: ":"Remover salva: ")+v.titulo,est=>{
+          if(!est.salvas||typeof est.salvas!=="object")est.salvas={};
+          if(salvar)est.salvas[v.id]=hoje();else delete est.salvas[v.id];
+        },v.id);
+        v.salva=salvar;v.salva_em=estado.salvas[v.id]||null;
+        const vs=visiveis();
+        atualizarResumoControles(vs);
+        desenharVisaoGeral(vs);
+        if(passa(v,false)){
+          bs.setAttribute("aria-pressed",String(!!v.salva));
+          bs.textContent=txtSalva(v);
+          bs.disabled=false;
+          if(selectedJobId===v.id)desenharDetalheVaga(false);
+        }else{
+          removerCardComFoco(art,".save-btn");
+        }
+        showToast(salvar?"Vaga salva nos seus favoritos!":"Removida das vagas salvas.");
+        anunciarAcao(salvar?`Vaga salva: ${v.titulo}.`:`Vaga removida das salvas: ${v.titulo}.`);
+      }catch(err){
+        estado=JSON.parse(copia);bs.disabled=false;bs.textContent=txtSalva(v);
+      }
+    };
+
     const bd=el("button","desc","Descartar");
     bd.type="button";
     let armado=false;
@@ -846,7 +892,7 @@
       }
     };
 
-    ac.append(bc,bd);
+    ac.append(bc,bs,bd);
     art.append(ac,msgAcao);
 
     art.addEventListener("click",e=>{
@@ -926,6 +972,9 @@
           <button class="button button-secondary" type="button" data-detail-cand="${escapeHtml(v.id)}" aria-pressed="${v.candidatei}">
             ${v.candidatei?`Me candidatei${v.candidatei_em?" ("+dataCurta(v.candidatei_em)+")":""}`:"Marcar que me candidatei"}
           </button>
+          <button class="button button-secondary" type="button" data-detail-save="${escapeHtml(v.id)}" aria-pressed="${!!v.salva}">
+            ${v.salva?"★ Salva":"☆ Salvar vaga"}
+          </button>
           <button class="button button-ghost danger" type="button" data-detail-desc="${escapeHtml(v.id)}">Descartar vaga</button>
         </div>
       </header>
@@ -963,6 +1012,15 @@
         const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .cand`);
         if(cardBtn)cardBtn.click();
         if(root.id==="mobile-drawer-body")closeModal();
+      });
+      qs("[data-detail-save]",root)?.addEventListener("click",()=>{
+        const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .save-btn`);
+        if(cardBtn)cardBtn.click();
+        if(root.id==="mobile-drawer-body"){
+          const btn=qs("[data-detail-save]",root);
+          const prox=!v.salva;
+          if(btn){btn.setAttribute("aria-pressed",String(prox));btn.textContent=prox?"★ Salva":"☆ Salvar vaga"}
+        }
       });
       qs("[data-detail-desc]",root)?.addEventListener("click",()=>{
         const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .desc`);
@@ -1265,7 +1323,6 @@
     const boas=vs.filter(v=>!v.candidatei&&sc(v)>=70);
     const feitas=vs.filter(v=>v.candidatei);
     const erros=obterFilaErrosAtiva();
-    const leadsNovos=leads.filter(l=>l.status==="Preparado");
     const postsRascunho=posts.filter(p=>p.status==="Rascunho");
 
     if(M){
@@ -1279,11 +1336,6 @@
           <span class="module-title">Fila Vagas.com.br</span>
           <span class="module-n">${erros.length}</span>
           <span class="module-line">${erros.length?"Erros aguardando revisão":"Nenhuma falha pendente"}</span>
-        </button>
-        <button class="module" type="button" data-view="leads">
-          <span class="module-title">Clientes / Prospecção</span>
-          <span class="module-n">${leadsNovos.length}</span>
-          <span class="module-line">${leads.length} empresa${leads.length===1?"":"s"} mapeada${leads.length===1?"":"s"}</span>
         </button>
         <button class="module" type="button" data-view="content">
           <span class="module-title">Publicações LinkedIn</span>
@@ -1343,22 +1395,6 @@
       `).join("")||`<div class="empty"><strong>Sem pautas</strong><span>Gere pautas na aba Publicações.</span></div>`;
     }
 
-    const OLD=$("overview-leads");
-    if(OLD){
-      OLD.innerHTML=leads.slice(0,3).map(l=>`
-        <button class="rec" type="button" data-open-lead="${escapeHtml(l.id)}">
-          <span class="rec-main">
-            <strong>${escapeHtml(l.name)}</strong>
-            <span>${escapeHtml(l.category)} · ${escapeHtml(l.city)}</span>
-          </span>
-          <span class="rec-side">
-            <span class="score ${l.score>=75?"boa":l.score>=55?"possivel":"baixa"}">${l.score}</span>
-            <span class="selo">${escapeHtml(l.status)}</span>
-          </span>
-        </button>
-      `).join("")||`<div class="empty"><strong>Nenhuma empresa cadastrada</strong><span>Abra a aba Clientes para prospectar.</span></div>`;
-    }
-
     const SG=$("summary-grid");
     if(SG){
       const fs=Object.entries(meta.fontes||{});
@@ -1371,246 +1407,6 @@
         <div><dt>No painel ativo</dt><dd>${vs.length}</dd></div>
         <div><dt>Fila de erros Vagas.com.br</dt><dd>${erros.length}</dd></div>
       `;
-    }
-  }
-
-  // ==================== MÓDULO CLIENTES / PROSPECÇÃO ====================
-  const LEAD_STATUSES=["Todos","Preparado","Enviado","Retorno 4 dias","Não quer contato"];
-
-  function carregarClientesUsuario(){
-    const defCampaigns=[{
-      id:"camp-default",
-      name:`Consultoria & Projetos — ${profile?.city||"Salvador e Região"}`,
-      city:profile?.city||"Salvador e RMS, BA",
-      niche:"Construtoras, Indústrias e Empresas de Engenharia",
-      dailyLimit:20,
-      offer:`Apoio em planejamento físico-financeiro, controle de cronograma (MS Project / Power BI) e organização de manutenção (PCM/SAP).`
-    }];
-    const loadedCampaigns=lerUser("campaigns",defCampaigns);
-    campaigns=Array.isArray(loadedCampaigns)&&loadedCampaigns.length?loadedCampaigns:defCampaigns;
-    activeCampaignId=campaigns[0].id;
-
-    const defLeads=[
-      {
-        id:"lead-seed-1",
-        campaignId:"camp-default",
-        name:"Construtora & Incorporadora Litoral Norte",
-        category:"Construção Civil e Obras",
-        city:profile?.city||"Salvador, BA",
-        contact:"contato@litoralnorteeng.com.br",
-        website:"https://litoralnorteeng.com.br",
-        score:86,
-        reasons:[
-          "Múltiplas obras simultâneas na região configurada com demanda de controle físico-financeiro",
-          "Sinal observado: contratando equipe de acompanhamento de obras e relatórios em Excel/Power BI",
-          "Alta aderência às competências do seu perfil ("+(listaSkillsPerfil().slice(0,3).join(", ")||"Planejamento")+")"
-        ],
-        status:"Preparado",
-        sentAt:null,
-        followUpDate:null,
-        draft:`Olá, equipe da Construtora Litoral Norte! Tudo bem?\n\nSou ${profile?.name||"especialista em planejamento"}, atuo em ${profile?.city||"Salvador"} com planejamento e controle de obras (${listaSkillsPerfil().slice(0,3).join(", ")||"MS Project e Power BI"}).\n\nVi que vocês estão expandindo operações na região e desenvolvi um modelo prático de acompanhamento de cronograma e curva S que reduz o retrabalho de consolidação semanal, mantendo total controle técnico com a engenharia.\n\nSe fizer sentido, posso compartilhar uma demonstração rápida sem compromisso. Caso prefiram não receber novos contatos, basta me avisar por aqui.\n\nAbraço,\n${profile?.name||""}`
-      },
-      {
-        id:"lead-seed-2",
-        campaignId:"camp-default",
-        name:"Polo Manutenção Industrial Bahia",
-        category:"Manutenção e Serviços Industriais",
-        city:"Camaçari / Salvador, BA",
-        contact:"comercial@polomanutencao.com.br",
-        website:"",
-        score:79,
-        reasons:[
-          "Atuação direta em contratos de manutenção preventiva e paradas programadas",
-          "Oportunidade de padronização de indicadores de backlog e disponibilidade (PCM)",
-          "Forte alinhamento com o portfólio técnico do usuário ativo"
-        ],
-        status:"Retorno 4 dias",
-        sentAt:hoje(),
-        followUpDate:new Date(Date.now()+4*86400000).toISOString().slice(0,10),
-        draft:`Olá! Aqui é ${profile?.name||""}.\n\nTrabalho com estruturação de PCM, indicadores em Power BI e controle de contratos de manutenção em ${profile?.city||"Salvador e RMS"}.\n\nPreparei um fluxo enxuto para controle de ordens de serviço e carteira de manutenção que ajuda equipes técnicas a prever desvios de prazo e custo.\n\nPodemos conversar 10 minutos esta semana?`
-      }
-    ];
-    const loadedLeads=lerUser("leads",defLeads);
-    leads=Array.isArray(loadedLeads)?loadedLeads:defLeads;
-    desenharClientes();
-  }
-
-  async function salvarClientes(){
-    gravarUser("campaigns",campaigns);
-    gravarUser("leads",leads);
-    if(sb&&usuario&&usuario.isSupabase){
-      try{
-        await sb.from("clientes_leads").upsert(leads.map(l=>({
-          user_id:usuario.id,
-          id:l.id,
-          campanha_id:l.campaignId,
-          nome:l.name,
-          nicho:l.category,
-          cidade:l.city,
-          email:l.contact&&l.contact.includes("@")?l.contact:null,
-          telefone:l.contact&&!l.contact.includes("@")?l.contact:null,
-          site:l.website||null,
-          score:l.score,
-          status:l.status,
-          sinais:l.reasons||[],
-          mensagem:l.draft||"",
-          dados:{sentAt:l.sentAt,followUpDate:l.followUpDate,campaigns},
-          atualizado_em:new Date().toISOString()
-        })));
-      }catch(e){}
-    }
-    if($("nav-leads"))$("nav-leads").textContent=leads.filter(l=>l.status==="Preparado"||l.status==="Retorno 4 dias").length;
-  }
-
-  function desenharClientes(openMobileDrawer=false){
-    const selCamp=$("campaign-select");
-    if(selCamp){
-      selCamp.innerHTML=campaigns.map(c=>`<option value="${escapeHtml(c.id)}" ${c.id===activeCampaignId?"selected":""}>${escapeHtml(c.name)}</option>`).join("");
-    }
-    const camp=campaigns.find(c=>c.id===activeCampaignId)||campaigns[0];
-    const enviadosHoje=leads.filter(l=>l.sentAt===hoje()).length;
-    const limite=Number(camp?.dailyLimit||20);
-
-    if($("leads-summary-strip")){
-      $("leads-summary-strip").innerHTML=`
-        <div><span class="kicker">Campanha ativa</span><strong>${escapeHtml(camp?.name||"Padrão")}</strong><span class="muted small">${escapeHtml(camp?.city||"")}</span></div>
-        <div><span class="kicker">Limite diário de envios</span><strong>${enviadosHoje} / ${limite} hoje</strong><span class="muted small">Proteção anti-spam ativa</span></div>
-        <div><span class="kicker">Para contatar</span><strong>${leads.filter(l=>l.status==="Preparado").length}</strong><span class="muted small">Com 1ª mensagem pronta</span></div>
-        <div><span class="kicker">Retorno 4 dias</span><strong>${leads.filter(l=>l.status==="Retorno 4 dias").length}</strong><span class="muted small">Acompanhamento agendado</span></div>
-      `;
-    }
-
-    const chipsBox=$("lead-status-chips");
-    if(chipsBox){
-      chipsBox.innerHTML=LEAD_STATUSES.map(st=>{
-        const qtd=st==="Todos"?leads.length:leads.filter(l=>l.status===st).length;
-        const on=leadFilter===st;
-        return `<button type="button" class="chip ${on?"active":""}" data-lead-st="${escapeHtml(st)}" aria-pressed="${on}">${escapeHtml(st)} <span>${qtd}</span></button>`;
-      }).join("");
-    }
-
-    const q=semAcento(leadQuery.trim());
-    const filtrados=leads.filter(l=>{
-      if(leadFilter!=="Todos"&&l.status!==leadFilter)return false;
-      return !q||semAcento(`${l.name} ${l.category} ${l.city} ${(l.reasons||[]).join(" ")}`).includes(q);
-    });
-
-    if($("leads-count"))$("leads-count").textContent=`${filtrados.length} ${filtrados.length===1?"empresa":"empresas"}`;
-    if($("nav-leads"))$("nav-leads").textContent=leads.filter(l=>l.status==="Preparado"||l.status==="Retorno 4 dias").length;
-
-    const L=$("leads-list");
-    if(L){
-      if(!filtrados.length){
-        L.innerHTML=`<div class="empty"><strong>Nenhuma empresa neste filtro</strong><span>Cadastre uma empresa ou troque o chip de status acima.</span></div>`;
-      }else{
-        if(!filtrados.some(x=>x.id===selectedLeadId))selectedLeadId=filtrados[0].id;
-        L.innerHTML=filtrados.map(l=>{
-          const sel=l.id===selectedLeadId;
-          const cls=l.score>=75?"boa":l.score>=55?"possivel":"baixa";
-          const stCls=l.status==="Enviado"?"ok":l.status==="Retorno 4 dias"?"sumiu":l.status==="Não quer contato"?"erro":"area";
-          return `
-            <article class="job-item ${sel?"selected":""}" data-lead-id="${escapeHtml(l.id)}" tabindex="0" role="option" aria-selected="${sel}">
-              <div class="job-item-top">
-                <h3>${escapeHtml(l.name)}</h3>
-                <span class="score ${cls}" title="Score de oportunidade">${l.score}</span>
-              </div>
-              <p class="job-co">${escapeHtml(l.category)} · ${escapeHtml(l.city)}</p>
-              <p class="job-loc">${escapeHtml((l.reasons&&l.reasons[0])||"Oportunidade mapeada")}</p>
-              <div class="job-foot">
-                <span class="selo ${stCls}">${escapeHtml(l.status)}</span>
-                ${l.contact?`<span>${escapeHtml(l.contact)}</span>`:""}
-              </div>
-            </article>
-          `;
-        }).join("");
-      }
-    }
-    desenharDetalheCliente(openMobileDrawer);
-  }
-
-  function desenharDetalheCliente(openMobileDrawer=false){
-    const D=$("leads-detail");if(!D)return;
-    const l=leads.find(x=>x.id===selectedLeadId)||leads[0];
-    if(!l){
-      D.innerHTML=`<div class="empty"><strong>Selecione ou cadastre uma empresa</strong><span>Os motivos do score 0–100 e o rascunho da 1ª mensagem aparecem aqui.</span></div>`;
-      return;
-    }
-    selectedLeadId=l.id;
-    const camp=campaigns.find(c=>c.id===activeCampaignId)||campaigns[0];
-    const enviadosHoje=leads.filter(x=>x.sentAt===hoje()).length;
-    const limite=Number(camp?.dailyLimit||20);
-
-    D.innerHTML=`
-      <header class="d-head">
-        <p class="d-co">${escapeHtml(l.category)} · ${escapeHtml(l.city)}</p>
-        <h2 id="modal-title">${escapeHtml(l.name)}</h2>
-        <div class="d-fit">
-          <span class="score ${l.score>=75?"boa":l.score>=55?"possivel":"baixa"}">Score ${l.score}/100</span>
-          <span class="selo area">Status: ${escapeHtml(l.status)}</span>
-          ${l.contact?`<span class="selo">${escapeHtml(l.contact)}</span>`:""}
-          ${l.followUpDate?`<span class="selo sumiu">Retorno agendado: ${escapeHtml(dataCurta(l.followUpDate))}</span>`:""}
-        </div>
-        <div class="d-actions">
-          <button class="button" type="button" data-lead-set-status="Enviado" ${enviadosHoje>=limite&&l.status!=="Enviado"?"disabled":""}>
-            <svg class="i" aria-hidden="true"><use href="#i-check"/></svg> Marcar como Enviado
-          </button>
-          <button class="button button-secondary" type="button" data-lead-set-status="Retorno 4 dias">Agendar Retorno 4 dias</button>
-          <button class="button button-secondary" type="button" data-lead-set-status="Preparado">Voltar p/ Preparado</button>
-          <button class="button button-ghost danger" type="button" data-lead-set-status="Não quer contato">Não quer contato</button>
-        </div>
-      </header>
-
-      <section class="d-section">
-        <h3>Por que esta empresa recebeu score ${l.score}/100</h3>
-        <ul class="checks">
-          ${(l.reasons||[]).map(r=>`<li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span>${escapeHtml(r)}</span></li>`).join("")}
-        </ul>
-      </section>
-
-      <section class="d-section">
-        <h3>Rascunho editável da 1ª mensagem</h3>
-        <textarea data-lead-draft-input class="msg-box" rows="8">${escapeHtml(l.draft||"")}</textarea>
-        <div class="row-actions">
-          <button class="button button-secondary" type="button" data-save-lead-draft>Salvar rascunho</button>
-          <button class="button button-secondary" type="button" data-copy-lead-draft><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar mensagem</button>
-          ${l.contact&&l.contact.includes("@")?`<a class="button button-ghost" href="mailto:${encodeURIComponent(l.contact)}?subject=${encodeURIComponent("Contato profissional — "+(profile?.name||"Radar"))}&body=${encodeURIComponent(l.draft||"")}">Abrir no e-mail ↗</a>`:""}
-        </div>
-      </section>
-    `;
-
-    const bindLeadActions=root=>{
-      qsa("[data-lead-set-status]",root).forEach(btn=>{
-        btn.addEventListener("click",()=>{
-          const novo=btn.dataset.leadSetStatus;
-          l.status=novo;
-          if(novo==="Enviado"){
-            l.sentAt=hoje();
-            l.followUpDate=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
-          }else if(novo==="Retorno 4 dias"){
-            l.followUpDate=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
-          }
-          salvarClientes();
-          desenharClientes(false);
-          desenharVisaoGeral(visiveis());
-          if(root.id==="mobile-drawer-body")closeModal();
-          showToast(`Status de ${l.name} salvo na sua base dinâmica: "${novo}".`);
-        });
-      });
-      qs("[data-save-lead-draft]",root)?.addEventListener("click",()=>{
-        const ta=qs("[data-lead-draft-input]",root);
-        if(ta)l.draft=ta.value;
-        salvarClientes();
-        showToast("Rascunho salvo na base dinâmica.");
-      });
-      qs("[data-copy-lead-draft]",root)?.addEventListener("click",()=>{
-        const txt=qs("[data-lead-draft-input]",root)?.value||"";
-        navigator.clipboard?.writeText(txt).then(()=>showToast("Mensagem copiada!"));
-      });
-    };
-    bindLeadActions(D);
-
-    if(openMobileDrawer&&isMobileViewport()){
-      abrirGavetaMobileDoPainel(D,bindLeadActions);
     }
   }
 
@@ -2013,15 +1809,32 @@
   window.openModal=abrirModalHtml;
   window.closeModal=closeModal;
 
+  function abrirModalManualUso(){
+    abrirModalHtml(`
+      <h2 id="modal-title">Manual de uso do Radar</h2>
+      <p class="muted" style="margin-top:6px">Guia rápido para configurar seu currículo, filtrar vagas e salvar seu progresso sem precisar de Token do GitHub.</p>
+      <ol class="steps" style="margin-top:16px">
+        <li><strong>1. Configure seu currículo (Meu perfil):</strong> Informe sua cidade, modalidades aceitas (Remoto, Híbrido, Presencial) e suas competências. Todas as vagas são recalculadas na hora.</li>
+        <li><strong>2. Busque e use filtros rápidos:</strong> Na aba <strong>Vagas</strong>, use a busca ou os atalhos <em>Score 80+</em>, <em>Remoto</em>, <em>Salvas ★</em> e <em>Novas hoje</em>. Clique em <strong>☆ Salvar</strong> para favoritar vagas importantes.</li>
+        <li><strong>3. Atalhos de teclado (PC):</strong> Pressione <kbd>/</kbd> para focar a busca, <kbd>↑</kbd>/<kbd>↓</kbd> ou <kbd>J</kbd>/<kbd>K</kbd> para navegar na lista, <kbd>S</kbd> para salvar a vaga selecionada e <kbd>Esc</kbd> para fechar janelas.</li>
+        <li><strong>4. Marque candidaturas e descarte:</strong> Use <em>Marcar que me candidatei</em> para acompanhar seu funil ou <em>Descartar</em> (duplo clique de confirmação) para limpar a lista.</li>
+        <li><strong>5. Sincronize Celular ↔ PC:</strong> Em <strong>Configurações</strong>, gere um <em>Código de Sincronização</em> ou baixe o backup <code>.json</code> para levar seus dados para outro aparelho.</li>
+      </ol>
+      <div class="form-actions" style="margin-top:16px">
+        <button class="button" type="button" onclick="window.closeModal()">Entendi</button>
+      </div>
+    `,true);
+  }
+
   function abrirModalConvidarAmigos(){
     const urlCompartilhar=location.origin+location.pathname;
     abrirModalHtml(`
       <h2 id="modal-title">Convidar e Compartilhar com Amigos</h2>
-      <p class="muted" style="margin-top:6px">O Radar tem <strong>Base de Dados Dinâmica por Pessoa</strong>. Qualquer amigo pode entrar com Google ou criar seu acesso gratuito sem precisar de Token do GitHub.</p>
+      <p class="muted" style="margin-top:6px">O Radar tem <strong>Base de Dados Dinâmica por Pessoa</strong>. Qualquer amigo pode criar seu acesso gratuito sem precisar de Token do GitHub.</p>
       <ol class="steps" style="margin-top:16px">
-        <li><strong>Login individual:</strong> Seu amigo clica em <em>Continuar com Google</em> ou <em>Criar acesso</em>. O sistema cria uma base exclusiva para ele no navegador/nuvem.</li>
+        <li><strong>Login individual:</strong> Seu amigo clica em <em>Criar acesso</em> (ou entra com Google quando configurado). O sistema cria uma base exclusiva para ele no navegador/nuvem.</li>
         <li><strong>Currículo e Cidade:</strong> Na aba <strong>Meu perfil</strong>, ele preenche o próprio Nome, Cidade/UF, Áreas e Competências.</li>
-        <li><strong>Zero mistura de dados:</strong> As candidaturas, descartes, clientes e publicações ficam 100% isolados na conta dele.</li>
+        <li><strong>Zero mistura de dados:</strong> As candidaturas, vagas salvas, descartes e publicações ficam 100% isolados na conta dele.</li>
       </ol>
       <div class="workspace-panel" style="padding:14px;background:var(--subtle);margin-top:14px">
         <label>Link direto do Radar para enviar no WhatsApp ou LinkedIn
@@ -2034,7 +1847,7 @@
       </div>
     `);
     $("btn-copy-share-url")?.addEventListener("click",()=>{
-      const msg=`Olha esse painel gratuito para acompanhar vagas (com score pelo currículo), clientes e posts do LinkedIn: ${urlCompartilhar} — Entre com sua conta Google e configure seus cargos e currículo em "Meu perfil"!`;
+      const msg=`Olha esse painel gratuito para acompanhar vagas (com score pelo currículo) e posts do LinkedIn: ${urlCompartilhar} — Crie seu acesso e configure seus cargos e currículo em "Meu perfil"!`;
       navigator.clipboard?.writeText(msg).then(()=>showToast("Convite copiado para enviar aos amigos!"));
     });
     $("btn-new-friend-now")?.addEventListener("click",()=>{
@@ -2053,8 +1866,6 @@
       estado,
       vagasManuais,
       filaErrosLocal,
-      campaigns,
-      leads,
       stories,
       posts
     };
@@ -2065,7 +1876,7 @@
     const codigo=gerarCodigoSincronizacao();
     abrirModalHtml(`
       <h2 id="modal-title">Código de Sincronização (Celular ↔ PC)</h2>
-      <p class="muted" style="margin-top:6px">Transfira todo o seu progresso (candidaturas, descartes, currículo, clientes e posts) entre o computador e o telefone celular <strong>sem precisar de Token do GitHub</strong>:</p>
+      <p class="muted" style="margin-top:6px">Transfira todo o seu progresso (candidaturas, vagas salvas, descartes, currículo e posts) entre o computador e o telefone celular <strong>sem precisar de Token do GitHub</strong>:</p>
       <div class="settings-stack" style="margin-top:14px">
         <div class="workspace-panel" style="padding:14px;background:var(--subtle)">
           <label>1. Copiar código deste aparelho (${escapeHtml(profile?.name||activeNamespace)})
@@ -2096,12 +1907,10 @@
         if(data.profile){profile=data.profile;gravarUser("profiles",profile)}
         if(data.estado){estado=data.estado;gravarUser("progress",estado)}
         if(Array.isArray(data.vagasManuais)){vagasManuais=data.vagasManuais;gravarUser("vagas-manuais",vagasManuais)}
-        if(Array.isArray(data.leads)){leads=data.leads;gravarUser("leads",leads)}
         if(Array.isArray(data.posts)){posts=data.posts;gravarUser("posts",posts)}
         if(Array.isArray(data.stories)){stories=data.stories;gravarUser("stories",stories)}
         preencherFormularioPerfil();
         sincronizarCabecalhoPerfil();
-        desenharClientes(false);
         desenharPublicacoes(false);
         render();
         closeModal();
@@ -2109,74 +1918,6 @@
       }catch(err){
         showToast("Código inválido. Verifique se copiou o texto completo.");
       }
-    });
-  }
-
-  // Modal Seletor de Conta Google ("Escolha uma conta para continuar no Radar")
-  function abrirSeletorContaGoogle(){
-    const contas=Object.values(listarContasLocais());
-    abrirModalHtml(`
-      <div class="google-chooser">
-        <div class="google-chooser-head">
-          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>
-          <span>Fazer login com o Google</span>
-        </div>
-        <h2 id="modal-title" style="font-size:21px">Escolha uma conta</h2>
-        <p class="muted small" style="margin-top:2px">para continuar no <strong>Radar · Painel de Vagas</strong> com sua base dinâmica individual</p>
-
-        <div class="google-account-list">
-          ${contas.map(c=>`
-            <button type="button" class="google-acc-btn" data-pick-google="${escapeHtml(c.email||c.username)}">
-              <span class="avatar">${escapeHtml(iniciaisDe(c.name||c.email))}</span>
-              <span>
-                <strong>${escapeHtml(c.name||c.username)}</strong>
-                <small>${escapeHtml(c.email||`${c.username}@gmail.com`)}</small>
-              </span>
-            </button>
-          `).join("")}
-        </div>
-
-        <form id="form-google-custom" class="compact-form form-grid">
-          <div class="full"><strong>Usar outra conta Google</strong></div>
-          <label class="full">Seu nome completo
-            <input name="name" type="text" required placeholder="Ex.: Lucas Ferreira">
-          </label>
-          <label class="full">Seu e-mail do Google (Gmail)
-            <input name="email" type="email" required placeholder="seuemail@gmail.com">
-          </label>
-          <div class="form-actions full">
-            <button class="button button-block" type="submit">Continuar com esta conta Google</button>
-          </div>
-        </form>
-      </div>
-    `,true);
-
-    qsa("[data-pick-google]").forEach(btn=>{
-      btn.addEventListener("click",async()=>{
-        const key=btn.dataset.pickGoogle.toLowerCase();
-        const c=listarContasLocais()[key];
-        if(c){
-          closeModal();
-          await autenticarSessaoPessoa({
-            userId:c.userId||`google-${slug(c.email)}`,
-            email:c.email,
-            name:c.name,
-            provider:"google"
-          },true);
-        }
-      });
-    });
-
-    $("form-google-custom")?.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const fd=new FormData(e.target);
-      const name=String(fd.get("name")||"").trim();
-      const email=String(fd.get("email")||"").trim().toLowerCase();
-      if(!name||!email)return;
-      const userId=email==="engerickgoncalves@gmail.com"?"erick":`google-${slug(email)}`;
-      const conta=registrarContaNoAparelho({userId,username:email.split("@")[0],email,name,provider:"google"});
-      closeModal();
-      await autenticarSessaoPessoa(conta,true);
     });
   }
 
@@ -2280,13 +2021,28 @@
   }
 
   // ==================== AUTENTICAÇÃO E SESSÃO DINÂMICA POR PESSOA ====================
-  function carregarScript(src){
+  function carregarScript(src,checkFn){
     return new Promise((ok,erro)=>{
-      if(window.supabase)return ok();
+      if(typeof checkFn==="function"?checkFn():window.supabase)return ok();
+      const existing=document.querySelector(`script[src="${src}"]`);
+      if(existing){existing.addEventListener("load",ok,{once:true});existing.addEventListener("error",erro,{once:true});return}
       const s=document.createElement("script");
-      s.src=src;s.onload=ok;s.onerror=erro;
+      s.src=src;s.async=true;s.defer=true;s.onload=ok;s.onerror=erro;
       document.head.append(s);
     });
+  }
+
+  function obterGoogleClientId(){
+    const salvo=lerGlobal("google-client-id","");
+    return String(salvo||window.SUPABASE?.googleClientId||"").trim();
+  }
+
+  function decodificarJwtGoogle(tokenJwt){
+    const parts=String(tokenJwt||"").split(".");
+    if(parts.length!==3)throw new Error("Token JWT inválido");
+    const b64Url=parts[1].replace(/-/g,"+").replace(/_/g,"/");
+    const json=decodeURIComponent(atob(b64Url).split("").map(c=>"%"+("00"+c.charCodeAt(0).toString(16)).slice(-2)).join(""));
+    return JSON.parse(json);
   }
 
   function atualizarUIAutenticacao(){
@@ -2323,7 +2079,6 @@
         if(remotoConta){
           if(remotoConta.perfil&&Object.keys(remotoConta.perfil).length&&!lerUser("profiles",null))RadarDynamicDB.put("profiles",activeNamespace,remotoConta.perfil);
           if(remotoConta.estado&&!lerUser("progress",null))RadarDynamicDB.put("progress",activeNamespace,remotoConta.estado);
-          if(Array.isArray(remotoConta.leads)&&remotoConta.leads.length&&!lerUser("leads",null))RadarDynamicDB.put("leads",activeNamespace,remotoConta.leads);
           if(Array.isArray(remotoConta.posts)&&remotoConta.posts.length&&!lerUser("posts",null))RadarDynamicDB.put("posts",activeNamespace,remotoConta.posts);
           if(Array.isArray(remotoConta.stories)&&remotoConta.stories.length&&!lerUser("stories",null))RadarDynamicDB.put("stories",activeNamespace,remotoConta.stories);
         }
@@ -2359,7 +2114,6 @@
     if(location.hash==="#login")history.replaceState(null,"",location.pathname+location.search);
 
     atualizarUIAutenticacao();
-    carregarClientesUsuario();
     carregarPostsUsuario();
     render();
     showToast(`Bem-vindo(a), ${profile?.name||usuario.name}! Base dinâmica sincronizada.`);
@@ -2411,10 +2165,15 @@
       // Sem sessão ativa ou hash #login: mostra a Tela de Login como porta de entrada
       activeNamespace="guest";
       carregarPerfilUsuario();
-      carregarClientesUsuario();
       carregarPostsUsuario();
       render();
       if($("login"))$("login").hidden=false;
+    }
+    const supaForm=$("supa-custom-form");
+    if(supaForm){
+      if(customSupa?.url)supaForm.elements.url.value=customSupa.url;
+      const gcid=obterGoogleClientId();
+      if(gcid&&supaForm.elements.googleClientId)supaForm.elements.googleClientId.value=gcid;
     }
   }
 
@@ -2487,16 +2246,63 @@
   }
   $("form-setup")?.addEventListener("input",validarRegrasSenha);
 
-  // Botão "Continuar com Google" (#entrar) — Nunca bloqueia: usa Supabase OAuth, GIS ou o Seletor Google Instantâneo
+  // Botão "Continuar com Google" (#entrar) — Apenas OAuth real (Supabase OAuth ou Google Identity Services)
   $("entrar")?.addEventListener("click",async()=>{
     exibirMsgLogin("");
     if(sb){
       try{
-        await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
+        const{error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
+        if(error)throw error;
         return;
-      }catch(e){}
+      }catch(e){
+        exibirMsgLogin("Não foi possível iniciar o login com Google via Supabase. Verifique a configuração OAuth ou use Criar acesso.","bad");
+        return;
+      }
     }
-    abrirSeletorContaGoogle();
+    const googleClientId=obterGoogleClientId();
+    if(googleClientId){
+      const btn=$("entrar");
+      if(btn)btn.disabled=true;
+      try{
+        await carregarScript("https://accounts.google.com/gsi/client",()=>!!window.google?.accounts?.id);
+        window.google.accounts.id.initialize({
+          client_id:googleClientId,
+          callback:async resp=>{
+            try{
+              const payload=decodificarJwtGoogle(resp?.credential);
+              const validIss=payload.iss==="https://accounts.google.com"||payload.iss==="accounts.google.com";
+              if(!validIss||payload.aud!==googleClientId||!payload.email_verified||!payload.email||(payload.exp*1000<=Date.now())){
+                exibirMsgLogin("Credencial Google inválida ou expirada. Tente novamente.","bad");
+                return;
+              }
+              const email=String(payload.email).toLowerCase();
+              const userId=email==="engerickgoncalves@gmail.com"?"erick":`google-${payload.sub||slug(email)}`;
+              const conta=registrarContaNoAparelho({
+                userId,
+                username:email.split("@")[0],
+                email,
+                name:payload.name||email.split("@")[0],
+                provider:"google"
+              });
+              await autenticarSessaoPessoa(conta,true);
+            }catch(err){
+              exibirMsgLogin("Falha ao validar o token retornado pelo Google.","bad");
+            }
+          }
+        });
+        window.google.accounts.id.prompt(notification=>{
+          if(notification.isNotDisplayed()||notification.isSkippedMoment()){
+            exibirMsgLogin("O prompt do Google foi bloqueado pelo navegador. Permita popups/cookies de terceiros ou use Criar acesso com usuário e senha.","warn");
+          }
+        });
+      }catch(e){
+        exibirMsgLogin("Não foi possível carregar o Google Identity Services. Verifique sua conexão ou use Criar acesso.","bad");
+      }finally{
+        if(btn)btn.disabled=false;
+      }
+      return;
+    }
+    exibirMsgLogin('A autenticação real com Google exige configurar o Supabase OAuth ou um Google Client ID nas Configurações. Enquanto isso, use a aba "Criar acesso" (usuário e senha SHA-256) ou "Continuar como convidado".',"warn");
   });
 
   // Formulário "Entrar" (#auth-email-form) com controle de bloqueio após 5 tentativas erradas
@@ -2659,28 +2465,10 @@
       if(isMobileViewport())desenharDetalheErro(true);
       return;
     }
-    const openLead=e.target.closest("[data-open-lead]");
-    if(openLead){
-      selectedLeadId=openLead.dataset.openLead;
-      setView("leads");desenharClientes(isMobileViewport());
-      return;
-    }
     const openPost=e.target.closest("[data-open-post]");
     if(openPost){
       selectedPostId=openPost.dataset.openPost;
       setView("content");desenharPublicacoes(isMobileViewport());
-      return;
-    }
-    const leadCard=e.target.closest("[data-lead-id]");
-    if(leadCard){
-      selectedLeadId=leadCard.dataset.leadId;
-      desenharClientes(isMobileViewport());
-      return;
-    }
-    const leadSt=e.target.closest("[data-lead-st]");
-    if(leadSt){
-      leadFilter=leadSt.dataset.leadSt;
-      desenharClientes(false);
       return;
     }
     const postCard=e.target.closest("[data-post-id]");
@@ -2701,6 +2489,7 @@
     f.status="erros";salvarFiltros();setView("jobs");render();
   });
 
+  $("btn-open-manual")?.addEventListener("click",abrirModalManualUso);
   for(const id of ["btn-invite-sidebar","btn-invite-top","btn-invite-card"]){
     $(id)?.addEventListener("click",abrirModalConvidarAmigos);
   }
@@ -2708,16 +2497,47 @@
     $(id)?.addEventListener("click",abrirModalCodigoSincronizacao);
   }
 
+  $("btn-clear-busca")?.addEventListener("click",()=>{
+    busca="";
+    if($("busca")){$("busca").value="";$("busca").focus()}
+    render();
+  });
+  $("qf-score80")?.addEventListener("click",()=>{
+    f.score=f.score==="80"?"0":"80";
+    salvarFiltros();render();
+  });
+  $("qf-remoto")?.addEventListener("click",()=>{
+    f.mod=f.mod==="Remoto"?"":"Remoto";
+    salvarFiltros();render();
+  });
+  $("qf-salvas")?.addEventListener("click",()=>{
+    f.status=f.status==="salvas"?"todas":"salvas";
+    salvarFiltros();render();
+  });
+  $("qf-novas")?.addEventListener("click",()=>{
+    f.status=f.status==="novas"?"todas":"novas";
+    salvarFiltros();render();
+  });
+
   $("modal-close")?.addEventListener("click",closeModal);
   $("modal-backdrop")?.addEventListener("click",e=>{if(e.target.id==="modal-backdrop")closeModal()});
 
   // Navegação por Teclado
   document.addEventListener("keydown",e=>{
     const backdrop=$("modal-backdrop");
+    const modalOpen=backdrop&&!backdrop.classList.contains("hidden");
+    const loginOpen=$("login")&&!$("login").hidden;
+    const isTyping=!!e.target.closest?.("input,textarea,select,[contenteditable='true']");
+
     if(e.key==="Escape"){
-      if(backdrop&&!backdrop.classList.contains("hidden")){closeModal();return}
+      if(modalOpen){closeModal();return}
+      if(document.activeElement===$("busca")){
+        if(busca){busca="";$("busca").value="";render()}
+        else $("busca").blur();
+        return;
+      }
     }
-    if(e.key==="Tab"&&backdrop&&!backdrop.classList.contains("hidden")){
+    if(e.key==="Tab"&&modalOpen){
       const focusables=[...backdrop.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null);
       if(focusables.length){
         const first=focusables[0],last=focusables[focusables.length-1];
@@ -2726,19 +2546,50 @@
       }
     }
 
+    if(!modalOpen&&!loginOpen&&!isTyping){
+      if(e.key==="/"){
+        e.preventDefault();
+        if(activeView!=="jobs")setView("jobs");
+        $("busca")?.focus();
+        $("busca")?.select();
+        return;
+      }
+      if(activeView==="jobs"&&(e.key==="s"||e.key==="S")&&f.status!=="erros"&&selectedJobId){
+        const saveBtn=qs(`#lista article.vaga[data-id="${CSS.escape(selectedJobId)}"] .save-btn`);
+        if(saveBtn){e.preventDefault();saveBtn.click()}
+        return;
+      }
+      if(activeView==="jobs"&&(e.key==="j"||e.key==="J"||e.key==="k"||e.key==="K")){
+        const items=[...qsa("#lista .job-item")];
+        if(items.length){
+          e.preventDefault();
+          const curIdx=items.findIndex(x=>x.dataset.id===selectedJobId||x.dataset.id===selectedErrId);
+          const dir=(e.key==="j"||e.key==="J")?1:-1;
+          const nextIdx=curIdx<0?0:Math.max(0,Math.min(items.length-1,curIdx+dir));
+          const next=items[nextIdx];
+          if(next){
+            if(f.status==="erros"){selectedErrId=next.dataset.id;desenharDetalheErro(false)}
+            else{selectedJobId=next.dataset.id;selecionarVaga(next.dataset.id,false)}
+            next.focus();
+          }
+        }
+        return;
+      }
+    }
+
     const item=e.target.closest?.(".job-item");
     if(!item)return;
     const listEl=item.closest(".job-list");
-    if((e.key==="ArrowDown"||e.key==="ArrowUp")&&listEl){
+    if((e.key==="ArrowDown"||e.key==="ArrowUp"||e.key==="j"||e.key==="J"||e.key==="k"||e.key==="K")&&listEl&&!isTyping){
       e.preventDefault();
       const items=[...listEl.querySelectorAll(".job-item")];
       const idx=items.indexOf(item);
       if(idx<0)return;
-      const next=items[Math.max(0,Math.min(items.length-1,idx+(e.key==="ArrowDown"?1:-1)))];
+      const dir=(e.key==="ArrowDown"||e.key==="j"||e.key==="J")?1:-1;
+      const next=items[Math.max(0,Math.min(items.length-1,idx+dir))];
       if(next&&next!==item){
-        const nextId=next.dataset.id||next.dataset.leadId||next.dataset.postId;
+        const nextId=next.dataset.id||next.dataset.postId;
         if(next.dataset.id){selectedJobId=nextId;desenharDetalheVaga(false)}
-        else if(next.dataset.leadId){selectedLeadId=nextId;desenharClientes(false)}
         else if(next.dataset.postId){selectedPostId=nextId;desenharPublicacoes(false)}
         next.focus();
       }
@@ -2907,71 +2758,6 @@
     }
   });
 
-  // Eventos de Clientes
-  $("campaign-select")?.addEventListener("change",e=>{activeCampaignId=e.target.value;desenharClientes(false)});
-  $("new-campaign")?.addEventListener("click",()=>{const fm=$("campaign-form");if(fm)fm.hidden=!fm.hidden});
-  $("cancel-campaign-btn")?.addEventListener("click",()=>{if($("campaign-form"))$("campaign-form").hidden=true});
-  $("campaign-form")?.addEventListener("submit",e=>{
-    e.preventDefault();
-    const fd=new FormData(e.target);
-    const nova={
-      id:`camp-${Date.now()}`,
-      name:String(fd.get("name")||"Nova Campanha").trim(),
-      city:String(fd.get("city")||profile?.city||"").trim(),
-      niche:String(fd.get("niche")||"").trim(),
-      dailyLimit:Number(fd.get("dailyLimit")||20),
-      offer:String(fd.get("offer")||"").trim()
-    };
-    campaigns.unshift(nova);
-    activeCampaignId=nova.id;
-    salvarClientes();
-    e.target.reset();
-    e.target.hidden=true;
-    desenharClientes(false);
-    showToast(`Campanha "${nova.name}" salva na sua base dinâmica!`);
-  });
-
-  $("add-lead-btn")?.addEventListener("click",()=>{const fm=$("lead-form");if(fm)fm.hidden=!fm.hidden});
-  $("cancel-lead-btn")?.addEventListener("click",()=>{if($("lead-form"))$("lead-form").hidden=true});
-  $("lead-form")?.addEventListener("submit",e=>{
-    e.preventDefault();
-    const fd=new FormData(e.target);
-    const name=String(fd.get("name")||"").trim();
-    const category=String(fd.get("category")||"").trim();
-    const city=String(fd.get("city")||profile?.city||"").trim();
-    const signal=String(fd.get("signal")||"Demanda potencial de processos e indicadores").trim();
-    const camp=campaigns.find(c=>c.id===activeCampaignId)||campaigns[0];
-    const sk=listaSkillsPerfil().slice(0,3).join(", ")||"Planejamento e Gestão";
-    const novo={
-      id:`lead-${Date.now()}`,
-      campaignId:activeCampaignId,
-      name,
-      category,
-      city,
-      contact:String(fd.get("contact")||"").trim(),
-      website:String(fd.get("website")||"").trim(),
-      score:84,
-      reasons:[
-        `Sinal identificado: ${signal}`,
-        `Segmento (${category}) alinhado à campanha "${camp?.name||"Ativa"}" em ${city}`,
-        `Aderência direta com suas competências (${sk})`
-      ],
-      status:"Preparado",
-      sentAt:null,
-      followUpDate:null,
-      draft:`Olá, equipe da ${name}! Tudo bem?\n\nSou ${profile?.name||""}, atuo em ${profile?.city||city} com ${profile?.roles?.split(",")[0]||"planejamento e gestão"} (${sk}).\n\nAcompanhei a atuação de vocês em ${category} (${signal}) e estruturei uma solução prática para apoiar essa frente: ${camp?.offer||"controle de indicadores e cronogramas sem retrabalho"}.\n\nSe fizer sentido, posso mostrar um exemplo rápido de 10 minutos sem compromisso.\n\nAtenciosamente,\n${profile?.name||""}`
-    };
-    leads.unshift(novo);
-    selectedLeadId=novo.id;
-    salvarClientes();
-    e.target.reset();
-    e.target.hidden=true;
-    desenharClientes(false);
-    desenharVisaoGeral(visiveis());
-    showToast(`Empresa "${name}" salva na sua base dinâmica!`);
-  });
-  $("lead-query")?.addEventListener("input",e=>{leadQuery=e.target.value;desenharClientes(false)});
-
   // Eventos de Publicações
   $("new-story-btn")?.addEventListener("click",()=>{const fm=$("story-form");if(fm)fm.hidden=!fm.hidden});
   $("cancel-story-btn")?.addEventListener("click",()=>{if($("story-form"))$("story-form").hidden=true});
@@ -3091,14 +2877,20 @@
     e.preventDefault();
     const fd=new FormData(e.target);
     const url=String(fd.get("url")||"").trim(), anon=String(fd.get("anon")||"").trim();
+    const googleClientId=String(fd.get("googleClientId")||"").trim();
+    if(googleClientId)gravarGlobal("google-client-id",googleClientId);
+    else gravarGlobal("google-client-id","");
     if(url&&anon){
       gravarGlobal("supabase-custom",{url,anon});
-      showToast("Conexão Supabase salva! Recarregando…");
+      showToast("Conexão OAuth / Supabase salva! Recarregando…");
       setTimeout(()=>location.reload(),600);
+    }else if(googleClientId){
+      showToast("Google Client ID salvo para login OAuth!");
     }
   });
   $("supa-clear-btn")?.addEventListener("click",()=>{
     gravarGlobal("supabase-custom",null);
+    gravarGlobal("google-client-id","");
     showToast("Usando Base Dinâmica Local.");
   });
 
@@ -3110,8 +2902,6 @@
       estado,
       vagasManuais,
       filaErrosLocal,
-      campaigns,
-      leads,
       stories,
       posts
     };
@@ -3131,12 +2921,10 @@
       if(data.profile){profile=data.profile;gravarUser("profiles",profile)}
       if(data.estado){estado=data.estado;gravarUser("progress",estado)}
       if(Array.isArray(data.vagasManuais)){vagasManuais=data.vagasManuais;gravarUser("vagas-manuais",vagasManuais)}
-      if(Array.isArray(data.leads)){leads=data.leads;gravarUser("leads",leads)}
       if(Array.isArray(data.posts)){posts=data.posts;gravarUser("posts",posts)}
       if(Array.isArray(data.stories)){stories=data.stories;gravarUser("stories",stories)}
       preencherFormularioPerfil();
       sincronizarCabecalhoPerfil();
-      desenharClientes(false);
       desenharPublicacoes(false);
       render();
       showToast("Backup importado com sucesso para sua base dinâmica!");
