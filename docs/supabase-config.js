@@ -1,4 +1,6 @@
-// Configuração opcional do Supabase para o Painel de Vagas / Radar.
-// Quando vazio, o sistema usa automaticamente a Base Dinâmica por Pessoa (RadarDynamicDB: IndexedDB + LocalStorage)
-// sem exigir Token do GitHub nem backend obrigatório.
-window.SUPABASE = window.SUPABASE || { url: "", anon: "" };
+// Configuração do Supabase para o Painel de Vagas / Radar.
+// Usa a chave pública (publishable/anon) protegida por RLS no Postgres.
+window.SUPABASE = {
+  url: "https://lzzoiuwyrvphmzekhihu.supabase.co",
+  anon: "sb_publishable_iIK0F2RRffCGD_FOr7hzbw_z1EUlzLn"
+};
