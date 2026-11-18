@@ -2195,6 +2195,9 @@
   // ==================== CARREGAMENTO DE VAGAS (JSON / SUPABASE) ====================
   async function carregarVagas(){
     let dados=null;
+    let usouCache=false;
+    let erroRede=null;
+
     if(sb&&usuario&&usuario.isSupabase){
       try{
         const[{data:vs,error},{data:bs},{data:fe}]=await Promise.all([
@@ -2206,12 +2209,41 @@
           for(const v of vs)for(const k in v)if(v[k]==null)delete v[k];
           dados={vagas:vs,fila_erros:fe||[],...(bs&&bs[0]||{})};
         }
-      }catch(e){}
+      }catch(e){erroRede=e;}
     }
+
     if(!dados){
-      const r=await fetch("vagas.json?t="+Date.now());
-      dados=await r.json();
+      const ctrl=typeof AbortController!=="undefined"?new AbortController():null;
+      const timer=ctrl?setTimeout(()=>ctrl.abort(),12000):null;
+      try{
+        const r=await fetch("vagas.json?t="+Date.now(),{
+          cache:"no-store",
+          ...(ctrl?{signal:ctrl.signal}:{})
+        });
+        if(!r.ok)throw new Error("HTTP "+r.status);
+        dados=await r.json();
+      }catch(e){
+        erroRede=e;
+      }finally{
+        if(timer)clearTimeout(timer);
+      }
     }
+
+    if(dados&&Array.isArray(dados.vagas)){
+      gravarGlobal("radar-vagas-cache",dados);
+    }else{
+      const cacheLocal=lerGlobal("radar-vagas-cache",null);
+      if(cacheLocal&&Array.isArray(cacheLocal.vagas)){
+        dados=cacheLocal;
+        usouCache=true;
+      }else if(Array.isArray(todas)&&todas.length){
+        dados=meta&&Array.isArray(meta.vagas)?meta:{...(meta||{}),vagas:todas};
+        usouCache=true;
+      }else{
+        throw erroRede||new Error("Falha ao carregar vagas");
+      }
+    }
+
     todas=dados.vagas||[];
     meta=dados;
     filaErrosRemota=construirFilaErrosPadrao(dados);
@@ -2219,7 +2251,8 @@
     if(dados.atualizado_em){
       const d=new Date(dados.atualizado_em);
       const fontesTxt=Object.entries(dados.fontes||{}).map(([n,x])=>`${n}: ${x.novas||0} novas (${x.lidas||0} lidas)`).join(" · ");
-      const msgResumo=`Última coleta em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.`+(fontesTxt?` ${fontesTxt}.`:"");
+      const avisoCache=usouCache?" [cache local — sem conexão]":"";
+      const msgResumo=`Última coleta em ${d.toLocaleDateString("pt-BR")} às ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}.${fontesTxt?` ${fontesTxt}.`:""}${avisoCache}`;
       if($("atual"))$("atual").textContent=msgResumo;
       if($("last-run-home"))$("last-run-home").textContent=msgResumo;
 
@@ -2236,9 +2269,13 @@
           A.append(b);
         }
       }
+    }else if(usouCache){
+      const msgCache="Exibindo vagas do cache local (sem conexão com a rede).";
+      if($("atual"))$("atual").textContent=msgCache;
+      if($("last-run-home"))$("last-run-home").textContent=msgCache;
     }
     sinalizarSincronizacaoBase();
-    return dados.atualizado_em;
+    return {atualizado_em:dados.atualizado_em,usouCache};
   }
 
   // ==================== AUTENTICAÇÃO E SESSÃO DINÂMICA POR PESSOA ====================
@@ -2341,7 +2378,11 @@
         const{data:{session}}=await sb.auth.getSession();
         if(session&&session.user){
           const u=session.user;
-          await carregarVagas();
+          try{await carregarVagas()}catch(e){
+            const msgFalha="Não foi possível carregar as vagas da rede agora.";
+            if($("atual"))$("atual").textContent=msgFalha;
+            if($("last-run-home"))$("last-run-home").textContent=msgFalha;
+          }
           await autenticarSessaoPessoa({
             userId:u.id,
             email:u.email,
@@ -2355,7 +2396,11 @@
       }catch(e){sb=null}
     }
 
-    await carregarVagas();
+    try{await carregarVagas()}catch(e){
+      const msgFalha="Não foi possível carregar as vagas da rede agora.";
+      if($("atual"))$("atual").textContent=msgFalha;
+      if($("last-run-home"))$("last-run-home").textContent=msgFalha;
+    }
     mostrarContaGitHub();
 
     const sessaoAnterior=lerGlobal("radar-active-session",null);
@@ -2837,12 +2882,17 @@
         }catch(e){}
       }
       catalogo=null;
-      await carregarVagas();
+      const res=await carregarVagas();
       render();
-      m.textContent=`Painel atualizado e recalculado para o perfil de ${profile?.name||"você"} (${visiveis().length} vagas avaliadas).`;
-      showToast("Vagas atualizadas e recalculadas para o seu perfil!");
+      if(res&&res.usouCache){
+        m.textContent=`Falha de rede ao buscar novas vagas; recálculo executado com dados do cache local (${visiveis().length} vagas avaliadas).`;
+        showToast("Recálculo concluído usando cache local.");
+      }else{
+        m.textContent=`Painel atualizado e recalculado para o perfil de ${profile?.name||"você"} (${visiveis().length} vagas avaliadas).`;
+        showToast("Vagas atualizadas e recalculadas para o seu perfil!");
+      }
     }catch(e){
-      m.textContent="Não foi possível recarregar agora. Tente novamente em instantes.";
+      m.textContent="Não foi possível recarregar agora e não há cache local disponível. Tente novamente em instantes.";
     }finally{
       b.disabled=false;
     }
