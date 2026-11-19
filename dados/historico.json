@@ -89863,5 +89863,117 @@
 "modalidade": "?",
 "visto_em": "2026-11-18",
 "link": "https://br.linkedin.com/jobs/view/reformador-de-paletes-at-procargas-log%C3%ADstica-inteligente-4490464492"
+},
+"operadora-ou-operador-mantenedor-de-transmissao-ii-araxa-mg|engie-brasil": {
+"titulo": "Operadora ou Operador Mantenedor de Transmissão II - Araxá/MG",
+"empresa": "ENGIE Brasil",
+"fonte": "Gupy",
+"status": "fora da área",
+"score": null,
+"local": "Araxá, MG",
+"modalidade": "presencial",
+"visto_em": "2026-11-19",
+"link": "https://engiebrasilenergia.gupy.io/jobs/12917836"
+},
+"eletricista|tsa-engenharia": {
+"titulo": "Eletricista",
+"empresa": "TSA Engenharia",
+"fonte": "Gupy",
+"status": "Descartada (modalidade)",
+"score": null,
+"local": "Itabira, MG",
+"modalidade": "presencial",
+"visto_em": "2026-11-19",
+"link": "https://tsaengenharia.gupy.io/jobs/12917882",
+"motivo": "Presencial ou híbrido fora de Salvador/RMS"
+},
+"assistente-de-manutencao|grupo-oncoclinicas": {
+"titulo": "Assistente de Manutenção",
+"empresa": "Grupo Oncoclínicas",
+"fonte": "Vagas.com.br",
+"status": "Descartada (modalidade)",
+"score": null,
+"local": "Goiânia / GO",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://www.vagas.com.br/vagas/v2843737/assistente-de-manutencao",
+"motivo": "Fora de Salvador/RMS e sem indicação de remoto"
+},
+"assistente-administrativo-i-institucional-processo-seletivo-misto|associacao-saude-da-familia": {
+"titulo": "Assistente Administrativo I - Institucional (Processo Seletivo Misto)",
+"empresa": "Associação Saúde da Família",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "São Paulo / SP",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://www.vagas.com.br/vagas/v2843459/assistente-administrativo-i-institucional-processo-seletivo-misto"
+},
+"supervisor-de-equipe-ii-regiao-oeste-processo-seletivo-misto|associacao-saude-da-familia": {
+"titulo": "Supervisor de Equipe II - Região Oeste (Processo Seletivo Misto)",
+"empresa": "Associação Saúde da Família",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "São Paulo / SP",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://www.vagas.com.br/vagas/v2843196/supervisor-de-equipe-ii-regiao-oeste-processo-seletivo-misto"
+},
+"lider-facilities|confidencial": {
+"titulo": "Líder  Facilities",
+"empresa": "Confidencial",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "Santos / SP",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://www.vagas.com.br/vagas/v2843878/lider-facilities"
+},
+"medico-hospitalista|fundacao-faculdade-de-medicina": {
+"titulo": "Médico (Hospitalista)",
+"empresa": "Fundação Faculdade de Medicina",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "São Paulo / SP",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://www.vagas.com.br/vagas/v2843724/medico-hospitalista"
+},
+"bolsista-assistente-de-pesquisa|fundacao-faculdade-de-medicina": {
+"titulo": "Bolsista -  Assistente de Pesquisa",
+"empresa": "Fundação Faculdade de Medicina",
+"fonte": "Vagas.com.br",
+"status": "fora da área",
+"score": null,
+"local": "São Paulo / SP",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://www.vagas.com.br/vagas/v2843838/bolsista-assistente-de-pesquisa"
+},
+"fiscal-de-qualidade-subestacoes-regiao-metropolitana-ssa-centro-fsa|diefra-engenharia-e-consultoria-ltda": {
+"titulo": "Fiscal de Qualidade Subestações - Região metropolitana(SSA) | Centro(FSA)",
+"empresa": "Diefra Engenharia e Consultoria Ltda",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://br.linkedin.com/jobs/view/fiscal-de-qualidade-subesta%C3%A7%C3%B5es-regi%C3%A3o-metropolitana-ssa-centro-fsa-at-diefra-engenharia-e-consultoria-ltda-4492242644"
+},
+"vaga-de-estagio-em-engenharia-eletrica-eletrotecnica|sepeng-energia": {
+"titulo": "Vaga de Estágio em Engenharia Elétrica – Eletrotécnica",
+"empresa": "Sepeng Energia",
+"fonte": "LinkedIn",
+"status": "fora da área",
+"score": null,
+"local": "Salvador, BA",
+"modalidade": "?",
+"visto_em": "2026-11-19",
+"link": "https://br.linkedin.com/jobs/view/vaga-de-est%C3%A1gio-em-engenharia-el%C3%A9trica-%E2%80%93-eletrot%C3%A9cnica-at-sepeng-energia-4491322934"
 }
 }
