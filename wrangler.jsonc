@@ -1,0 +1,8 @@
+{
+  // Configuracao do Cloudflare Workers Static Assets para servir ./docs
+  "name": "painel-vagas",
+  "compatibility_date": "2026-11-18",
+  "assets": {
+    "directory": "./docs"
+  }
+}
