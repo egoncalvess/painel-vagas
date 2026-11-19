@@ -341,11 +341,10 @@
             <button class="link" type="button" data-view="profile">Personalizar meu perfil →</button>
           </div>
           <div class="side-card">
-            <h3>Sincronizar e compartilhar</h3>
-            <p class="muted">Transfira seu progresso entre computador e celular ou convide amigos.</p>
+            <h3>Compartilhar</h3>
+            <p class="muted">Convide amigos para criar sua conta individual e acompanhar vagas pelo próprio currículo.</p>
             <div style="display:grid;gap:8px;margin-top:12px">
               <button class="button button-secondary button-block" type="button" id="btn-invite-card">Convidar amigos</button>
-              <button class="button button-ghost button-block" type="button" id="btn-sync-code-home">Código de Sincronização (Celular ↔ PC)</button>
             </div>
           </div>
         </aside>
@@ -685,16 +684,14 @@
       </div>
 
       <div class="settings-stack">
-        <!-- Sincronização Instantânea Celular <-> PC (Código de Sincronização sem Token GitHub) -->
-        <section class="workspace-panel" aria-labelledby="sync-code-title">
+        <section class="workspace-panel" aria-labelledby="backup-local-title">
           <div class="panel-heading">
             <div>
-              <h2 id="sync-code-title">Sincronização (Celular ↔ PC)</h2>
-              <p>Gere um código para transferir seu progresso entre aparelhos ou baixe o backup em JSON.</p>
+              <h2 id="backup-local-title">Backup local</h2>
+              <p>Seus dados sincronizam automaticamente na sua conta. Use o arquivo JSON apenas se quiser guardar uma cópia local.</p>
             </div>
           </div>
           <div class="form-actions">
-            <button class="button" type="button" id="btn-open-sync-modal">Gerar ou colar Código de Sincronização</button>
             <button class="button button-secondary" type="button" id="btn-export-data">Baixar backup (.json)</button>
             <label class="button button-secondary" style="margin:0;cursor:pointer">
               Importar backup (.json)
@@ -729,23 +726,14 @@
             <div id="admin-users-list" class="admin-users-list"></div>
           </section>
 
-          <!-- Conexão Supabase (Nuvem Multiusuário Opcional) -->
+          <!-- Status da Conexão Supabase (somente leitura para Admin) -->
           <section class="workspace-panel" id="admin-supa-panel" aria-labelledby="supa-custom-title">
             <div class="panel-heading">
               <div>
                 <h2 id="supa-custom-title">Nuvem Supabase (Admin)</h2>
-                <p>Opcional: informe as credenciais do Supabase para sincronizar contas e vagas na nuvem.</p>
+                <p id="admin-supa-status">Conexão Supabase ativa (lzzoiuwyrvphmzekhihu.supabase.co)</p>
               </div>
             </div>
-            <form id="supa-custom-form" class="form-grid">
-              <label>Supabase Project URL<input name="url" type="url" placeholder="https://xyz.supabase.co"></label>
-              <label>Supabase Anon Public Key<input name="anon" type="password" autocomplete="off" placeholder="eyJhbGciOi..."></label>
-              <div class="form-actions full">
-                <button class="button button-secondary" type="submit">Salvar conexão Supabase</button>
-                <button class="button button-ghost" type="button" id="supa-clear-btn">Usar apenas armazenamento local</button>
-                <span id="supa-saved-note" class="save-note"></span>
-              </div>
-            </form>
           </section>
 
           <!-- Avançado: Token do GitHub recolhido apenas para o administrador do repositório -->

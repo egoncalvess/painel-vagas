@@ -12,8 +12,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: painel
-  cancel-in-progress: false
+  group: publicar-painel
+  cancel-in-progress: true
 
 jobs:
   publicar:

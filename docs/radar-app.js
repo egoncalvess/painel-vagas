@@ -1,7 +1,7 @@
 /* Radar Multi-User Application (docs/radar-app.js)
- * 1. Base de Dados Dinâmica por Pessoa (RadarDynamicDB: IndexedDB + LocalStorage + Sincronização Supabase opcional) SEM precisar de Token do GitHub.
- * 2. Tela de Login idêntica ao radar-main/entrar.html (radar animado .scope, medidor de senha, olhinho, bloqueio de tentativas) e 100% compatível com "Continuar com Google".
- * 3. Responsividade real para Telefone Celular (<= 960px, <= 760px, <= 480px) com Login no topo, Gaveta Mobile de Detalhes ao tocar e Filtros/Funil recolhíveis.
+ * 1. Sincronização multiusuário com Supabase + cache local por conta.
+ * 2. Autenticação com usuário/e-mail e senha (admin vs user) + acesso de convidado.
+ * 3. Responsividade para desktop e celular com Gaveta Mobile de Detalhes e Filtros recolhíveis.
  */
 (function(){
   "use strict";
@@ -1821,7 +1821,7 @@
         <li><strong>2. Busque e use filtros rápidos:</strong> Na aba <strong>Vagas</strong>, use a busca ou os atalhos <em>Score 80+</em>, <em>Remoto</em>, <em>Salvas ★</em> e <em>Novas hoje</em>. Clique em <strong>☆ Salvar</strong> para favoritar vagas importantes.</li>
         <li><strong>3. Atalhos de teclado (PC):</strong> Pressione <kbd>/</kbd> para focar a busca, <kbd>↑</kbd>/<kbd>↓</kbd> ou <kbd>J</kbd>/<kbd>K</kbd> para navegar na lista, <kbd>S</kbd> para salvar a vaga selecionada e <kbd>Esc</kbd> para fechar janelas.</li>
         <li><strong>4. Marque candidaturas e descarte:</strong> Use <em>Marcar que me candidatei</em> para acompanhar seu funil ou <em>Descartar</em> (duplo clique de confirmação) para limpar a lista.</li>
-        <li><strong>5. Sincronize Celular ↔ PC:</strong> Em <strong>Configurações</strong>, gere um <em>Código de Sincronização</em> ou baixe o backup <code>.json</code> para levar seus dados para outro aparelho.</li>
+        <li><strong>5. Sincronize Celular ↔ PC:</strong> A sincronização é automática ao entrar com sua conta (e-mail e senha) em qualquer aparelho. Em <strong>Configurações</strong>, você também pode baixar uma cópia em <code>.json</code>.</li>
       </ol>
       <div class="form-actions" style="margin-top:16px">
         <button class="button" type="button" onclick="window.closeModal()">Entendi</button>
@@ -1835,7 +1835,7 @@
       <h2 id="modal-title">Convidar e Compartilhar com Amigos</h2>
       <p class="muted" style="margin-top:6px">Cada pessoa pode criar seu acesso gratuito e manter seu próprio histórico separado.</p>
       <ol class="steps" style="margin-top:16px">
-        <li><strong>Login individual:</strong> Seu amigo clica em <em>Criar acesso</em> (ou entra com Google quando configurado). O sistema cria uma base exclusiva para ele no navegador/nuvem.</li>
+        <li><strong>Login individual:</strong> Seu amigo clica em <em>Criar acesso</em>. O sistema cria uma conta exclusiva para ele na nuvem.</li>
         <li><strong>Currículo e Cidade:</strong> Na aba <strong>Meu perfil</strong>, ele preenche o próprio Nome, Cidade/UF, Áreas e Competências.</li>
         <li><strong>Zero mistura de dados:</strong> As candidaturas, vagas salvas, descartes e publicações ficam 100% isolados na conta dele.</li>
       </ol>
@@ -1857,70 +1857,6 @@
       closeModal();
       setView("profile");
       $("btn-preset-blank")?.click();
-    });
-  }
-
-  function gerarCodigoSincronizacao(){
-    const payload={
-      v:2,
-      ns:activeNamespace,
-      user:usuario,
-      profile,
-      estado,
-      vagasManuais,
-      filaErrosLocal,
-      stories,
-      posts
-    };
-    return b64(JSON.stringify(payload));
-  }
-
-  function abrirModalCodigoSincronizacao(){
-    const codigo=gerarCodigoSincronizacao();
-    abrirModalHtml(`
-      <h2 id="modal-title">Código de Sincronização (Celular ↔ PC)</h2>
-      <p class="muted" style="margin-top:6px">Transfira suas candidaturas, vagas salvas, descartes, currículo e posts entre o computador e o celular:</p>
-      <div class="settings-stack" style="margin-top:14px">
-        <div class="workspace-panel" style="padding:14px;background:var(--subtle)">
-          <label>1. Copiar código deste aparelho (${escapeHtml(profile?.name||activeNamespace)})
-            <textarea id="sync-code-out" rows="3" readonly style="font-family:monospace;font-size:12px">${escapeHtml(codigo)}</textarea>
-          </label>
-          <div class="form-actions">
-            <button class="button" type="button" id="btn-copy-sync-code"><svg class="i" aria-hidden="true"><use href="#i-copy"/></svg> Copiar meu código</button>
-          </div>
-        </div>
-        <form id="form-apply-sync-code" class="workspace-panel" style="padding:14px">
-          <label>2. Colar código vindo do outro aparelho
-            <textarea id="sync-code-in" rows="3" required placeholder="Cole aqui o código gerado no seu celular ou PC…" style="font-family:monospace;font-size:12px"></textarea>
-          </label>
-          <div class="form-actions">
-            <button class="button button-secondary" type="submit">Restaurar e sincronizar agora</button>
-          </div>
-        </form>
-      </div>
-    `);
-    $("btn-copy-sync-code")?.addEventListener("click",()=>{
-      navigator.clipboard?.writeText(codigo).then(()=>showToast("Código de sincronização copiado!"));
-    });
-    $("form-apply-sync-code")?.addEventListener("submit",e=>{
-      e.preventDefault();
-      try{
-        const raw=$("sync-code-in").value.trim();
-        const data=JSON.parse(de64(raw));
-        if(data.profile){profile=data.profile;gravarUser("profiles",profile)}
-        if(data.estado){estado=data.estado;gravarUser("progress",estado)}
-        if(Array.isArray(data.vagasManuais)){vagasManuais=data.vagasManuais;gravarUser("vagas-manuais",vagasManuais)}
-        if(Array.isArray(data.posts)){posts=data.posts;gravarUser("posts",posts)}
-        if(Array.isArray(data.stories)){stories=data.stories;gravarUser("stories",stories)}
-        preencherFormularioPerfil();
-        sincronizarCabecalhoPerfil();
-        desenharPublicacoes(false);
-        render();
-        closeModal();
-        showToast("Progresso sincronizado com sucesso neste aparelho!");
-      }catch(err){
-        showToast("Código inválido. Verifique se copiou o texto completo.");
-      }
     });
   }
 
@@ -2266,9 +2202,12 @@
       render();
       if($("login"))$("login").hidden=false;
     }
-    const supaForm=$("supa-custom-form");
-    if(supaForm&&customSupa?.url){
-      supaForm.elements.url.value=customSupa.url;
+    const supaStatus=$("admin-supa-status");
+    if(supaStatus&&cfgSupa?.url){
+      try{
+        const host=new URL(cfgSupa.url).host;
+        supaStatus.textContent=`Conexão Supabase ativa (${host})`;
+      }catch(e){}
     }
   }
 
@@ -2553,9 +2492,6 @@
   $("btn-open-manual")?.addEventListener("click",abrirModalManualUso);
   for(const id of ["btn-invite-sidebar","btn-invite-top","btn-invite-card"]){
     $(id)?.addEventListener("click",abrirModalConvidarAmigos);
-  }
-  for(const id of ["btn-open-sync-modal","btn-sync-code-home"]){
-    $(id)?.addEventListener("click",abrirModalCodigoSincronizacao);
   }
 
   $("btn-clear-busca")?.addEventListener("click",()=>{
@@ -2934,22 +2870,6 @@
     token="";gravarGlobal("token","");mostrarContaGitHub();showToast("Token removido.");
   });
 
-  $("supa-custom-form")?.addEventListener("submit",e=>{
-    e.preventDefault();
-    const fd=new FormData(e.target);
-    const url=String(fd.get("url")||"").trim(), anon=String(fd.get("anon")||"").trim();
-    if(url&&anon){
-      gravarGlobal("supabase-custom",{url,anon});
-      showToast("Conexão Supabase salva! Recarregando…");
-      setTimeout(()=>location.reload(),600);
-    }else{
-      showToast("Informe URL e Anon Key do Supabase.");
-    }
-  });
-  $("supa-clear-btn")?.addEventListener("click",()=>{
-    gravarGlobal("supabase-custom",null);
-    showToast("Usando Base Dinâmica Local.");
-  });
   $("btn-refresh-admin-users")?.addEventListener("click",()=>{
     carregarUsuariosAdmin();
     showToast("Lista de usuários atualizada.");

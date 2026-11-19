@@ -62,10 +62,10 @@ Aba dedicada para registrar fatos reais da sua trajetória profissional e organi
 
 ## 5. Sincronizar entre Celular e Computador
 
-Se você usa o painel no celular e no computador sem login Supabase configurado:
+A sincronização entre celular e computador é automática:
 
-1. No menu ou na Visão Geral, abra **Código de Sincronização (Celular ↔ PC)**.
-2. Gere e copie o código no aparelho de origem e cole no aparelho de destino (ou use **Exportar / Importar Backup JSON** em **Configurações**).
+1. Entre com o mesmo **e-mail e senha** no computador e no celular para acessar suas vagas salvas, candidaturas e perfil em qualquer aparelho.
+2. Se desejar uma cópia offline, use **Baixar backup (.json)** ou **Importar backup (.json)** em **Configurações**.
 
 ---
 
