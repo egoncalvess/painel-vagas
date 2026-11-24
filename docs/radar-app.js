@@ -2503,8 +2503,8 @@
     return linhas.join("\n");
   }
 
-  function imprimirCurriculoATS(vaga,dados,modoDensidade="auto"){
-    const sheet=$("ats-sheet");
+  function imprimirCurriculoATS(vaga,dados,modoDensidade="auto",sheetEl=null){
+    const sheet=sheetEl||$("ats-sheet");
     if(!sheet)return;
     ajustarParaUmaPagina(sheet,dados,modoDensidade);
 
@@ -2520,7 +2520,7 @@
 
     const tituloOriginal=document.title;
     const nomeLimpo=String(dados.nome||"Profissional").replace(/[\\/:*?"<>|]/g,"").trim();
-    const vagaLimpa=String(vaga?.titulo||"Vaga").replace(/[\\/:*?"<>|]/g,"").trim().slice(0,50);
+    const vagaLimpa=String(vaga?.titulo||"Geral").replace(/[\\/:*?"<>|]/g,"").trim().slice(0,50);
     document.title=`Curriculo - ${nomeLimpo} - ${vagaLimpa}`;
     document.body.classList.add("printing-ats");
 
@@ -2541,11 +2541,136 @@
     }
   }
 
+  async function renderizarCurriculoATSEm(vaga,alvos={}){
+    const sheet=alvos.sheetEl;
+    if(!sheet)return null;
+    sheet.classList.add("ats-sheet");
+
+    const prefs=lerUser("ats_prefs",{densidade:"auto"});
+    const modoInicial=prefs?.densidade||"auto";
+    const dados=montarCurriculoATS(profile||{},vaga||{});
+    const ausentes=dados.keywordsVaga?.ausentes||[];
+
+    if(alvos.densitySelect)alvos.densitySelect.value=modoInicial;
+
+    if(alvos.gapsEl){
+      if(ausentes.length){
+        alvos.gapsEl.hidden=false;
+        alvos.gapsEl.innerHTML=`<strong>Termos da vaga ausentes no seu perfil (não incluídos no currículo):</strong> <span>${ausentes.map(escapeHtml).join(", ")}</span>`;
+      }else{
+        alvos.gapsEl.innerHTML="";
+        alvos.gapsEl.hidden=true;
+      }
+    }
+
+    if(document.fonts?.ready){
+      try{await document.fonts.ready}catch(_){}
+    }
+
+    let ultimoAjuste=null;
+    const atualizarEscalaMobile=()=>{
+      const preview=alvos.previewEl||sheet.closest(".ats-preview");
+      const paper=alvos.paperEl||sheet.closest(".ats-paper");
+      if(!preview||!paper)return;
+      if(isMobileViewport()){
+        const w=preview.clientWidth||window.innerWidth-32;
+        const escala=Math.min(1,Math.max(0.32,(w-16)/793.7));
+        paper.style.transform=`scale(${escala.toFixed(3)})`;
+        paper.style.transformOrigin="top left";
+      }else{
+        paper.style.transform="";
+        paper.style.transformOrigin="";
+      }
+    };
+
+    const recalcular=modo=>{
+      ultimoAjuste=ajustarParaUmaPagina(sheet,dados,modo);
+      const pct=Math.min(100,Math.round((ultimoAjuste.alturaPx/ultimoAjuste.limitePx)*100));
+      if(alvos.statusEl){
+        const baseMsg=ultimoAjuste.cabe
+          ?`Cabe em 1 página · ${pct}% da altura (densidade ${ultimoAjuste.densidade})`
+          :`Excede 1 página (${pct}% da altura)`;
+        alvos.statusEl.textContent=ultimoAjuste.cortes.length
+          ?`${baseMsg} · Ajustes: ${ultimoAjuste.cortes.join("; ")}`
+          :baseMsg;
+      }
+      atualizarEscalaMobile();
+    };
+
+    recalcular(modoInicial);
+
+    if(alvos.densitySelect){
+      alvos.densitySelect.onchange=e=>{
+        const modo=e.target.value||"auto";
+        gravarUser("ats_prefs",{densidade:modo});
+        recalcular(modo);
+      };
+    }
+    if(alvos.printBtn){
+      alvos.printBtn.onclick=()=>{
+        const modo=alvos.densitySelect?.value||"auto";
+        imprimirCurriculoATS(vaga,dados,modo,sheet);
+      };
+    }
+    if(alvos.copyBtn){
+      alvos.copyBtn.onclick=()=>{
+        const fonte=ultimoAjuste?.dadosAjustados||dados;
+        copiarTexto(copiarCurriculoTextoPuro(fonte),"Currículo em texto puro");
+      };
+    }
+    return ultimoAjuste;
+  }
+
+  let selectedResumeJobId=null;
+  function desenharViewCurriculoATS(){
+    const selectEl=$("resume-job-select");
+    const topEl=$("resume-top-jobs");
+    const sheetEl=$("resume-ats-sheet");
+    if(!selectEl&&!topEl&&!sheetEl)return;
+
+    const vagasTop=obterVagasTopAderencia(15);
+    if(!selectedResumeJobId||!vagasTop.some(v=>v.id===selectedResumeJobId)){
+      selectedResumeJobId=(selectedJobId&&vagasTop.some(v=>v.id===selectedJobId))?selectedJobId:(vagasTop[0]?.id||"");
+    }
+
+    if(selectEl){
+      const opts=vagasTop.map(v=>`<option value="${escapeHtml(v.id)}"${v.id===selectedResumeJobId?" selected":""}>${escapeHtml(v.titulo)} — ${escapeHtml(v.empresa||"Empresa")} (${sc(v)} pts)</option>`);
+      opts.push(`<option value=""${selectedResumeJobId===""?" selected":""}>Currículo base do perfil (sem vaga)</option>`);
+      selectEl.innerHTML=opts.join("");
+      selectEl.onchange=e=>{
+        selectedResumeJobId=e.target.value||"";
+        desenharViewCurriculoATS();
+      };
+    }
+
+    if(topEl){
+      topEl.innerHTML=vagasTop.length
+        ?vagasTop.slice(0,6).map(v=>`<button type="button" class="chip${v.id===selectedResumeJobId?" active":""}" data-resume-job="${escapeHtml(v.id)}" aria-pressed="${v.id===selectedResumeJobId}">${escapeHtml(v.titulo)} · ${sc(v)} pts</button>`).join("")
+        :`<span class="muted small">Nenhuma vaga carregada ainda; exibindo currículo base do perfil.</span>`;
+      topEl.onclick=e=>{
+        const btn=e.target.closest("[data-resume-job]");
+        if(!btn)return;
+        selectedResumeJobId=btn.dataset.resumeJob||"";
+        desenharViewCurriculoATS();
+      };
+    }
+
+    const vagaSel=vagasTop.find(v=>v.id===selectedResumeJobId)||null;
+    if(sheetEl){
+      renderizarCurriculoATSEm(vagaSel,{
+        sheetEl,
+        densitySelect:$("resume-ats-density"),
+        printBtn:$("resume-ats-print"),
+        copyBtn:$("resume-ats-copy-text"),
+        statusEl:$("resume-ats-fit-status"),
+        gapsEl:$("resume-ats-gaps")
+      });
+    }
+  }
+
   async function abrirModalCurriculoATS(vaga){
     const prefs=lerUser("ats_prefs",{densidade:"auto"});
     const modoInicial=prefs?.densidade||"auto";
-    const dados=montarCurriculoATS(profile||{},vaga);
-    const ausentes=dados.keywordsVaga?.ausentes||[];
 
     abrirModalHtml(`
       <div class="ats-modal">
@@ -2565,71 +2690,25 @@
         </div>
         <div class="ats-preview">
           <div class="ats-paper">
-            ${renderCurriculoATSHtml(dados,modoInicial==="auto"?"normal":modoInicial)}
+            <article id="ats-sheet" class="ats-sheet" data-densidade="${escapeHtml(modoInicial==="auto"?"normal":modoInicial)}"></article>
           </div>
         </div>
-        ${ausentes.length?`
-          <div class="ats-gaps">
-            <strong>Termos da vaga ausentes no seu perfil (não incluídos no currículo):</strong>
-            <span>${ausentes.map(escapeHtml).join(", ")}</span>
-          </div>`:""}
+        <div id="ats-gaps" class="ats-gaps" hidden></div>
       </div>
     `,true);
 
     const back=$("modal-backdrop");
     qs(".modal",back)?.classList.add("modal-wide");
 
-    if(document.fonts?.ready){
-      try{await document.fonts.ready}catch(_){}
-    }
-
-    let ultimoAjuste=null;
-    const atualizarEscalaMobile=()=>{
-      const preview=qs(".ats-preview",back);
-      const paper=qs(".ats-paper",back);
-      if(!preview||!paper)return;
-      if(isMobileViewport()){
-        const w=preview.clientWidth||window.innerWidth-32;
-        const escala=Math.min(1,Math.max(0.32,(w-16)/793.7));
-        paper.style.transform=`scale(${escala.toFixed(3)})`;
-        paper.style.transformOrigin="top left";
-      }else{
-        paper.style.transform="";
-        paper.style.transformOrigin="";
-      }
-    };
-
-    const recalcular=modo=>{
-      const sheet=$("ats-sheet");
-      const statusEl=$("ats-fit-status");
-      if(!sheet)return;
-      ultimoAjuste=ajustarParaUmaPagina(sheet,dados,modo);
-      const pct=Math.min(100,Math.round((ultimoAjuste.alturaPx/ultimoAjuste.limitePx)*100));
-      if(statusEl){
-        const baseMsg=ultimoAjuste.cabe
-          ?`Cabe em 1 página · ${pct}% da altura (densidade ${ultimoAjuste.densidade})`
-          :`Excede 1 página (${pct}% da altura)`;
-        statusEl.textContent=ultimoAjuste.cortes.length
-          ?`${baseMsg} · Ajustes: ${ultimoAjuste.cortes.join("; ")}`
-          :baseMsg;
-      }
-      atualizarEscalaMobile();
-    };
-
-    recalcular(modoInicial);
-
-    $("ats-density")?.addEventListener("change",e=>{
-      const modo=e.target.value||"auto";
-      gravarUser("ats_prefs",{densidade:modo});
-      recalcular(modo);
-    });
-    $("ats-print")?.addEventListener("click",()=>{
-      const modo=$("ats-density")?.value||"auto";
-      imprimirCurriculoATS(vaga,dados,modo);
-    });
-    $("ats-copy-text")?.addEventListener("click",()=>{
-      const fonte=ultimoAjuste?.dadosAjustados||dados;
-      copiarTexto(copiarCurriculoTextoPuro(fonte),"Currículo em texto puro");
+    await renderizarCurriculoATSEm(vaga,{
+      sheetEl:$("ats-sheet"),
+      paperEl:qs(".ats-paper",back),
+      previewEl:qs(".ats-preview",back),
+      densitySelect:$("ats-density"),
+      printBtn:$("ats-print"),
+      copyBtn:$("ats-copy-text"),
+      statusEl:$("ats-fit-status"),
+      gapsEl:$("ats-gaps")
     });
   }
 
@@ -2812,7 +2891,11 @@
   // ==================== NAVEGAÇÃO ENTRE VIEWS ====================
   function setView(view){
     activeView=view;
-    qsa(".view").forEach(v=>v.classList.toggle("active",v.id===view));
+    qsa(".view").forEach(v=>{
+      const on=v.id===view||v.id===`view-${view}`;
+      v.classList.toggle("active",on);
+      v.hidden=!on;
+    });
     qsa(".nav-item").forEach(b=>{
       const on=b.dataset.view===view;
       b.classList.toggle("active",on);
@@ -2820,8 +2903,11 @@
       else b.removeAttribute("aria-current");
     });
     qs(".profile-chip")?.classList.toggle("active",view==="profile");
+    if(view==="linkedin")desenharOtimizadorLinkedIn(visiveis());
+    if(view==="resume")desenharViewCurriculoATS();
     window.scrollTo({top:0,behavior:"instant"});
   }
+  const mostrar=setView;
 
   function salvarFiltros(){
     gravarUser("filtros",{status:f.status,ordem:f.ordem,fonte:f.fonte,area:f.area,mod:f.mod,score:f.score});

@@ -651,8 +651,8 @@ pre.li-copy-text{margin:0;padding:10px 12px;border-radius:6px;border:1px solid v
 .ats-toolbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ats-toolbar label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text)}
 .ats-toolbar select{min-height:36px;padding:4px 10px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-size:13px}
-#ats-fit-status{font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--text-2);margin:0}
-#ats-fit-status.warn{color:var(--maybe)}
+#ats-fit-status,#resume-ats-fit-status{font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--text-2);margin:0}
+#ats-fit-status.warn,#resume-ats-fit-status.warn{color:var(--maybe)}
 .ats-gaps{padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--subtle);font-size:12.5px;color:var(--text-2);display:grid;gap:6px}
 .ats-gaps strong{color:var(--text);font-size:13px}
 
@@ -661,7 +661,7 @@ pre.li-copy-text{margin:0;padding:10px 12px;border-radius:6px;border:1px solid v
 .ats-paper::after{content:"";position:absolute;left:14mm;right:14mm;bottom:12mm;border-bottom:1px dashed #b3372c;pointer-events:none}
 
 /* Folha ATS 100% linear, uma coluna, sem variáveis de tema */
-#ats-sheet,.ats-sheet{display:block;width:182mm;max-width:100%;margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif!important;color:#000000!important;background:#ffffff!important;user-select:text!important;column-count:auto!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#ats-sheet,#resume-ats-sheet,.ats-sheet{display:block;width:182mm;max-width:100%;margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif!important;color:#000000!important;background:#ffffff!important;user-select:text!important;column-count:auto!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .ats-sheet *{box-sizing:border-box;color:#000000!important;background:transparent!important;font-family:Arial,Helvetica,sans-serif!important;column-count:auto!important}
 .ats-sheet[data-densidade="normal"],.ats-sheet:not([data-densidade]){font-size:10.5pt;line-height:1.35}
 .ats-sheet[data-densidade="compacta"]{font-size:10pt;line-height:1.25}
@@ -698,7 +698,18 @@ pre.li-copy-text{margin:0;padding:10px 12px;border-radius:6px;border:1px solid v
   html,body{background:#ffffff!important;color:#000000!important;margin:0!important;padding:0!important;overflow:visible!important}
   body.printing-ats>*:not(#ats-print-root){display:none!important}
   body.printing-ats #ats-print-root{display:block!important;margin:0!important;padding:0!important;background:#ffffff!important}
-  #ats-print-root .ats-sheet,#ats-print-root #ats-sheet{width:auto!important;max-width:none!important;box-shadow:none!important;color:#000000!important;background:#ffffff!important;margin:0!important;padding:0!important}
+  #ats-print-root .ats-sheet,#ats-print-root #ats-sheet,#ats-print-root #resume-ats-sheet{width:auto!important;max-width:none!important;box-shadow:none!important;color:#000000!important;background:#ffffff!important;margin:0!important;padding:0!important}
   .ats-sheet h2,.ats-sheet li,.ats-sheet .ats-exp-item{break-inside:avoid;page-break-inside:avoid}
   .ats-sheet h2,.ats-sheet h3{break-after:avoid;page-break-after:avoid}
+}
+
+/* Views dedicadas: Otimizador LinkedIn (#view-linkedin) e Gerador de Currículos (#view-resume) */
+.view.active[hidden]{display:block!important}
+.resume-picker-panel{margin-bottom:16px}
+.resume-picker-controls{display:grid;gap:12px}
+.resume-inline-ats{margin-top:4px}
+@media (max-width:960px){
+  .tabs .nav-item{min-width:0;padding:4px 1px;font-size:10px}
+  .tabs .nav-item .i{width:15px;height:15px}
+  #view-linkedin,#view-resume{overflow-x:hidden}
 }

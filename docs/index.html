@@ -209,6 +209,14 @@
         <span class="long">Publicações</span><span class="short">Posts</span>
         <span class="nav-count" id="nav-content">0</span>
       </button>
+      <button class="nav-item" type="button" data-view="linkedin">
+        <svg class="i" aria-hidden="true"><use href="#i-linkedin"/></svg>
+        <span class="long">Otimizador LinkedIn</span><span class="short">LinkedIn</span>
+      </button>
+      <button class="nav-item" type="button" data-view="resume">
+        <svg class="i" aria-hidden="true"><use href="#i-target"/></svg>
+        <span class="long">Gerador de Currículos</span><span class="short">Currículo</span>
+      </button>
       <button class="nav-item" type="button" data-view="profile">
         <svg class="i" aria-hidden="true"><use href="#i-file"/></svg>
         <span class="long">Meu perfil</span><span class="short">Perfil</span>
@@ -592,6 +600,86 @@
       </div>
     </section>
 
+    <!-- ==================== 4A. OTIMIZADOR DE PERFIL (LINKEDIN) ==================== -->
+    <section class="view" id="view-linkedin" data-view-panel="linkedin" aria-labelledby="linkedin-view-title" hidden>
+      <div class="page-head">
+        <div>
+          <h1 id="linkedin-view-title">Otimizador de Perfil (LinkedIn)</h1>
+          <p class="heading-subtitle">Auditoria automática de headline, Sobre, competências e palavras-chave frente às vagas mais aderentes ao seu currículo.</p>
+        </div>
+        <div class="form-actions">
+          <button class="button button-secondary" type="button" data-view="profile">Editar dados em Meu perfil</button>
+        </div>
+      </div>
+
+      <section class="workspace-panel" id="li-optimizer-panel" aria-labelledby="li-optimizer-title">
+        <div class="panel-heading">
+          <div>
+            <h2 id="li-optimizer-title">Diagnóstico e sugestões copiáveis</h2>
+            <p id="li-optimizer-base">Auditoria do seu perfil contra as vagas mais aderentes do painel.</p>
+          </div>
+        </div>
+        <div id="li-optimizer-score"></div>
+        <ul id="li-optimizer-checklist" class="li-checklist"></ul>
+        <div id="li-optimizer-headline" class="li-section"></div>
+        <div id="li-optimizer-about" class="li-section"></div>
+        <div id="li-optimizer-skills" class="li-section"></div>
+        <div id="li-optimizer-keywords" class="li-section"></div>
+      </section>
+    </section>
+
+    <!-- ==================== 4B. GERADOR DE CURRÍCULOS ATS (1 PÁGINA) ==================== -->
+    <section class="view" id="view-resume" data-view-panel="resume" aria-labelledby="resume-view-title" hidden>
+      <div class="page-head">
+        <div>
+          <h1 id="resume-view-title">Gerador de Currículos ATS (1 página)</h1>
+          <p class="heading-subtitle">Monte e imprima seu currículo de coluna única calibrado para sistemas ATS e ajustado às palavras-chave reais da vaga escolhida.</p>
+        </div>
+        <div class="form-actions">
+          <button class="button button-secondary" type="button" data-view="profile">Editar experiências e dados do currículo</button>
+        </div>
+      </div>
+
+      <section class="workspace-panel resume-picker-panel" aria-labelledby="resume-picker-title">
+        <div class="panel-heading">
+          <div>
+            <h2 id="resume-picker-title">Vaga-alvo para calibrar o currículo</h2>
+            <p>Escolha uma vaga recomendada para priorizar suas competências e experiências compatíveis, sem inventar habilidades.</p>
+          </div>
+        </div>
+        <div class="resume-picker-controls">
+          <label class="full">Selecionar vaga aderente
+            <select id="resume-job-select" aria-label="Selecionar vaga para adaptar o currículo"></select>
+          </label>
+          <div id="resume-top-jobs" class="quick-filters" role="group" aria-label="Atalhos das vagas com maior aderência"></div>
+        </div>
+      </section>
+
+      <div class="ats-modal resume-inline-ats">
+        <div class="ats-toolbar" id="resume-ats-toolbar">
+          <label>Densidade da página
+            <select id="resume-ats-density" aria-label="Densidade do currículo ATS">
+              <option value="auto">Automática (1 página)</option>
+              <option value="normal">Normal (10.5pt)</option>
+              <option value="compacta">Compacta (10pt)</option>
+              <option value="minima">Mínima (9.5pt)</option>
+            </select>
+          </label>
+          <p id="resume-ats-fit-status" role="status" aria-live="polite">Pronto para gerar em 1 página A4.</p>
+          <div class="ats-toolbar-actions">
+            <button class="button button-secondary button-sm" type="button" id="resume-ats-copy-text">Copiar texto puro</button>
+            <button class="button button-sm" type="button" id="resume-ats-print">Imprimir / Salvar PDF</button>
+          </div>
+        </div>
+        <div id="resume-ats-gaps" class="ats-gaps"></div>
+        <div class="ats-preview" id="resume-ats-preview">
+          <div class="ats-paper">
+            <div id="resume-ats-sheet" class="ats-sheet" data-densidade="normal"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ==================== 5. MEU PERFIL & CURRÍCULO ==================== -->
     <section id="profile" class="view" aria-labelledby="profile-title">
       <div class="page-head">
@@ -686,21 +774,6 @@
               </div>
             </div>
             <div id="profile-stories-list" class="profile-list"></div>
-          </section>
-
-          <section class="workspace-panel" id="li-optimizer-panel" aria-labelledby="li-optimizer-title">
-            <div class="panel-heading">
-              <div>
-                <h2 id="li-optimizer-title">Otimizador do LinkedIn</h2>
-                <p id="li-optimizer-base">Auditoria do seu perfil contra as vagas mais aderentes do painel.</p>
-              </div>
-            </div>
-            <div id="li-optimizer-score"></div>
-            <ul id="li-optimizer-checklist" class="li-checklist"></ul>
-            <div id="li-optimizer-headline" class="li-section"></div>
-            <div id="li-optimizer-about" class="li-section"></div>
-            <div id="li-optimizer-skills" class="li-section"></div>
-            <div id="li-optimizer-keywords" class="li-section"></div>
           </section>
         </div>
 
