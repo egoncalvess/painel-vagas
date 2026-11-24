@@ -1,0 +1,20 @@
+From: Indeed <alert@indeed.com>
+To: usuario@example.com
+Subject: 2 novas vagas de engenheiro de planejamento
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b1"
+
+--b1
+Content-Type: text/plain; charset=utf-8
+
+Fixture sintetica (formato real do alerta a confirmar com um e-mail verdadeiro).
+
+--b1
+Content-Type: text/html; charset=utf-8
+
+<html><body><table>
+<tr><td><a href="https://br.indeed.com/rc/clk?jk=0123456789abcdef&from=ja">Engenheiro de Planejamento</a><br>Construtora Exemplo<br>Salvador, BA<br>R$ 8.000 - R$ 10.000 por mês</td></tr>
+<tr><td><a href="https://br.indeed.com/pagead/clk?mo=r&ad=x&vjk=fedcba9876543210">Analista de Custos - Remoto</a><br>Industria Exemplo<br>Remoto</td></tr>
+<tr><td><a href="https://br.indeed.com/jobs?q=engenheiro">Ver todas as vagas</a></td></tr>
+</table></body></html>
+--b1--

@@ -76,18 +76,39 @@ def chave(titulo, empresa):
     return slug(titulo) + "|" + slug(empresa)
 
 
-def get(url, **kw):
+def get(url, retry_429=True, **kw):
+    """retry_429=False: devolve o 429 na hora (fontes com anti-bot; esperar 10/20/30 s não ajuda)."""
     for tentativa in range(3):
         try:
             r = S.get(url, timeout=30, **kw)
-            if r.status_code == 429:
+            if r.status_code == 429 and retry_429:
                 time.sleep(10 * (tentativa + 1))
                 continue
             return r
         except requests.RequestException as e:
             log("  erro", url, e)
+            if not retry_429:
+                return None
             time.sleep(3)
     return None
+
+
+def gravar_json_atomico(caminho, obj, **kw):
+    """Grava em caminho.tmp, relê para validar e troca com os.replace: o arquivo anterior nunca fica truncado."""
+    pasta = os.path.dirname(caminho)
+    if pasta:
+        os.makedirs(pasta, exist_ok=True)
+    tmp = caminho + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(obj, f, **kw)
+        with open(tmp, encoding="utf-8") as f:
+            json.load(f)
+        os.replace(tmp, caminho)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
 
 
 # ---------------------------------------------------------------- fila de erros Vagas.com.br
@@ -211,9 +232,7 @@ def carregar_fila_erros(caminho=None):
 def salvar_fila_erros(fila=None, caminho=None):
     arq = caminho or ARQ_FILA_ERROS
     alvo = FILA_ERROS_VAGAS if fila is None else fila
-    os.makedirs(os.path.dirname(arq), exist_ok=True)
-    with open(arq, "w", encoding="utf-8") as f:
-        json.dump(alvo, f, ensure_ascii=False, indent=1)
+    gravar_json_atomico(arq, alvo, ensure_ascii=False, indent=1)
     return alvo
 
 
@@ -483,35 +502,40 @@ def fonte_gupy():
         time.sleep(0.3)
     # 2) Portais das empresas (lista em config.json)
     for portal in CFG.get("gupy_portais", []):
-        r = get(portal)
-        if r is not None and r.status_code == 404:
-            AVISOS.append(portal)  # a empresa saiu da Gupy ou mudou o endereço
-            log("  portal não existe mais:", portal)
-            continue
-        if not r or r.status_code != 200:
-            falha("portal", portal, cod(r))
-            continue
-        m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.S)
-        if not m:
-            falha("portal sem dados", portal)
-            continue
-        achadas = []
-        nd = json.loads(m.group(1))
-        _achar_vagas(nd, achadas)
-        cp = nd.get("props", {}).get("pageProps", {}).get("careerPage") or {}
-        empresa = cp.get("name") or re.sub(r"https?://|\.gupy\.io/?", "", portal)
-        for j in achadas:
-            v = _gupy_item(j, empresa)
-            if v.pop("banco"):
-                continue  # banco de talentos não é vaga aberta
-            if isinstance(j.get("id"), int) and j["id"] < CFG.get("gupy_id_minimo", 12300000):
-                continue  # a Gupy não mostra a data; id baixo = anúncio antigo
-            if not v["link"] and j.get("id"):
-                v["link"] = portal.rstrip("/") + "/jobs/" + str(j["id"])
-            if v["link"] not in vistos:
-                vistos.add(v["link"])
-                yield v
+        yield from _gupy_portal(portal, vistos)
         time.sleep(0.5)
+
+
+def _gupy_portal(portal, vistos, empresa=None, get_fn=None):
+    """Vagas abertas da página de carreira de uma empresa na Gupy (usado também pelo Trabalhe Conosco)."""
+    r = (get_fn or get)(portal)
+    if r is not None and r.status_code == 404:
+        AVISOS.append(portal)  # a empresa saiu da Gupy ou mudou o endereço
+        log("  portal não existe mais:", portal)
+        return
+    if not r or r.status_code != 200:
+        falha("portal", portal, cod(r))
+        return
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.S)
+    if not m:
+        falha("portal sem dados", portal)
+        return
+    achadas = []
+    nd = json.loads(m.group(1))
+    _achar_vagas(nd, achadas)
+    cp = nd.get("props", {}).get("pageProps", {}).get("careerPage") or {}
+    empresa = empresa or cp.get("name") or re.sub(r"https?://|\.gupy\.io/?", "", portal)
+    for j in achadas:
+        v = _gupy_item(j, empresa)
+        if v.pop("banco"):
+            continue  # banco de talentos não é vaga aberta
+        if isinstance(j.get("id"), int) and j["id"] < CFG.get("gupy_id_minimo", 12300000):
+            continue  # a Gupy não mostra a data; id baixo = anúncio antigo
+        if not v["link"] and j.get("id"):
+            v["link"] = portal.rstrip("/") + "/jobs/" + str(j["id"])
+        if v["link"] not in vistos:
+            vistos.add(v["link"])
+            yield v
 
 
 def fonte_linkedin():
@@ -937,9 +961,557 @@ def fonte_empregos():
                 time.sleep(0.5)
 
 
+# ---------------------------------------------------------------- fontes novas (Indeed, Catho, Trabalhe Conosco)
+# Regras comuns: robots.txt respeitado, limite de requisições por domínio, sem espera em 429 (retry_429=False)
+# e disjuntor: na 1ª resposta de bloqueio (401/403/429/503, Cloudflare, CAPTCHA) a fonte para nesta execução.
+
+class FonteBloqueada(Exception):
+    def __init__(self, motivo):
+        super().__init__(motivo)
+        self.motivo = motivo
+
+
+MARCADORES_BLOQUEIO = ("cf-chl", "just a moment", "attention required", "px-captcha", "datadome", "access denied",
+                       "g-recaptcha", "hcaptcha", "cf-turnstile", "verify you are human")
+_ROBOTS = {}
+_REQ_DOMINIO = {}
+
+
+def _texto_de(r):
+    """Corpo da resposta como texto. Alguns sites (Catho) mandam Latin-1 sem declarar."""
+    bruto = getattr(r, "content", None)
+    if isinstance(bruto, (bytes, bytearray)):
+        try:
+            return bruto.decode("utf-8")
+        except UnicodeDecodeError:
+            return bruto.decode("cp1252", "replace")
+    return getattr(r, "text", "") or ""
+
+
+def bloqueio(r):
+    """Motivo do bloqueio (anti-bot, CAPTCHA, rate-limit) ou None se a resposta é utilizável."""
+    if r is None:
+        return None
+    if r.status_code in (401, 403, 429, 503):
+        return f"HTTP {r.status_code}"
+    txt = _texto_de(r)
+    baixo = txt[:200000].lower()
+    for m in MARCADORES_BLOQUEIO:
+        if m in baixo:
+            return f"anti-bot ({m})"
+    # "captcha" solto só conta em página curta: páginas de desafio são pequenas; portais reais podem citar reCAPTCHA
+    if "captcha" in baixo and len(txt) < 30000:
+        return "anti-bot (captcha)"
+    return None
+
+
+def _dominio(url):
+    from urllib.parse import urlparse
+    return urlparse(url).netloc.lower()
+
+
+def pode_ler(url):
+    """robots.txt do domínio (em cache). Sem robots.txt acessível = liberado."""
+    from urllib.parse import urlparse
+    from urllib import robotparser
+    p = urlparse(url)
+    dom = p.netloc.lower()
+    if dom not in _ROBOTS:
+        rp = robotparser.RobotFileParser()
+        r = get(f"{p.scheme}://{p.netloc}/robots.txt", retry_429=False)
+        if r is not None and r.status_code == 200:
+            rp.parse(_texto_de(r).splitlines())
+        else:
+            rp.parse([])
+        _ROBOTS[dom] = rp
+    return _ROBOTS[dom].can_fetch("*", url)
+
+
+def get_nova(url, **kw):
+    """GET das fontes novas: robots.txt, limite por domínio, pausa e disjuntor. None = URL pulada ou sem resposta."""
+    lim = CFG.get("limites_novas_fontes") or {}
+    dom = _dominio(url)
+    if not pode_ler(url):
+        AVISOS.append(f"robots.txt bloqueia {url}")
+        return None
+    usados = _REQ_DOMINIO.get(dom, 0)
+    if usados >= int(lim.get("req_por_dominio", 20)):
+        AVISOS.append(f"limite de requisições atingido em {dom}")
+        return None
+    if usados:
+        time.sleep(float(lim.get("pausa_s", 1.5)))
+    _REQ_DOMINIO[dom] = usados + 1
+    r = get(url, retry_429=False, **kw)
+    motivo = bloqueio(r)
+    if motivo:
+        raise FonteBloqueada(f"{dom}: {motivo}")
+    return r
+
+
+# ---------------------------------------------------------------- salário
+
+_RE_VALOR = r"R\$\s?\d{1,3}(?:\.\d{3})*(?:,\d{2})?|R\$\s?\d+(?:,\d{2})?"
+
+
+def _valor_brl(txt):
+    n = re.sub(r"[^\d,]", "", txt)
+    return int(float(n.replace(",", "."))) if n else None
+
+
+def _mensal(valor, periodo):
+    if valor is None:
+        return None
+    if periodo == "hora":
+        return int(round(valor * 220))
+    if periodo == "ano":
+        return int(round(valor / 13.33))
+    return int(valor)
+
+
+def extrair_salario(texto, jsonld=None):
+    """Salário em R$/mês: {"min","max","periodo","texto"} ou None. "periodo" é o do anúncio; min/max já vêm em mês."""
+    if isinstance(jsonld, dict):
+        val = jsonld.get("value")
+        unid = str((val.get("unitText") if isinstance(val, dict) else None) or jsonld.get("unitText") or "MONTH").upper()
+        periodo = {"HOUR": "hora", "YEAR": "ano"}.get(unid, "mes")
+        if isinstance(val, dict):
+            vmin, vmax = val.get("minValue") or val.get("value"), val.get("maxValue")
+        else:
+            vmin, vmax = val, None
+        try:
+            vmin = float(vmin) if vmin not in (None, "") else None
+            vmax = float(vmax) if vmax not in (None, "") else None
+        except (TypeError, ValueError):
+            vmin = vmax = None
+        if vmin or vmax:
+            return {"min": _mensal(vmin, periodo), "max": _mensal(vmax, periodo), "periodo": periodo,
+                    "texto": f"R$ {vmin or ''}{' - ' + str(vmax) if vmax else ''}".strip()}
+    t = re.sub(r"\s+", " ", str(texto or ""))
+    if not t:
+        return None
+    m = re.search(rf"({_RE_VALOR})(?:\s*(?:a|até|ate|-|–)\s*({_RE_VALOR}|\d{{1,3}}(?:\.\d{{3}})*(?:,\d{{2}})?))?", t, re.I)
+    if not m:
+        return None
+    resto = sem_acento(t[m.end():m.end() + 25])
+    periodo = "hora" if re.match(r"\s*(?:/|por|p/)?\s*h(?:ora)?\b", resto) else \
+        "ano" if re.match(r"\s*(?:/|por|p/)?\s*(?:ano|anual)\b", resto) else "mes"
+    vmin = _valor_brl(m.group(1))
+    vmax = _valor_brl(m.group(2)) if m.group(2) else None
+    return {"min": _mensal(vmin, periodo), "max": _mensal(vmax, periodo), "periodo": periodo, "texto": m.group(0).strip()}
+
+
+# ---------------------------------------------------------------- JSON-LD JobPosting (Catho, Trabalhe Conosco)
+
+def _extrair_jsonld_jobpostings(html, url_base="", fonte=""):
+    from urllib.parse import urljoin
+    soup = BeautifulSoup(html or "", "html.parser")
+    saidas = []
+
+    def coletar(no):
+        if isinstance(no, list):
+            for item in no:
+                coletar(item)
+            return
+        if not isinstance(no, dict):
+            return
+        tipo = no.get("@type")
+        if tipo == "JobPosting" or (isinstance(tipo, list) and "JobPosting" in tipo):
+            titulo = str(no.get("title") or "").strip()
+            if titulo:
+                org = no.get("hiringOrganization")
+                empresa = (org.get("name") if isinstance(org, dict) else str(org or "")).strip()
+                loc = no.get("jobLocation")
+                if isinstance(loc, list) and loc:
+                    loc = loc[0]
+                addr = loc.get("address") if isinstance(loc, dict) else {}
+                local = ", ".join(x for x in [addr.get("addressLocality"), addr.get("addressRegion")] if x) if isinstance(addr, dict) else str(addr or "")
+                remoto = "TELECOMMUTE" in str(no.get("jobLocationType") or "").upper() or "remot" in sem_acento(local)
+                texto = _limpo(no.get("description") or "")[:4000]
+                item = dict(titulo=titulo, empresa=empresa, local=local or ("Remoto" if remoto else ""),
+                            modalidade="remoto" if remoto else "?", data=str(no.get("datePosted") or "")[:10] or None,
+                            prazo=str(no.get("validThrough") or "")[:10] or None,
+                            link=urljoin(url_base, str(no.get("url") or "")) if no.get("url") else url_base,
+                            fonte=fonte, texto=texto)
+                sal = extrair_salario(texto, no.get("baseSalary"))
+                if sal:
+                    item["salario"] = sal
+                saidas.append(item)
+        if "@graph" in no:
+            coletar(no["@graph"])
+
+    for tag in soup.select('script[type="application/ld+json"]'):
+        bruto = tag.string or tag.get_text() or ""
+        try:
+            coletar(json.loads(bruto))
+        except (ValueError, TypeError):
+            continue
+    return saidas
+
+
+# ---------------------------------------------------------------- Indeed (alertas no Gmail; HTML opcional)
+
+def _link_indeed(href):
+    m = re.search(r"[?&](?:jk|vjk)=([0-9a-f]{8,})", href or "", re.I)
+    return f"https://br.indeed.com/viewjob?jk={m.group(1)}" if m else (href or "").strip()
+
+
+def parse_email_indeed(html):
+    """Vagas de um e-mail de alerta do Indeed: âncoras para /rc/clk, /pagead/clk ou /viewjob?jk=.
+    Empresa e local = as linhas de texto logo abaixo do título no mesmo bloco (formato a confirmar com e-mail real)."""
+    soup = BeautifulSoup(html or "", "html.parser")
+    saidas, vistos = [], set()
+    for a in soup.select("a[href]"):
+        href = a.get("href") or ""
+        if "indeed." not in href or not re.search(r"/(?:rc/clk|pagead/clk|viewjob)|[?&]jk=", href):
+            continue
+        titulo = a.get_text(" ", strip=True)
+        if len(titulo) < 4 or sem_acento(titulo) in ("ver vaga", "ver vagas", "candidatar-se", "ver todas as vagas"):
+            continue
+        link = _link_indeed(href)
+        if link in vistos:
+            continue
+        vistos.add(link)
+        bloco = a.find_parent(["td", "table", "div"]) or a.parent
+        linhas = [x.strip() for x in bloco.get_text("\n", strip=True).split("\n") if x.strip()] if bloco else []
+        if titulo in linhas:
+            linhas = linhas[linhas.index(titulo) + 1:]
+        empresa = linhas[0] if linhas else ""
+        local = linhas[1] if len(linhas) > 1 else ""
+        ctx = sem_acento(" ".join(linhas[:4]) + " " + titulo)
+        v = dict(titulo=titulo, empresa=empresa, local=local, data=None, link=link, fonte="Indeed",
+                 modalidade="remoto" if "remot" in ctx else "hibrido" if "hibrid" in ctx else "?")
+        sal = extrair_salario(" ".join(linhas[:4]))
+        if sal:
+            v["salario"] = sal
+        saidas.append(v)
+    return saidas
+
+
+def _html_do_email(msg):
+    for parte in msg.walk():
+        if parte.get_content_type() == "text/html":
+            carga = parte.get_payload(decode=True) or b""
+            return carga.decode(parte.get_content_charset() or "utf-8", "replace")
+    return ""
+
+
+def _indeed_gmail(dias):
+    user, senha = os.environ.get("GMAIL_USER"), os.environ.get("GMAIL_APP_PASSWORD")
+    if not user or not senha:
+        AVISOS.append("Indeed: configure alertas no Gmail")
+        return
+    import email
+    import imaplib
+    try:
+        M = imaplib.IMAP4_SSL("imap.gmail.com")
+        M.login(user, senha)
+        M.select("INBOX", readonly=True)  # só leitura: nada é marcado como lido
+        desde = (HOJE - dt.timedelta(days=int(dias))).strftime("%d-%b-%Y")
+        _, ids = M.search(None, f'(FROM "indeed" SINCE "{desde}")')
+        for i in ids[0].split()[-50:]:
+            _, d = M.fetch(i, "(BODY.PEEK[])")
+            yield from parse_email_indeed(_html_do_email(email.message_from_bytes(d[0][1])))
+        M.logout()
+    except Exception as e:  # noqa: BLE001
+        falha("Indeed: leitura do Gmail", e)
+
+
+def _indeed_html():
+    for _, termo in todos_termos():
+        r = get_nova("https://br.indeed.com/jobs?" + requests.compat.urlencode({"q": termo, "l": "Salvador, BA"}))
+        if r is None or r.status_code != 200:
+            continue
+        for jp in _extrair_jsonld_jobpostings(_texto_de(r), "https://br.indeed.com", "Indeed"):
+            yield jp
+
+
+def fonte_indeed():
+    cfg = CFG.get("indeed") or {}
+    vistos = set()
+    gerador = []
+    if cfg.get("modo", "gmail") == "gmail":
+        gerador.append(_indeed_gmail(cfg.get("dias_email", 3)))
+    if cfg.get("html_tentativa"):
+        gerador.append(_indeed_html())
+    for g in gerador:
+        for v in g:
+            if v["link"] and v["link"] not in vistos:
+                vistos.add(v["link"])
+                yield v
+
+
+# ---------------------------------------------------------------- Catho
+
+def _data_catho(txt):
+    m = re.search(r"(\d{2})/(\d{2})(?:/(\d{4}))?", txt or "")
+    if not m:
+        return None
+    ano = int(m.group(3) or HOJE.year)
+    try:
+        d = dt.date(ano, int(m.group(2)), int(m.group(1)))
+    except ValueError:
+        return None
+    if d > HOJE and not m.group(3):
+        d = d.replace(year=ano - 1)  # "15/12" lido em janeiro é do ano anterior
+    return d.isoformat()
+
+
+def _catho_next_data(html):
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html or "", re.S)
+    if not m:
+        return []
+    try:
+        nd = json.loads(m.group(1))
+    except ValueError:
+        return []
+    achados = []
+
+    def andar(no):
+        if isinstance(no, dict):
+            titulo = no.get("titulo") or no.get("title") or no.get("jobAdTitle")
+            if titulo and (no.get("id") or no.get("jobId")) and any(k in no for k in ("empresa", "company", "cidade", "salario", "faixaSalarial", "contratante")):
+                achados.append(no)
+                return
+            for x in no.values():
+                andar(x)
+        elif isinstance(no, list):
+            for x in no:
+                andar(x)
+
+    andar(nd)
+    saidas = []
+    for j in achados:
+        emp = j.get("empresa") or j.get("company") or j.get("contratante") or ""
+        emp = emp.get("nome") or emp.get("name") or "" if isinstance(emp, dict) else str(emp)
+        jid = j.get("id") or j.get("jobId")
+        titulo = str(j.get("titulo") or j.get("title") or j.get("jobAdTitle")).strip()
+        local = str(j.get("cidade") or j.get("local") or "")
+        sal_txt = str(j.get("salario") or j.get("faixaSalarial") or "")
+        v = dict(titulo=titulo, empresa=emp.strip(), local=local, data=None, fonte="Catho",
+                 link=str(j.get("url") or f"https://www.catho.com.br/vagas/{slug(titulo)}/{jid}/"),
+                 modalidade="remoto" if "remot" in sem_acento(local + " " + titulo) else "?")
+        sal = extrair_salario(sal_txt)
+        if sal:
+            v["salario"] = sal
+        saidas.append(v)
+    return saidas
+
+
+def _catho_cards(html):
+    soup = BeautifulSoup(html or "", "html.parser")
+    saidas = []
+    for card in soup.select("article.offer"):
+        a = card.select_one("h2 a[href]")
+        if not a:
+            continue
+        href = a["href"].strip()
+        link = ("https://www.catho.com.br" + href if href.startswith("/") else href).split("?")[0]
+        emp = card.select_one("p span.text-12")
+        loc_p = card.select_one(".i_job_location")
+        loc_txt = re.sub(r"\s+", " ", loc_p.parent.get_text(" ", strip=True)) if loc_p else ""
+        local = re.sub(r"^.*?vagas?\s*-\s*", "", loc_txt).strip()
+        sal_p = card.select_one(".i_salary")
+        sal_txt = sal_p.parent.get_text(" ", strip=True) if sal_p else ""
+        ctx = sem_acento(card.get_text(" ", strip=True))
+        tag = card.select_one(".tag")
+        v = dict(titulo=a.get("title") or a.get_text(" ", strip=True), empresa=emp.get_text(" ", strip=True) if emp else "",
+                 local=local, data=_data_catho(tag.get_text(" ", strip=True) if tag else ""), link=link, fonte="Catho",
+                 modalidade="remoto" if "home office" in ctx or "remot" in ctx else "hibrido" if "hibrid" in ctx else "?")
+        sal = extrair_salario(sal_txt)
+        if sal:
+            v["salario"] = sal
+        saidas.append(v)
+    return saidas
+
+
+def parse_catho(html, url=""):
+    """Ordem: __NEXT_DATA__ → JSON-LD JobPosting → cards article.offer (formato visto no spike de 24/11/2026)."""
+    return _catho_next_data(html) or _extrair_jsonld_jobpostings(html, url, "Catho") or _catho_cards(html)
+
+
+def fonte_catho():
+    cfg = CFG.get("catho") or {}
+    vistos = set()
+    locais = [f"{c.strip('/')}/" for c in cfg.get("cidades", ["salvador-ba"])]
+    if cfg.get("remoto", True):
+        locais.append("")
+    for _, termo in todos_termos():
+        for loc in locais:
+            for pagina in range(1, int(cfg.get("paginas", 2)) + 1):
+                url = f"https://www.catho.com.br/vagas/{slug(termo)}/{loc}" + (f"?page={pagina}" if pagina > 1 else "")
+                r = get_nova(url)
+                if r is None or r.status_code == 404:
+                    break
+                if r.status_code != 200:
+                    falha("Catho", termo, cod(r))
+                    break
+                html = _texto_de(r)
+                itens = parse_catho(html, url)
+                if not itens:
+                    if "vaga" in sem_acento(html) and "offer" not in html and "__NEXT_DATA__" not in html:
+                        falha("Catho: formato mudou", url)
+                    break
+                for v in itens:
+                    if v["link"] not in vistos:
+                        vistos.add(v["link"])
+                        yield v
+
+
+# ---------------------------------------------------------------- Trabalhe Conosco (páginas de carreira configuradas)
+
+PALAVRAS_LINK_VAGA = re.compile(r"vaga|oportunidade|job|carreira|position|opening", re.I)
+TEXTOS_GENERICOS = {"vagas", "ver vagas", "todas as vagas", "carreiras", "trabalhe conosco", "oportunidades", "jobs",
+                    "ver todas", "carreira", "ver oportunidades", "veja as vagas"}
+
+
+def tipo_portal(url, html=None):
+    host = _dominio(url)
+    if host.endswith("gupy.io"):
+        return "gupy"
+    if "greenhouse.io" in host:
+        return "greenhouse"
+    if host.endswith("lever.co"):
+        return "lever"
+    if html is not None:
+        return "jsonld" if _extrair_jsonld_jobpostings(html, url) else "links"
+    return None
+
+
+def _greenhouse_itens(dados, empresa):
+    import html as htmlmod
+    for j in (dados or {}).get("jobs", []):
+        local = ((j.get("location") or {}).get("name") or "")
+        texto = _limpo(htmlmod.unescape(j.get("content") or ""))[:4000]
+        v = dict(titulo=(j.get("title") or "").strip(), empresa=empresa, local=local, data=(j.get("updated_at") or "")[:10] or None,
+                 link=j.get("absolute_url") or "", fonte="Trabalhe Conosco", texto=texto,
+                 modalidade="remoto" if "remot" in sem_acento(local) else "hibrido" if "hibrid" in sem_acento(local) else "?")
+        sal = extrair_salario(texto)
+        if sal:
+            v["salario"] = sal
+        yield v
+
+
+def _lever_itens(dados, empresa):
+    for j in dados if isinstance(dados, list) else []:
+        cat = j.get("categories") or {}
+        wt = (j.get("workplaceType") or "").lower()
+        local = cat.get("location") or ""
+        criado = j.get("createdAt")
+        data = dt.datetime.fromtimestamp(criado / 1000, dt.timezone.utc).date().isoformat() if isinstance(criado, (int, float)) else None
+        texto = (j.get("descriptionPlain") or "")[:4000]
+        v = dict(titulo=(j.get("text") or "").strip(), empresa=empresa, local=local, data=data, link=j.get("hostedUrl") or "",
+                 fonte="Trabalhe Conosco", texto=texto,
+                 modalidade={"remote": "remoto", "hybrid": "hibrido", "onsite": "presencial", "on-site": "presencial"}.get(wt, "?"))
+        sal = extrair_salario(texto, j.get("salaryRange") and {"value": {"minValue": j["salaryRange"].get("min"), "maxValue": j["salaryRange"].get("max")}})
+        if sal:
+            v["salario"] = sal
+        yield v
+
+
+def _links_itens(html, url, empresa):
+    from urllib.parse import urljoin, urlparse
+    soup = BeautifulSoup(html or "", "html.parser")
+    base = urlparse(url)
+    vistos = set()
+    for a in soup.select("a[href]"):
+        lk = urljoin(url, (a.get("href") or "").strip()).split("#")[0]
+        p = urlparse(lk)
+        titulo = a.get_text(" ", strip=True)
+        if p.netloc.replace("www.", "") != base.netloc.replace("www.", "") or lk.rstrip("/") == url.rstrip("/"):
+            continue
+        if len(titulo) < 8 or sem_acento(titulo) in TEXTOS_GENERICOS or not PALAVRAS_LINK_VAGA.search(titulo + " " + p.path):
+            continue
+        if lk in vistos:
+            continue
+        vistos.add(lk)
+        ctx = a.parent.get_text(" ", strip=True) if a.parent else titulo
+        v = dict(titulo=titulo, empresa=empresa, local="", data=None, link=lk, fonte="Trabalhe Conosco", modalidade="?",
+                 nota="Fonte genérica — confira no site")
+        sal = extrair_salario(ctx)
+        if sal:
+            v["salario"] = sal
+        yield v
+
+
+def _portal_trabalhe_conosco(item):
+    from urllib.parse import urlparse
+    url = (item.get("url") or "").strip()
+    empresa = (item.get("empresa") or "").strip() or _dominio(url).replace("www.", "")
+    tipo = (item.get("tipo") or "auto").lower()
+    if tipo == "auto":
+        tipo = tipo_portal(url) or "html"
+    if tipo == "gupy":
+        for v in _gupy_portal(url, set(), empresa, get_fn=get_nova):
+            v["fonte"], v["empresa"] = "Trabalhe Conosco", empresa
+            yield v
+        return
+    if tipo in ("greenhouse", "lever"):
+        partes = [x for x in urlparse(url).path.split("/") if x]
+        if not partes:
+            AVISOS.append(f"Trabalhe Conosco: URL sem empresa ({url})")
+            return
+        api = (f"https://boards-api.greenhouse.io/v1/boards/{partes[0]}/jobs?content=true" if tipo == "greenhouse"
+               else f"https://api.lever.co/v0/postings/{partes[0]}?mode=json")
+        r = get_nova(api)
+        if r is not None and r.status_code == 404:
+            AVISOS.append(url)
+            return
+        if r is None or r.status_code != 200:
+            falha("Trabalhe Conosco", empresa, cod(r))
+            return
+        try:
+            dados = json.loads(_texto_de(r))
+        except ValueError:
+            falha("Trabalhe Conosco: resposta não é JSON", empresa)
+            return
+        yield from (_greenhouse_itens(dados, empresa) if tipo == "greenhouse" else _lever_itens(dados, empresa))
+        return
+    r = get_nova(url)
+    if r is not None and r.status_code == 404:
+        AVISOS.append(url)  # endereço a corrigir no config.json
+        return
+    if r is None or r.status_code != 200:
+        if r is not None:
+            falha("Trabalhe Conosco", empresa, cod(r))
+        return
+    html = _texto_de(r)
+    if tipo == "html":
+        tipo = tipo_portal(url, html)
+    if tipo == "jsonld":
+        for v in _extrair_jsonld_jobpostings(html, url, "Trabalhe Conosco"):
+            v["empresa"] = v["empresa"] or empresa
+            yield v
+    else:
+        yield from _links_itens(html, url, empresa)
+
+
+def fonte_trabalhe_conosco():
+    vistos = set()
+    for item in CFG.get("trabalhe_conosco") or []:
+        if not isinstance(item, dict) or not item.get("url"):
+            continue
+        try:
+            for v in _portal_trabalhe_conosco(item):
+                if v.get("titulo") and v.get("link") and v["link"] not in vistos:
+                    vistos.add(v["link"])
+                    yield v
+        except FonteBloqueada as e:  # cada empresa é um site: o bloqueio de uma não para as outras
+            registrar_bloqueio(e.motivo)
+
+
+BLOQUEIOS = []  # motivos de bloqueio da fonte que está rodando agora
+
+
+def registrar_bloqueio(motivo):
+    BLOQUEIOS.append(motivo)
+    falha("bloqueou:", motivo)
+
+
 # Sites de origem primeiro: quando a mesma vaga aparece em outro site depois, ela vira "Também em"
 FONTES = [("Gupy", fonte_gupy), ("Sólides", fonte_solides), ("Empregos.com.br", fonte_empregos),
-          ("Vagas.com.br", fonte_vagas_com_br), ("LinkedIn", fonte_linkedin)]
+          ("Vagas.com.br", fonte_vagas_com_br), ("Indeed", fonte_indeed), ("Catho", fonte_catho),
+          ("Trabalhe Conosco", fonte_trabalhe_conosco), ("LinkedIn", fonte_linkedin)]
+FONTES_NOVAS = {"Indeed", "Catho", "Trabalhe Conosco"}  # nunca entram em FONTES_COMPLETAS (não marcam "sumiu")
 
 
 # ---------------------------------------------------------------- avaliação
@@ -1166,8 +1738,8 @@ def gravar_catalogo(hist):
     desde = (HOJE - dt.timedelta(days=45)).isoformat()
     linhas = [[h.get("link") or "", h.get("titulo") or "", h.get("empresa") or "", h.get("fonte") or "", h.get("status") or "",
                h.get("motivo") or "", h.get("visto_em") or ""] for h in hist.values() if (h.get("visto_em") or "") >= desde]
-    json.dump({"campos": ["link", "titulo", "empresa", "fonte", "status", "motivo", "visto_em"], "desde": desde, "linhas": linhas},
-              open(ARQ_CATALOGO, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    gravar_json_atomico(ARQ_CATALOGO, {"campos": ["link", "titulo", "empresa", "fonte", "status", "motivo", "visto_em"],
+                                       "desde": desde, "linhas": linhas}, ensure_ascii=False, separators=(",", ":"))
 
 
 def ler(caminho, padrao):
@@ -1199,9 +1771,15 @@ def main():
         v.setdefault("visto_em", v.get("data"))  # vagas antigas: considera vista no dia em que entrou
     resumo = {}
 
+    ativas = CFG.get("fontes_ativas") or {}
     for nome, fn in FONTES:
+        if ativas.get(nome) is False:
+            log(f"{nome}: desligada em config.json (fontes_ativas)")
+            continue
         ERROS.clear()
         AVISOS.clear()
+        BLOQUEIOS.clear()
+        _REQ_DOMINIO.clear()
         n = {"lidas": 0, "novas": 0, "ja_no_painel": 0, "ja_vistas": 0}
         descartes = {}
         try:
@@ -1237,19 +1815,32 @@ def main():
                 nova = dict(id=vid, data=HOJE.isoformat(), titulo=v["titulo"], empresa=v["empresa"], local=v.get("local", ""),
                             modalidade=mod, score=score, motivo=motivo, fonte=v["fonte"], area=area_de_qualquer(v["titulo"]),
                             link=v["link"], publicada=v.get("data"), prazo=v.get("prazo"), visto_em=HOJE.isoformat())
+                if v.get("nota"):
+                    nova["motivo"] = f"{v['nota']}; {motivo}" if motivo else v["nota"]
                 req = requisitos(v["titulo"] + " " + (v.get("texto") or ""))
+                # Salário vai dentro de requisitos (jsonb que o Supabase já tem): nenhuma coluna nova
+                sal = v.get("salario") if isinstance(v.get("salario"), dict) else extrair_salario(v.get("texto") or "")
+                if sal:
+                    req["salario"] = sal
                 if req:
                     nova["requisitos"] = req
                 vagas.append(nova)
                 por_chave[k] = nova
+        except FonteBloqueada as e:  # disjuntor: a fonte para aqui; as outras continuam
+            registrar_bloqueio(e.motivo)
         except Exception as e:  # noqa: BLE001
             log(f"fonte {nome} quebrou:", e)
             falha(f"parou no meio: {e}")
+        if BLOQUEIOS:
+            n["bloqueada"] = BLOQUEIOS[0]
         n["descartes"] = dict(sorted(descartes.items(), key=lambda x: -x[1]))
         n["falhas"] = len(ERROS)
         n["erros"] = ERROS[:3]
         if AVISOS:
-            n["portais_sumidos"] = list(AVISOS)
+            n["avisos"] = list(AVISOS)
+            sumidos = [a for a in AVISOS if a.startswith("http")]  # compatibilidade com o painel
+            if sumidos:
+                n["portais_sumidos"] = sumidos
         if nome == "Vagas.com.br":
             n["fila_erros_pendentes"] = len(fila_erros_pendentes())
         resumo[nome] = n
@@ -1258,7 +1849,7 @@ def main():
     # Sumiu: a vaga é de um site que entrega a lista inteira, o site respondeu sem falhas e ela não apareceu hoje
     for v in vagas:
         r = resumo.get(v.get("fonte") or "")
-        if v.get("fonte") in FONTES_COMPLETAS and r and r["lidas"] and not r["falhas"] and (v.get("visto_em") or "") < HOJE.isoformat():
+        if v.get("fonte") in FONTES_COMPLETAS - FONTES_NOVAS and r and r["lidas"] and not r["falhas"] and (v.get("visto_em") or "") < HOJE.isoformat():
             v["sumiu"] = True
         else:
             v.pop("sumiu", None)
@@ -1271,8 +1862,8 @@ def main():
     salvar_fila_erros()
     pendentes_painel = fila_erros_pendentes()
     agora = dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes")
-    json.dump({"atualizado_em": agora, "fontes": resumo, "fila_erros": pendentes_painel, "vagas": vagas},
-              open(ARQ_VAGAS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    gravar_json_atomico(ARQ_VAGAS, {"atualizado_em": agora, "fontes": resumo, "fila_erros": pendentes_painel, "vagas": vagas},
+                        ensure_ascii=False, indent=1)
     gravar_catalogo(hist)
     if rest:
         campos = ["id", "data", "titulo", "empresa", "local", "modalidade", "score", "motivo", "fonte", "area", "link",
@@ -1293,9 +1884,9 @@ def main():
             log(f"Supabase: {len(vagas)} vagas gravadas")
         except Exception as e:  # noqa: BLE001
             log("Supabase não gravou:", e)
-    json.dump(hist, open(ARQ_HIST, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+    gravar_json_atomico(ARQ_HIST, hist, ensure_ascii=False, indent=0)
     if not os.path.exists(ARQ_ESTADO):
-        json.dump(estado, open(ARQ_ESTADO, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        gravar_json_atomico(ARQ_ESTADO, estado, ensure_ascii=False, indent=1)
     if sum(r["lidas"] for r in resumo.values()) == 0:
         log("Nenhuma fonte respondeu.")
         sys.exit(1)

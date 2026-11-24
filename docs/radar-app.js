@@ -5,7 +5,7 @@
  */
 (function(){
   "use strict";
-  const ASSET_VERSION="20261124-006";
+  const ASSET_VERSION="20261124-007";
   console.info("Radar",ASSET_VERSION);
 
   const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
@@ -16,6 +16,8 @@
     ["salvas","Salvas ★"],
     ["feitas","Me candidatei"],
     ["retorno","Com retorno"],
+    ["elegiveis","Elegíveis"],
+    ["fila","Fila de candidatura"],
     ["erros","Fila de erros (vagas.com.br)"]
   ];
 
@@ -45,6 +47,8 @@
     "targetRole","seniority","phone","linkedinUrl","linkedinHeadline","linkedinAbout",
     "experiencesText","educationText","certifications","languages"
   ];
+  // Triagem: salário em R$/mês, nota de corte 0–100. regionCities é reaproveitado como "Cidades de interesse"
+  const CAMPOS_TRIAGEM_PERFIL=["salaryMin","salaryMax","salaryAcceptUnknown","scoreCutoff"];
   const CAMPOS_TEXTO_PERFIL=[
     "name","city","regionCities","headline","roles","maxDays","contact","skills","summary",
     ...CAMPOS_EXTRAS_PERFIL
@@ -64,7 +68,8 @@
     skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, Curva S / valor agregado, PCM / Manutenção, CREA ativo, NR-10",
     summary:"Engenharia e planejamento com foco em controle de obras, cronogramas físico-financeiros (MS Project / Curva S), indicadores em Power BI, SAP PM/MM e gestão de manutenção e contratos.",
     targetRole:"",seniority:"",phone:"",linkedinUrl:"",linkedinHeadline:"",linkedinAbout:"",
-    experiencesText:"",educationText:"",certifications:"",languages:""
+    experiencesText:"",educationText:"",certifications:"",languages:"",
+    salaryMin:0,salaryMax:0,salaryAcceptUnknown:true,scoreCutoff:75
   };
 
   const PRESET_BLANK_PROFILE={
@@ -81,7 +86,8 @@
     skills:"Excel avançado, Power BI, MS Project, Inglês",
     summary:"Profissional com foco em organização de processos, indicadores e acompanhamento de projetos.",
     targetRole:"",seniority:"",phone:"",linkedinUrl:"",linkedinHeadline:"",linkedinAbout:"",
-    experiencesText:"",educationText:"",certifications:"",languages:""
+    experiencesText:"",educationText:"",certifications:"",languages:"",
+    salaryMin:0,salaryMax:0,salaryAcceptUnknown:true,scoreCutoff:75
   };
 
   const $=id=>document.getElementById(id);
@@ -180,10 +186,10 @@
   let sb=null, usuario=null, activeNamespace="guest";
   let activeView="overview";
   let todas=[], vagasManuais=[], filaErrosRemota=[], filaErrosLocal=[], meta={};
-  let estado={candidatei:{},salvas:{},descartadas:[]}, sha=null;
+  let estado={candidatei:{},salvas:{},descartadas:[],candidaturas:{}}, sha=null;
   let token=lerGlobal("token","");
   let profile=null;
-  let f={status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"};
+  let f={status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0",cidade:"",salario:""};
   let busca="";
   let selectedJobId=null, selectedErrId=null, selectedPostId=null;
   let postFilter="Todos";
@@ -235,7 +241,7 @@
           provider:usuario?.provider||"local",
           role:usuario?.role||"user",
           perfil:profile||{},
-          estado:estado||{candidatei:{},salvas:{},descartadas:[]},
+          estado:estado||{candidatei:{},salvas:{},descartadas:[],candidaturas:{}},
           posts:posts||[],
           stories:stories||[],
           vagas_manuais:vagasManuais||[],
@@ -363,7 +369,7 @@
       profile={...PRESET_BLANK_PROFILE};
     }
     const filtrosSalvos=lerUser("filtros",{});
-    f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0"},filtrosSalvos&&typeof filtrosSalvos==="object"?filtrosSalvos:{});
+    f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0",cidade:"",salario:""},filtrosSalvos&&typeof filtrosSalvos==="object"?filtrosSalvos:{});
     const vm=lerUser("vagas-manuais",[]);
     vagasManuais=Array.isArray(vm)?vm:[];
     const fe=lerUser("error_queue",null)||lerUser("fila-erros-local",[]);
@@ -616,6 +622,153 @@
 
   const visiveis=()=>todasCombinadas().filter(v=>!estado.descartadas.includes(v.id));
 
+  // <triagem-puras> Funções puras de triagem e fila de candidatura (testadas por tests/test_triagem_js.py via node).
+  // Não leem variáveis globais: recebem perfil, estado, nota e data. O painel NUNCA envia candidatura.
+  const STATUS_FILA=["em_fila","preparando","pendente_usuario","candidatado","pulada","falhou"];
+  const ROTULO_FILA={em_fila:"Na fila",preparando:"Preparando",pendente_usuario:"Aguardando você",candidatado:"Candidatado",pulada:"Pulada",falhou:"Falhou"};
+  const FILA_ENCERRADA=["candidatado","pulada"];
+  const CAMPOS_PERFIL_EXPORT=["name","city","contact","linkedinUrl","targetRole","experiencesText","educationText","languages","certifications"];
+
+  const objetoSimples=x=>x&&typeof x==="object"&&!Array.isArray(x)?x:{};
+  function normalizarEstado(obj){
+    const o=objetoSimples(obj);
+    const candidaturas={};
+    for(const[id,c]of Object.entries(objetoSimples(o.candidaturas))){
+      if(!c||!STATUS_FILA.includes(c.status))continue;
+      candidaturas[id]={
+        status:c.status,
+        atualizado_em:String(c.atualizado_em||""),
+        historico:(Array.isArray(c.historico)?c.historico:[]).filter(h=>h&&STATUS_FILA.includes(h.status)).slice(-20)
+      };
+    }
+    return{
+      ...o,
+      candidatei:{...objetoSimples(o.candidatei)},
+      salvas:{...objetoSimples(o.salvas)},
+      descartadas:Array.isArray(o.descartadas)?[...new Set(o.descartadas)]:[],
+      candidaturas
+    };
+  }
+  // Une a fila de dois aparelhos: por vaga, vence o status atualizado por último
+  function mesclarCandidaturas(a,b){
+    const out={...objetoSimples(a)};
+    for(const[id,c]of Object.entries(objetoSimples(b))){
+      if(!out[id]||String(c.atualizado_em||"")>String(out[id].atualizado_em||""))out[id]=c;
+    }
+    return out;
+  }
+
+  function numeroLimitado(v,padrao,min,max){
+    if(v===null||v===undefined||String(v).trim()==="")return padrao;
+    const n=Number(v);
+    return Number.isFinite(n)?Math.min(max,Math.max(min,n)):padrao;
+  }
+  const cidadeSemUF=c=>semAcento(String(c||"").split(/[,\-/]/)[0].trim());
+  function cidadesInteresse(p){
+    const out=new Set();
+    const principal=cidadeSemUF(p?.city);
+    if(principal)out.add(principal);
+    for(const c of String(p?.regionCities||"").split(/[,;\n]+/)){const n=semAcento(c.trim());if(n)out.add(n)}
+    return[...out];
+  }
+  function modalidadeTriagem(v){
+    const m=semAcento(v?.modalidade);
+    return /remot/.test(m)?"remoto":/hibrid/.test(m)?"hibrido":/presencial/.test(m)?"presencial":"a_confirmar";
+  }
+  function cidadeCompativel(v,p){
+    const mod=modalidadeTriagem(v);
+    if(mod==="remoto")return !!p?.acceptRemote;
+    const local=semAcento(v?.local);
+    const naRegiao=cidadesInteresse(p).some(c=>c&&local.includes(c));
+    if(mod==="hibrido")return !!p?.acceptHybrid&&naRegiao;
+    if(mod==="presencial")return naRegiao&&!!p?.acceptOnsite;
+    return naRegiao; // modalidade a confirmar: basta estar numa cidade de interesse
+  }
+  function salarioDe(v){
+    const s=v?.requisitos?.salario||(v?.salario&&typeof v.salario==="object"?v.salario:null);
+    return s&&(Number(s.min)>0||Number(s.max)>0)?s:null;
+  }
+  function salarioCompativel(v,p){
+    const s=salarioDe(v);
+    if(!s)return p?.salaryAcceptUnknown!==false;
+    const minimo=numeroLimitado(p?.salaryMin,0,0,1e7);
+    if(!minimo)return true;
+    return Number(s.max||s.min)>=minimo;
+  }
+  const corteAtual=p=>numeroLimitado(p?.scoreCutoff,75,0,100);
+  const fmtReais=n=>"R$ "+Math.round(Number(n)).toLocaleString("pt-BR");
+  function textoSalario(s){
+    if(!s)return"";
+    const a=Number(s.min)||0,b=Number(s.max)||0;
+    return(a&&b&&a!==b?`${fmtReais(a)} – ${fmtReais(b).replace("R$ ","")}`:fmtReais(a||b))+"/mês";
+  }
+  function motivosInelegivel(v,ctx){
+    const p=ctx.perfil,est=normalizarEstado(ctx.estado),nota=ctx.nota,corte=corteAtual(p);
+    const m=[];
+    if(est.descartadas.includes(v.id))m.push("descartada");
+    if(est.candidatei[v.id]||v.candidatei)m.push("você já se candidatou");
+    if(!(nota>=corte))m.push(`abaixo do corte (${nota<0||nota==null?"sem nota":nota} < ${corte})`);
+    if(!cidadeCompativel(v,p))m.push("fora das cidades ou modalidades de interesse");
+    if(!salarioCompativel(v,p))m.push(salarioDe(v)?"salário abaixo da pretensão":"salário não informado");
+    if(v.sumiu)m.push("sumiu na última busca");
+    if(v.prazo&&String(v.prazo).slice(0,10)<ctx.hoje)m.push("prazo vencido");
+    return m;
+  }
+  const elegivelCom=(v,ctx)=>motivosInelegivel(v,ctx).length===0;
+  function statusFilaDe(est,id){return objetoSimples(est?.candidaturas)[id]?.status||null}
+  function naFilaAtiva(est,id){const s=statusFilaDe(est,id);return !!s&&!FILA_ENCERRADA.includes(s)}
+  // Muda o status no próprio objeto de estado; "candidatado" também marca "Me candidatei"
+  function aplicarStatusFila(est,id,status,obs,em){
+    if(!STATUS_FILA.includes(status))throw new Error("Status de fila inválido: "+status);
+    est.candidaturas=objetoSimples(est.candidaturas);
+    const atual=est.candidaturas[id]||{historico:[]};
+    const historico=[...(atual.historico||[]),{status,em,...(obs?{obs:String(obs).slice(0,300)}:{})}].slice(-20);
+    est.candidaturas[id]={status,atualizado_em:em,historico};
+    if(status==="candidatado"){
+      est.candidatei=objetoSimples(est.candidatei);
+      if(!est.candidatei[id])est.candidatei[id]=String(em).slice(0,10);
+    }
+    return est;
+  }
+  function montarExportFila(vagas,ctx){
+    const p=ctx.perfil||{},est=normalizarEstado(ctx.estado),corte=corteAtual(p);
+    const perfil={};
+    for(const k of CAMPOS_PERFIL_EXPORT)perfil[k]=String(p[k]??"");
+    perfil.skills=String(p.skills||"").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
+    perfil.salaryMin=numeroLimitado(p.salaryMin,0,0,1e7);
+    perfil.salaryMax=numeroLimitado(p.salaryMax,0,0,1e7);
+    const itens=vagas.filter(v=>naFilaAtiva(est,v.id)).map(v=>({
+      vaga_id:v.id,titulo:v.titulo||"",empresa:v.empresa||"",link:v.link||"",fonte:v.fonte||"",
+      score:ctx.nota(v),corte,local:v.local||"",modalidade:v.modalidade||"",salario:salarioDe(v),
+      palavras_chave:ctx.palavras?ctx.palavras(v):[],status:statusFilaDe(est,v.id)
+    }));
+    return{versao:1,gerado_em:ctx.agora,perfil,itens};
+  }
+  // Valida tudo antes de mexer no estado: JSON malformado não altera nada
+  function aplicarResultadoFila(est,dados,idsConhecidos,agora){
+    if(!dados||typeof dados!=="object"||!Array.isArray(dados.itens))throw new Error("Arquivo sem a lista \"itens\" (esperado resultado-candidatura.json).");
+    if(dados.versao!==undefined&&Number(dados.versao)!==1)throw new Error("Versão do arquivo não suportada: "+dados.versao);
+    const validos=[],resumo={aplicados:0,ignorados:0,invalidos:0};
+    for(const it of dados.itens){
+      if(!it||typeof it!=="object"||!it.vaga_id||!STATUS_FILA.includes(it.status)){resumo.invalidos++;continue}
+      if(!idsConhecidos.has(String(it.vaga_id))){resumo.ignorados++;continue}
+      validos.push(it);
+    }
+    for(const it of validos){
+      const em=typeof it.em==="string"&&!isNaN(Date.parse(it.em))?it.em:agora;
+      aplicarStatusFila(est,String(it.vaga_id),it.status,it.obs,em);
+      resumo.aplicados++;
+    }
+    resumo.ids=validos.map(it=>String(it.vaga_id));
+    return resumo;
+  }
+  // </triagem-puras>
+
+  const ctxTriagem=v=>({perfil:profile,estado,nota:sc(v),hoje:hoje()});
+  const elegivel=v=>elegivelCom(v,ctxTriagem(v));
+  const naFila=v=>naFilaAtiva(estado,v.id);
+  const rotuloStatus=(k,nome)=>k==="elegiveis"?`Elegíveis (corte ${corteAtual(profile)}+)`:nome;
+
   // ==================== FILA SEPARADA DE ERROS VAGAS.COM.BR ====================
   function construirFilaErrosPadrao(dadosVagas){
     const lista=[];
@@ -740,6 +893,8 @@
     salvas:v=>v.salva,
     feitas:v=>v.candidatei,
     retorno:v=>!!v.retorno,
+    elegiveis:v=>elegivel(v),
+    fila:v=>naFila(v),
     erros:()=>false
   };
 
@@ -767,15 +922,11 @@
   async function lerEstadoSupabase(){
     const{data,error}=await sb.from("marcacoes").select("vaga_id,candidatei_em,descartada");
     if(error)throw error;
-    const e={candidatei:{},salvas:{},descartadas:[]};
+    // Parte do estado local (salvas e fila de candidatura não existem em marcacoes) e soma o que veio do Supabase
+    const e=normalizarEstado(lerUser("progress",null));
     for(const m of (data||[])){
-      if(m.candidatei_em)e.candidatei[m.vaga_id]=m.candidatei_em;
-      if(m.descartada)e.descartadas.push(m.vaga_id);
-    }
-    const local=lerUser("progress",null);
-    if(local){
-      Object.assign(e.candidatei,local.candidatei||{});
-      e.descartadas=[...new Set([...e.descartadas,...(local.descartadas||[])])];
+      if(m.candidatei_em&&!e.candidatei[m.vaga_id])e.candidatei[m.vaga_id]=m.candidatei_em;
+      if(m.descartada&&!e.descartadas.includes(m.vaga_id))e.descartadas.push(m.vaga_id);
     }
     return e;
   }
@@ -842,7 +993,10 @@
     if(f.fonte&&(v.fonte||"Não informado")!==f.fonte)return false;
     if(f.area&&(v.area||"Não informado")!==f.area)return false;
     if(f.mod&&modDe(v)!==f.mod)return false;
-    if(sc(v)<+f.score&&+f.score>0)return false;
+    const minimo=f.score==="corte"?corteAtual(profile):+f.score;
+    if(minimo>0&&sc(v)<minimo)return false;
+    if(f.cidade==="interesse"&&!cidadeCompativel(v,profile))return false;
+    if(f.salario==="compativel"&&!salarioCompativel(v,profile))return false;
     const q=busca.trim().toLowerCase();
     return !q||[v.titulo,v.empresa,v.motivo,v.local,v.area].join(" ").toLowerCase().includes(q);
   }
@@ -863,8 +1017,9 @@
     if(F){
       const countFor=k=>k==="erros"?errosAtivos.length:base.filter(regras[k]).length;
       if(F.children.length===STATUS.length){
-        STATUS.forEach(([k],idx)=>{
+        STATUS.forEach(([k,nome],idx)=>{
           const b=F.children[idx];
+          if(b.firstChild&&b.firstChild.nodeType===3)b.firstChild.nodeValue=rotuloStatus(k,nome);
           b.setAttribute("aria-pressed",k===f.status);
           b.classList.toggle("active",k===f.status);
           const sp=b.querySelector("span");
@@ -873,7 +1028,7 @@
       }else{
         F.textContent="";
         for(const[k,nome]of STATUS){
-          const b=el("button",k==="erros"?"chip err-chip":"chip",nome);
+          const b=el("button",k==="erros"?"chip err-chip":"chip",rotuloStatus(k,nome));
           b.type="button";
           b.dataset.status=k;
           b.setAttribute("aria-pressed",k===f.status);
@@ -888,7 +1043,10 @@
     opcoes("f-area",contar(vs,"area"),f.area,"Todas as áreas");
     opcoes("f-mod",contar(vs.map(v=>({m:modDe(v)})),"m"),f.mod,"Todas");
     if($("f-score"))$("f-score").value=f.score;
+    if($("f-cidade"))$("f-cidade").value=f.cidade||"";
+    if($("f-salario"))$("f-salario").value=f.salario||"";
     if($("ordem"))$("ordem").value=f.ordem;
+    atualizarFilaToolbar(vs);
     if($("painel-fila-erros"))$("painel-fila-erros").hidden=f.status!=="erros";
     if($("contador-fila-erros"))$("contador-fila-erros").textContent=errosAtivos.length;
 
@@ -900,7 +1058,7 @@
     }
 
     desenharFontes();
-    if($("limpar"))$("limpar").hidden=!(f.fonte||f.area||f.mod||f.score!=="0"||f.status!=="todas"||busca);
+    if($("limpar"))$("limpar").hidden=!(f.fonte||f.area||f.mod||f.score!=="0"||f.cidade||f.salario||f.status!=="todas"||busca);
     if($("btn-clear-busca"))$("btn-clear-busca").hidden=!busca;
     const qfMap={
       "qf-score80":f.score==="80",
@@ -913,6 +1071,40 @@
       if(qb){qb.classList.toggle("active",on);qb.setAttribute("aria-pressed",String(on))}
     }
     atualizarImpactoPerfil(vs);
+  }
+
+  function atualizarFilaToolbar(vs){
+    const tb=$("fila-toolbar");if(!tb)return;
+    const ativa=f.status==="elegiveis"||f.status==="fila";
+    tb.hidden=!ativa;
+    if(!ativa)return;
+    const nFila=vs.filter(naFila).length,nEleg=vs.filter(elegivel).length;
+    const r=$("fila-resumo");
+    if(r&&!r.dataset.fixo)r.textContent=`${nFila} na fila · ${nEleg} elegíveis (corte ${corteAtual(profile)}+)`;
+    if($("fila-exportar"))$("fila-exportar").disabled=nFila===0;
+  }
+
+  function mostrarResumoFila(msg){
+    const r=$("fila-resumo");
+    if(r){
+      r.textContent=msg;r.dataset.fixo="1";
+      clearTimeout(mostrarResumoFila.t);
+      mostrarResumoFila.t=setTimeout(()=>{delete r.dataset.fixo;render()},10000);
+    }
+    showToast(msg);
+  }
+
+  async function mudarStatusFila(v,status,obs){
+    const copia=JSON.stringify(estado);
+    try{
+      await mudar(`Fila (${ROTULO_FILA[status]}): ${v.titulo}`,est=>aplicarStatusFila(est,v.id,status,obs,new Date().toISOString()),v.id);
+      render();
+      const msg=status==="em_fila"?`${v.titulo} entrou na fila de candidatura.`:`Fila: ${v.titulo} agora está como ${ROTULO_FILA[status]}.`;
+      showToast(msg);anunciarAcao(msg);
+    }catch(err){
+      estado=normalizarEstado(JSON.parse(copia));
+      showToast("Não foi possível atualizar a fila de candidatura.");
+    }
   }
 
   function removerCardComFoco(art,classeAlvo){
@@ -949,6 +1141,7 @@
     h.append(a);
 
     const nota=sc(v);
+    art.classList.add(nota>=0&&nota>=corteAtual(profile)?"acima-corte":"abaixo-corte");
     const clsScore=nota>=80?"boa":nota>=70?"possivel":"baixa";
     const badgeScore=el("span","score "+clsScore,nota<0?"s/n":`${nota}`);
     badgeScore.title=nota<0?"Sem nota":`Score ${nota}/100 para ${profile?.name}`;
@@ -965,6 +1158,10 @@
     if(v.area)s.append(el("span","selo area",v.area));
     if(v.modalidade)s.append(el("span","selo",v.modalidade));
     if(v.fonte)s.append(el("span","selo",v.fonte));
+    const salV=salarioDe(v);
+    if(salV)s.append(el("span","selo salario",textoSalario(salV)));
+    const stF=statusFilaDe(estado,v.id);
+    if(stF)s.append(el("span","selo st-"+stF,ROTULO_FILA[stF]));
     if(v.retorno)s.append(el("span","selo ok","Retorno: "+v.retorno));
     art.append(s);
 
@@ -1117,6 +1314,10 @@
     const req=v._req||calcularRequisitosDinamicos(v);
     const tenho=req.tenho||[], conferir=req.conferir||[];
     const kwResumo=gerarResumoPalavrasChave(v,req);
+    const corte=corteAtual(profile);
+    const salV=salarioDe(v);
+    const stF=statusFilaDe(estado,v.id);
+    const motivosFila=motivosInelegivel(v,ctxTriagem(v));
 
     D.innerHTML=`
       <header class="d-head">
@@ -1127,13 +1328,15 @@
           ${v.area?`<span class="selo area">${escapeHtml(v.area)}</span>`:""}
           ${v.modalidade?`<span class="selo">${escapeHtml(v.modalidade)}</span>`:""}
           ${v.fonte?`<span class="selo">${escapeHtml(v.fonte)}</span>`:""}
+          ${salV?`<span class="selo salario">${escapeHtml(textoSalario(salV))}</span>`:""}
+          ${stF?`<span class="selo st-${stF}">${escapeHtml(ROTULO_FILA[stF])}</span>`:""}
           ${v.sumiu?'<span class="selo sumiu">Não apareceu na última busca</span>':""}
           ${v.candidatei?`<span class="selo ok">Candidatura feita${v.candidatei_em?" em "+escapeHtml(dataCurta(v.candidatei_em)):""}</span>`:""}
         </div>
         <div class="regua-box" aria-label="Pontuação de compatibilidade">
           <div class="regua-num ${clsNota}">${nota<0?"s/n":nota}<small>${nota<0?"":"/100"}</small></div>
           <div style="flex:1">
-            <div class="regua-bar ${clsNota}" title="Marcadores de referência em 70 e 80 pontos">
+            <div class="regua-bar ${clsNota}" style="--corte:${corte}%" title="Marcadores de referência em 70 e 80 pontos; linha da sua nota de corte em ${corte}">
               <i style="width:${Math.max(0,Math.min(100,nota||0))}%"></i>
             </div>
             <p class="muted small" style="margin-top:6px">${escapeHtml(v.motivo||"Avaliada conforme área, modalidade e aderência ao perfil ativo.")}</p>
@@ -1153,6 +1356,19 @@
           <button class="button button-ghost danger" type="button" data-detail-desc="${escapeHtml(v.id)}">Descartar vaga</button>
         </div>
       </header>
+
+      <section class="d-section" aria-label="Fila de candidatura">
+        <h3>Fila de candidatura</h3>
+        ${stF
+          ?`<label class="filter-col">Status na fila
+              <select data-detail-fila-status="${escapeHtml(v.id)}">${STATUS_FILA.map(st=>`<option value="${st}"${st===stF?" selected":""}>${escapeHtml(ROTULO_FILA[st])}</option>`).join("")}</select>
+            </label>`
+          :`${motivosFila.length
+              ?`<p class="muted">Fora da sua triagem: ${motivosFila.map(escapeHtml).join("; ")}.</p>`
+              :`<p class="muted">Elegível: nota ${nota} ≥ corte ${corte}, cidade e salário compatíveis.</p>`}
+            <button class="button button-secondary" type="button" data-detail-fila="${escapeHtml(v.id)}">Pôr na fila de candidatura</button>`}
+        <p class="muted small">O painel só organiza a fila. O OpenBot prepara a candidatura e o envio sempre exige sua aprovação.</p>
+      </section>
 
       <section class="d-section">
         <h3>No perfil de ${escapeHtml(profile?.name?.split(" ")[0]||"você")} (${tenho.length})</h3>
@@ -1218,6 +1434,15 @@
       qs("[data-detail-ats]",root)?.addEventListener("click",()=>{
         if(root.id==="mobile-drawer-body")closeModal();
         abrirModalCurriculoATS(v);
+      });
+      qs("[data-detail-fila]",root)?.addEventListener("click",async()=>{
+        if(motivosFila.length&&!window.confirm(`Esta vaga não passa na sua triagem (${motivosFila.join("; ")}). Pôr na fila mesmo assim?`))return;
+        if(root.id==="mobile-drawer-body")closeModal();
+        await mudarStatusFila(v,"em_fila");
+      });
+      qs("[data-detail-fila-status]",root)?.addEventListener("change",async e=>{
+        if(root.id==="mobile-drawer-body")closeModal();
+        await mudarStatusFila(v,e.target.value);
       });
       qs("[data-copy-kw]",root)?.addEventListener("click",()=>{
         copiarTexto(kwResumo.textoCopia,`Palavras-chave da vaga ${v.titulo}`);
@@ -1863,6 +2088,10 @@
     if(form.elements.acceptRemote)form.elements.acceptRemote.checked=!!profile.acceptRemote;
     if(form.elements.acceptHybrid)form.elements.acceptHybrid.checked=!!profile.acceptHybrid;
     if(form.elements.acceptOnsite)form.elements.acceptOnsite.checked=!!profile.acceptOnsite;
+    if(form.elements.salaryMin)form.elements.salaryMin.value=Number(profile.salaryMin)||"";
+    if(form.elements.salaryMax)form.elements.salaryMax.value=Number(profile.salaryMax)||"";
+    if(form.elements.scoreCutoff)form.elements.scoreCutoff.value=corteAtual(profile);
+    if(form.elements.salaryAcceptUnknown)form.elements.salaryAcceptUnknown.checked=profile.salaryAcceptUnknown!==false;
   }
 
   function atualizarImpactoPerfil(vs){
@@ -2788,8 +3017,8 @@
   }
 
   // ==================== DIAGNÓSTICO DE FONTES & PROVA DE COBERTURA ====================
-  const situacao=x=>!x.falhas?"ok":x.lidas?"parcial":"falhou";
-  const SIT={ok:"Respondeu",parcial:"Parcial",falhou:"Falhou"};
+  const situacao=x=>x.bloqueada?"bloqueada":!x.falhas?"ok":x.lidas?"parcial":"falhou";
+  const SIT={ok:"Respondeu",parcial:"Parcial",falhou:"Falhou",bloqueada:"Bloqueada pelo site"};
 
   function desenharFontes(){
     const T=$("tabela-fontes");if(!T)return;
@@ -2808,12 +3037,20 @@
       const tdFora=el("td",null,x.descartes?String(qtd):"—");
       if(fora.length)tdFora.append(el("small",null,fora.slice(0,3).map(([m,q])=>`${m.replace(/^Descartada \((.*)\)$/,"$1")}: ${q}`).join(" · ")));
       const tdSit=el("td","sit-"+sit,SIT[sit]);
-      if(x.falhas)tdSit.append(el("small",null,`${x.falhas} ${x.falhas>1?"consultas falharam":"consulta falhou"}`+(x.erros&&x.erros[0]?`: ${x.erros[0]}`:"")));
+      if(x.bloqueada)tdSit.append(el("span","selo bloqueada",x.bloqueada));
+      else if(x.falhas)tdSit.append(el("small",null,`${x.falhas} ${x.falhas>1?"consultas falharam":"consulta falhou"}`+(x.erros&&x.erros[0]?`: ${x.erros[0]}`:"")));
       const vistos=x.ja_vistas==null?"—":x.ja_vistas+(x.ja_no_painel||0);
       tr.append(el("td",null,n),el("td","n",x.lidas??"—"),el("td","n esconde",vistos),el("td","n",x.novas??0),tdFora,tdSit);
       corpo.append(tr);
     }
     tb.append(corpo);T.append(tb);
+    const avisos=fs.flatMap(([n,x])=>(x.avisos||x.portais_sumidos||[]).map(a=>`${n}: ${a}`));
+    if(avisos.length){
+      const ul=el("ul","avisos-fontes");
+      ul.setAttribute("aria-label","Avisos das fontes");
+      for(const a of avisos.slice(0,20))ul.append(el("li",null,a));
+      T.append(ul);
+    }
   }
 
   let catalogo=null;
@@ -2846,7 +3083,8 @@
   }
 
   function dicaNaoAchada(u){
-    if(/indeed\.|glassdoor\.|catho\.|infojobs\./i.test(u))return"Esse site não está na coleta automática. Veja se a mesma vaga existe na Gupy, na Sólides ou na página da empresa, ou adicione pelo botão + Adicionar vaga.";
+    if(/indeed\.|catho\./i.test(u))return"Catho e Indeed (este via alertas do Indeed no seu Gmail) entram na coleta só com os termos configurados. Adicione pelo botão + Adicionar vaga.";
+    if(/glassdoor\.|infojobs\./i.test(u))return"Esse site não está na coleta automática. Veja se a mesma vaga existe na Gupy, na Sólides ou na página da empresa, ou adicione pelo botão + Adicionar vaga.";
     if(/linkedin\./i.test(u))return"O robô lê no LinkedIn os primeiros resultados de cada termo. Você pode adicioná-la direto pelo botão + Adicionar vaga.";
     if(/gupy\.io/i.test(u))return"É da Gupy, mas não veio na busca automática. Verifique se está na sua região ou adicione manualmente.";
     if(/vagas\.com\.br/i.test(u))return"Pode ter entrado na Fila de erros do Vagas.com.br. Confira o chip Fila de erros (vagas.com.br).";
@@ -2985,7 +3223,7 @@
   const mostrar=setView;
 
   function salvarFiltros(){
-    gravarUser("filtros",{status:f.status,ordem:f.ordem,fonte:f.fonte,area:f.area,mod:f.mod,score:f.score});
+    gravarUser("filtros",{status:f.status,ordem:f.ordem,fonte:f.fonte,area:f.area,mod:f.mod,score:f.score,cidade:f.cidade||"",salario:f.salario||""});
   }
 
   // ==================== CARREGAMENTO DE VAGAS (JSON / SUPABASE) ====================
@@ -3231,7 +3469,20 @@
             RadarDynamicDB.put("profiles",activeNamespace,remotoConta.perfil);
             try{localStorage.setItem(userKey("profiles"),JSON.stringify(remotoConta.perfil))}catch(e){}
           }
-          if(remotoConta.estado&&!lerUser("progress",null))RadarDynamicDB.put("progress",activeNamespace,remotoConta.estado);
+          if(remotoConta.estado){
+            const progLocal=lerUser("progress",null);
+            if(!progLocal)RadarDynamicDB.put("progress",activeNamespace,normalizarEstado(remotoConta.estado));
+            else{
+              // Fila de candidatura de outro aparelho: por vaga, vence o status mais recente
+              const loc=normalizarEstado(progLocal),rem=normalizarEstado(remotoConta.estado);
+              const cand=mesclarCandidaturas(loc.candidaturas,rem.candidaturas);
+              if(JSON.stringify(cand)!==JSON.stringify(loc.candidaturas)){
+                loc.candidaturas=cand;
+                RadarDynamicDB.put("progress",activeNamespace,loc);
+                try{localStorage.setItem(userKey("progress"),JSON.stringify(loc))}catch(e){}
+              }
+            }
+          }
           if(Array.isArray(remotoConta.posts)&&remotoConta.posts.length&&!lerUser("posts",null))RadarDynamicDB.put("posts",activeNamespace,remotoConta.posts);
           if(Array.isArray(remotoConta.stories)&&remotoConta.stories.length&&!lerUser("stories",null))RadarDynamicDB.put("stories",activeNamespace,remotoConta.stories);
         }
@@ -3254,24 +3505,20 @@
     // Carrega o progresso isolado desta pessoa do RadarDynamicDB
     const progressoSalvo=lerUser("progress",null);
     if(progressoSalvo&&typeof progressoSalvo==="object"){
-      estado={
-        candidatei:progressoSalvo.candidatei||{},
-        salvas:progressoSalvo.salvas||{},
-        descartadas:Array.isArray(progressoSalvo.descartadas)?progressoSalvo.descartadas:[]
-      };
+      estado=normalizarEstado(progressoSalvo);
     }else if(ehContaDoErick()){
       // Somente para a conta do Erick: importa docs/estado.json na primeira vez como seed
       try{
         const r2=await fetch("estado.json?t="+Date.now());
         if(r2.ok){
           const estRemoto=await r2.json();
-          estado={candidatei:estRemoto.candidatei||{},salvas:{},descartadas:estRemoto.descartadas||[]};
+          estado=normalizarEstado({candidatei:estRemoto.candidatei||{},descartadas:estRemoto.descartadas||[]});
           gravarUser("progress",estado);
         }
-      }catch(e){estado={candidatei:{},salvas:{},descartadas:[]}}
+      }catch(e){estado=normalizarEstado({})}
     }else{
       // Qualquer outra pessoa começa com o próprio painel limpo, nunca misturando com estado.json do Erick
-      estado={candidatei:{},salvas:{},descartadas:[]};
+      estado=normalizarEstado({});
       gravarUser("progress",estado);
     }
 
@@ -3744,14 +3991,49 @@
   });
 
   // Filtros de Vagas
-  for(const[id,campo]of[["f-fonte","fonte"],["f-area","area"],["f-mod","mod"],["f-score","score"],["ordem","ordem"]]){
+  for(const[id,campo]of[["f-fonte","fonte"],["f-area","area"],["f-mod","mod"],["f-score","score"],["f-cidade","cidade"],["f-salario","salario"],["ordem","ordem"]]){
     $(id)?.addEventListener("change",e=>{f[campo]=e.target.value;salvarFiltros();render()});
   }
   $("busca")?.addEventListener("input",e=>{busca=e.target.value;render()});
   $("limpar")?.addEventListener("click",()=>{
-    f={...f,status:"todas",fonte:"",area:"",mod:"",score:"0"};
+    f={...f,status:"todas",fonte:"",area:"",mod:"",score:"0",cidade:"",salario:""};
     busca="";if($("busca"))$("busca").value="";
     salvarFiltros();render();
+  });
+
+  // Fila de candidatura: exportar para o OpenBot e importar o resultado (o painel nunca envia candidatura)
+  $("fila-exportar")?.addEventListener("click",()=>{
+    const dados=montarExportFila(visiveis(),{
+      perfil:profile,estado,nota:sc,agora:new Date().toISOString(),
+      palavras:v=>{const k=gerarResumoPalavrasChave(v,v._req||calcularRequisitosDinamicos(v));return[...k.noPerfil,...k.daVaga].slice(0,15)}
+    });
+    if(!dados.itens.length){mostrarResumoFila("A fila está vazia: ponha vagas na fila pelo detalhe da vaga.");return}
+    const txt=JSON.stringify(dados,null,2);
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));
+    a.download="fila-candidatura.json";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    copiarTexto(txt,"fila-candidatura.json");
+    mostrarResumoFila(`fila-candidatura.json exportado com ${dados.itens.length} vaga${dados.itens.length===1?"":"s"} (também copiado).`);
+  });
+  $("fila-importar")?.addEventListener("click",()=>$("fila-importar-file")?.click());
+  $("fila-importar-file")?.addEventListener("change",async e=>{
+    const file=e.target.files?.[0];e.target.value="";
+    if(!file)return;
+    let dados;
+    try{dados=JSON.parse(await file.text())}catch(err){mostrarResumoFila("Arquivo inválido: não é um JSON válido. Nada foi alterado.");return}
+    const ids=new Set(todasCombinadas().map(v=>String(v.id)));
+    const novo=normalizarEstado(JSON.parse(JSON.stringify(estado)));
+    let resumo;
+    try{resumo=aplicarResultadoFila(novo,dados,ids,new Date().toISOString())}
+    catch(err){mostrarResumoFila(`${err.message} Nada foi alterado.`);return}
+    await mudar("Importa resultado-candidatura.json",est=>{Object.assign(est,novo)});
+    if(sb&&usuario&&usuario.isSupabase){
+      for(const id of resumo.ids){try{await sb.from("marcacoes").upsert(linhaMarca(id))}catch(err){}}
+    }
+    render();
+    mostrarResumoFila(`Resultado importado: ${resumo.aplicados} aplicada${resumo.aplicados===1?"":"s"}, ${resumo.ignorados} ignorada${resumo.ignorados===1?"":"s"} (vaga desconhecida)${resumo.invalidos?`, ${resumo.invalidos} inválida${resumo.invalidos===1?"":"s"}`:""}.`);
   });
 
   // Adicionar Vaga Manualmente
@@ -4481,6 +4763,11 @@
     camposDoForm.acceptRemote=fd.get("acceptRemote")==="on";
     camposDoForm.acceptHybrid=fd.get("acceptHybrid")==="on";
     camposDoForm.acceptOnsite=fd.get("acceptOnsite")==="on";
+    const els=e.target.elements;
+    if(els.salaryMin)camposDoForm.salaryMin=numeroLimitado(fd.get("salaryMin"),0,0,1e7);
+    if(els.salaryMax)camposDoForm.salaryMax=numeroLimitado(fd.get("salaryMax"),0,0,1e7);
+    if(els.scoreCutoff)camposDoForm.scoreCutoff=numeroLimitado(fd.get("scoreCutoff"),75,0,100);
+    if(els.salaryAcceptUnknown)camposDoForm.salaryAcceptUnknown=fd.get("salaryAcceptUnknown")==="on";
     salvarPerfil(camposDoForm,false);
   });
 
@@ -4493,7 +4780,7 @@
       skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, PCM / Manutenção",
       summary:"Experiência em planejamento e controle de obras, cronogramas físico-financeiros, indicadores em Power BI e gestão de manutenção."
     };
-    for(const k of CAMPOS_EXTRAS_PERFIL)delete basePreset[k];
+    for(const k of [...CAMPOS_EXTRAS_PERFIL,...CAMPOS_TRIAGEM_PERFIL])delete basePreset[k];
     profile={...profile,...basePreset};
     gravarUser("profiles",profile);
     preencherFormularioPerfil();
@@ -4557,7 +4844,7 @@
       const txt=await file.text();
       const data=JSON.parse(txt);
       if(data.profile){profile=data.profile;gravarUser("profiles",profile)}
-      if(data.estado){estado=data.estado;gravarUser("progress",estado)}
+      if(data.estado){estado=normalizarEstado(data.estado);gravarUser("progress",estado)}
       if(Array.isArray(data.vagasManuais)){vagasManuais=data.vagasManuais;gravarUser("vagas-manuais",vagasManuais)}
       if(Array.isArray(data.posts)){posts=data.posts;gravarUser("posts",posts)}
       if(Array.isArray(data.stories)){stories=data.stories;gravarUser("stories",stories)}

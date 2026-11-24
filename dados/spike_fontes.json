@@ -1,0 +1,24 @@
+{
+ "gerado_em": "2026-11-24",
+ "origem": "maquina local (nao Actions)",
+ "fontes": {
+  "Catho": {
+   "url": "https://www.catho.com.br/vagas/engenheiro-de-planejamento/salvador-ba/",
+   "status": 200,
+   "next_data": false,
+   "jsonld_jobposting": false,
+   "cards_article_offer": 8,
+   "marcadores_bloqueio": [],
+   "decisao": "parser HTML article.offer (fallback apos __NEXT_DATA__ e JSON-LD); ativa"
+  },
+  "Indeed": {
+   "url": "https://br.indeed.com/jobs?q=engenheiro+de+planejamento&l=Salvador, BA",
+   "status": 403,
+   "marcadores_bloqueio": [
+    "captcha"
+   ],
+   "decisao": "modo gmail padrao; html_tentativa desligado"
+  }
+ },
+ "pendente": "repetir via workflow_dispatch no GitHub Actions"
+}

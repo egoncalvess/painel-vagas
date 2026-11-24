@@ -313,5 +313,10 @@
   "https://prio.gupy.io/",
   "https://csinfra.gupy.io/",
   "https://ferbasa.gupy.io/"
- ]
+ ],
+ "fontes_ativas": {"Indeed": true, "Catho": true, "Trabalhe Conosco": true},
+ "indeed": {"modo": "gmail", "html_tentativa": false, "dias_email": 3},
+ "catho": {"cidades": ["salvador-ba"], "paginas": 2, "remoto": true},
+ "trabalhe_conosco": [],
+ "limites_novas_fontes": {"req_por_dominio": 20, "pausa_s": 1.5}
 }
