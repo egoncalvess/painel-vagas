@@ -10,10 +10,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842941/engenheiro-a-de-manutencao-e-instalacoes-prediais-senior",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T22:57:40+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:15:45+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:57:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842256-engenheiro-de-planejamento",
@@ -26,10 +26,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842256/engenheiro-de-planejamento",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T22:58:40+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:16:45+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:58:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842098-engenheiro-a-planejamento-de-mina-sr-longo-prazo",
@@ -42,10 +42,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842098/engenheiro-a-planejamento-de-mina-sr-longo-prazo",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T22:59:40+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:17:46+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:59:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841961-engenheiro-de-planejamento-de-mina-senior-belo-horizonte",
@@ -58,10 +58,10 @@
   "link": "https://www.vagas.com.br/vagas/v2841961/engenheiro-de-planejamento-de-mina-senior-belo-horizonte",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:00:40+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:18:46+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:00:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841806-trainee-engenharia",
@@ -74,10 +74,10 @@
   "link": "https://www.vagas.com.br/vagas/v2841806/trainee-engenharia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:01:41+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:19:46+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:01:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840086-mecanico-a-de-manutencao-industrial-iii-tornearia",
@@ -90,10 +90,10 @@
   "link": "https://www.vagas.com.br/vagas/v2840086/mecanico-a-de-manutencao-industrial-iii-tornearia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:02:41+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:20:46+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:02:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2838522-especialista-em-controle-de-custos-de-projetos-engenheiro-de-cust",
@@ -122,10 +122,10 @@
   "link": "https://www.vagas.com.br/vagas/v2838077/engenheiro-civil-orcamentista",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:04:41+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:21:46+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:03:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2835551-mecanica-mecanico-manutencao-industrial-iv",
@@ -138,10 +138,10 @@
   "link": "https://www.vagas.com.br/vagas/v2835551/mecanica-mecanico-manutencao-industrial-iv",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:05:41+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:22:46+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:04:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843737-assistente-de-manutencao",
@@ -170,10 +170,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843545/gerente-de-contrato",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:07:44+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:34:09+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:39:15+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843420-mecanico-de-manutencao-florestal",
@@ -234,10 +234,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843499/analista-em-projetos-processos-e-governanca-de-ti",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 5,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:11:47+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:25:52+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:16:56+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842526-coordenador-ahs-pmo",
@@ -248,12 +248,12 @@
   "empresa": "Komatsu",
   "local": "Parauapebas / PA",
   "link": "https://www.vagas.com.br/vagas/v2842526/coordenador-ahs-pmo",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:12:47+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:27+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:17:56+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2831734-estagiario-de-projetos-de-telecomunicacoes-pmo",
@@ -264,12 +264,12 @@
   "empresa": "Huawei",
   "local": "Belo Horizonte / MG",
   "link": "https://www.vagas.com.br/vagas/v2831734/estagiario-de-projetos-de-telecomunicacoes-pmo",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:13:48+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:27+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:18:56+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842241-estagiario-de-engenharia-gestao-de-contratos-de-energia-barra-da-",
@@ -280,12 +280,12 @@
   "empresa": "White Martins",
   "local": "Rio de Janeiro / RJ",
   "link": "https://www.vagas.com.br/vagas/v2842241/estagiario-de-engenharia-gestao-de-contratos-de-energia-barra-da-tijuca-rj",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:14:48+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:27+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:19:56+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841713-analista-de-projetos-pmo",
@@ -312,12 +312,12 @@
   "empresa": "Confidencial",
   "local": "São Paulo / SP",
   "link": "https://www.vagas.com.br/vagas/v2841172/analista-de-projetos-pleno-pmo",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:16:48+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:27+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:20:56+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841822-analista-de-relacionamento-com-o-cliente-junior-salvador-ba",
@@ -328,12 +328,12 @@
   "empresa": "Randstad Brasil",
   "local": "Salvador / BA",
   "link": "https://www.vagas.com.br/vagas/v2841822/analista-de-relacionamento-com-o-cliente-junior-salvador-ba",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:17:49+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:27+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:21:58+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840346-analista-de-cargos-e-salarios-jr",
@@ -392,12 +392,12 @@
   "empresa": "GWM",
   "local": "Aracruz / ES",
   "link": "https://www.vagas.com.br/vagas/v2843292/analista-de-traducao-e-interpretacao-desenvolvimento-tecnico-de-projetos",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:21:51+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:28+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:50:23+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843249-analista-de-controles-internos-senior-bilingue-ti",
@@ -440,12 +440,12 @@
   "empresa": "Confidencial",
   "local": "São Paulo / SP",
   "link": "https://www.vagas.com.br/vagas/v2842392/gerente-administrativo-obras-ferroviarias-sp",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:24:54+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:28+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:26:02+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842300-analista-i-document-controller-documentacao-de-projetos",
@@ -456,12 +456,12 @@
   "empresa": "DP World Santos",
   "local": "Santos / SP",
   "link": "https://www.vagas.com.br/vagas/v2842300/analista-i-document-controller-documentacao-de-projetos",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:25:54+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:28+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:27:02+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841680-coordenador-de-projeto",
@@ -472,12 +472,12 @@
   "empresa": "Confidencial",
   "local": "Viana / ES",
   "link": "https://www.vagas.com.br/vagas/v2841680/coordenador-de-projeto",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 5,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 6,
   "primeira_falha_em": "2026-11-18T23:26:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:28+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:28:02+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841678-auxiliar-administrativo-de-obras",
@@ -490,10 +490,10 @@
   "link": "https://www.vagas.com.br/vagas/v2841678/auxiliar-administrativo-de-obras",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 6,
+  "tentativas": 7,
   "primeira_falha_em": "2026-11-18T23:27:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:28:57+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:29:02+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2838025-tecnico-de-obras-iii-v027790",
@@ -520,12 +520,12 @@
   "empresa": "PRAZER, SOMOS A CIVIL MASTER!",
   "local": "Nova Lima / MG",
   "link": "https://www.vagas.com.br/vagas/v2841582/tecnico-de-planejamento",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 6,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 7,
   "primeira_falha_em": "2026-11-18T23:29:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:28+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:30:03+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841260-eletricista-obras-transmissao-linha-viva",
@@ -536,12 +536,12 @@
   "empresa": "CPFL Energia",
   "local": "São José do Rio Pardo / SP",
   "link": "https://www.vagas.com.br/vagas/v2841260/eletricista-obras-transmissao-linha-viva",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 6,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 7,
   "primeira_falha_em": "2026-11-18T23:30:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:28+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:31:03+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841028-estagiario-projetista-engenharia-eletrica",
@@ -552,12 +552,12 @@
   "empresa": "PageGroup",
   "local": "Curitiba / PR",
   "link": "https://www.vagas.com.br/vagas/v2841028/estagiario-projetista-engenharia-eletrica",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 7,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-18T23:31:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:29+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:32:03+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840797-orcamentista-civil",
@@ -602,10 +602,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843624/analista-de-custos",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-18T23:35:01+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:30:03+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:34:09+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842614-analista-administrativo-de-contratos-027870",
@@ -666,10 +666,10 @@
   "link": "https://www.vagas.com.br/vagas/v2836840/engenheiro-de-automacao-e-sistemas-de-energia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-18T23:39:04+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:31:06+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:37:12+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842191-engenheiro-a-civil-dep-de-obras-lineares",
@@ -682,10 +682,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842191/engenheiro-a-civil-dep-de-obras-lineares",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-18T23:40:04+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:32:06+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:38:12+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2836365-engenheiro-a-eletricista",
@@ -696,12 +696,12 @@
   "empresa": "ENGECORPS",
   "local": "Barueri / SP",
   "link": "https://www.vagas.com.br/vagas/v2836365/engenheiro-a-eletricista",
-  "erro": "",
-  "codigo_http": 200,
-  "tentativas": 8,
+  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
+  "codigo_http": null,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-18T23:41:05+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:30:29+00:00",
-  "status_fila": "resolvida"
+  "ultima_tentativa_em": "2026-11-24T22:35:11+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841006-engenheiro-a-de-contratos-jr",
@@ -730,10 +730,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843608/coordenador-a-de-performance-de-ativos-energia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:43:08+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:32:29+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:40:15+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843179-supervisor-de-manutencao-a-miguel-pereira-rj-banco-de-talentos",
@@ -755,17 +755,17 @@
   "id": "erro-vagas-vaga-vagas-v2835699-pessoa-supervisora-de-manutencao-mecanica",
   "fonte": "Vagas.com.br",
   "tipo": "vaga",
-  "termo": "coordenador de projetos",
+  "termo": "PCM",
   "titulo": "Pessoa Supervisora de Manutenção Mecânica",
   "empresa": "AGEO Terminais e Armazéns Gerais",
   "local": "Itacoatiara / AM",
   "link": "https://www.vagas.com.br/vagas/v2835699/pessoa-supervisora-de-manutencao-mecanica",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:45:08+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:34:29+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:00:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2834944-estagiario",
@@ -778,10 +778,10 @@
   "link": "https://www.vagas.com.br/vagas/v2834944/estagiario",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:46:09+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:35:30+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:41:16+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843464-engenheiro-a-eletricista-119209",
@@ -810,10 +810,10 @@
   "link": "https://www.vagas.com.br/vagas/v2835267/engenheiro-eletricista-pleno-vaga-extensiva-para-pessoas-com-deficiencia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:48:13+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:37:30+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:43:20+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2830746-banco-de-talentos-engenheiro-eletricista-vaga-para-florianopolis-",
@@ -826,10 +826,10 @@
   "link": "https://www.vagas.com.br/vagas/v2830746/banco-de-talentos-engenheiro-eletricista-vaga-para-florianopolis-vaga-extensiva-para-pessoas-com-deficiencia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:49:14+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:38:30+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:44:20+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842697-projetista-de-instalacoes-eletricas-jr",
@@ -842,10 +842,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842697/projetista-de-instalacoes-eletricas-jr",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:50:17+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:39:30+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:48:23+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843431-consultor-de-produto-jr-sistemas-eletricos-automotivos-chicotes-e",
@@ -874,10 +874,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843497/tecnico-multifuncional-especializado-eletricista",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:52:17+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:41:30+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:49:23+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843008-eletricista-construcao-de-rede",
@@ -890,10 +890,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843008/eletricista-construcao-de-rede",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:53:17+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:42:30+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:51:23+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842521-planejador-a-manutencao-industrial-sr",
@@ -906,10 +906,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842521/planejador-a-manutencao-industrial-sr",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:54:17+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:43:31+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:52:24+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842592-tecnica-o-especializada-o-manutencao-vaga-afirmativa-para-mulhere",
@@ -970,10 +970,10 @@
   "link": "https://www.vagas.com.br/vagas/v2829093/gerente-juridico-a-contratos-e-operacoes",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:58:21+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:47:31+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:54:26+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2833618-gerente-juridico-a-contratos-e-operacoes",
@@ -986,10 +986,10 @@
   "link": "https://www.vagas.com.br/vagas/v2833618/gerente-juridico-a-contratos-e-operacoes",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-18T23:59:21+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:48:31+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:55:27+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2838033-gerente-de-contratos",
@@ -1002,10 +1002,10 @@
   "link": "https://www.vagas.com.br/vagas/v2838033/gerente-de-contratos",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:00:21+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:49:31+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:53:26+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840254-engenheiro-de-manutencao",
@@ -1050,10 +1050,10 @@
   "link": "https://www.vagas.com.br/vagas/v2836808/engenheiro-de-manutencao-de-frota",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:03:24+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:52:32+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:56:29+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842863-analista-de-planejamento-financeiro-senior",
@@ -1098,10 +1098,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843627/mecanico-de-manutencao-iii",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:06:29+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:55:32+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:58:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843438-tecnico-planejamento-programacao-e-manutencao-i-exclusiva-para-pc",
@@ -1114,10 +1114,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843438/tecnico-planejamento-programacao-e-manutencao-i-exclusiva-para-pcd",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:07:29+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:56:32+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:59:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843300-mecanico-de-manutencao-industrial-ii",
@@ -1146,10 +1146,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842915/auxiliar-de-manutencao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:09:30+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:57:32+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:01:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2839937-auxiliar-de-manutencao",
@@ -1162,10 +1162,10 @@
   "link": "https://www.vagas.com.br/vagas/v2839937/auxiliar-de-manutencao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:10:30+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:58:32+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:02:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842824-tecnico-planejamento-programacao-e-manutencao-i-vaga-afirmativa-p",
@@ -1178,10 +1178,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842824/tecnico-planejamento-programacao-e-manutencao-i-vaga-afirmativa-para-pessoas-com-deficiencia-usina-manutencao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:11:30+00:00",
-  "ultima_tentativa_em": "2026-11-24T19:59:32+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:03:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840703-tecnica-o-de-planejamento-prog-manut-i-temporaria-vaga-afirmativa",
@@ -1226,10 +1226,10 @@
   "link": "https://www.vagas.com.br/vagas/v2838368/analista-jr-de-manutencao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:14:30+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:02:33+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:04:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2837813-analista-de-planejamento-manutencao",
@@ -1258,10 +1258,10 @@
   "link": "https://www.vagas.com.br/vagas/v2835088/mecanico-manutencao-agricola-iii",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:16:30+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:04:33+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:06:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843330-tecnico-de-seguranca-do-trabalho-contrato-temporario",
@@ -1338,10 +1338,10 @@
   "link": "https://www.vagas.com.br/vagas/v2785090/programa-de-entry-level-ey-negocios",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:21:35+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:09:33+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:08:40+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2785114-programa-de-entry-level-ey-tecnologia",
@@ -1354,10 +1354,10 @@
   "link": "https://www.vagas.com.br/vagas/v2785114/programa-de-entry-level-ey-tecnologia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:22:36+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:10:34+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:09:40+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2785109-programa-de-entry-level-ey-negocios-exclusivo-pcd",
@@ -1370,10 +1370,10 @@
   "link": "https://www.vagas.com.br/vagas/v2785109/programa-de-entry-level-ey-negocios-exclusivo-pcd",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:23:36+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:11:34+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:10:40+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2785123-programa-de-entry-level-ey-tecnologia-exclusivo-pcd",
@@ -1386,10 +1386,10 @@
   "link": "https://www.vagas.com.br/vagas/v2785123/programa-de-entry-level-ey-tecnologia-exclusivo-pcd",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 9,
+  "tentativas": 10,
   "primeira_falha_em": "2026-11-19T00:24:36+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:12:34+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:11:40+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842267-analista-de-planejamento-comercial-jr-vaga-afirmativa-para-pessoa",
@@ -1434,10 +1434,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843862/analista-de-estrategia-comercial",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:46:06+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:15:34+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:43:43+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2841897-analista-de-ticket-manager-salvador-ba",
@@ -1450,10 +1450,10 @@
   "link": "https://www.vagas.com.br/vagas/v2841897/analista-de-ticket-manager-salvador-ba",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:47:06+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:16:34+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:44:43+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843783-analista-de-pmo-junior",
@@ -1466,10 +1466,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843783/analista-de-pmo-junior",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:48:08+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:17:34+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:50:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843773-analista-de-custos",
@@ -1482,10 +1482,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843773/analista-de-custos",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:49:08+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:18:35+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:49:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843644-analista-de-produto-pleno-planejamento-de-producao",
@@ -1530,10 +1530,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843482/analista-projetos-pleno",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:52:08+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:21:35+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:51:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843509-analista-ppcm-agricola-pl",
@@ -1562,10 +1562,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843114/analista-ppcm-agricola-pl",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:54:09+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:23:35+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:52:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842879-analista-de-planejamento-financeiro-junior-sao-paulo-sp",
@@ -1578,10 +1578,10 @@
   "link": "https://www.vagas.com.br/vagas/v2842879/analista-de-planejamento-financeiro-junior-sao-paulo-sp",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:55:09+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:24:35+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:53:46+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842943-analista-de-planejamento-de-producao-e-atendimento-ao-cliente-ple",
@@ -1626,10 +1626,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843822/engenheiro-obras",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T02:58:12+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:27:35+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:54:48+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843325-pessoa-supervisora-de-manutencao-via-permanente",
@@ -1658,10 +1658,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843402/engenheiro-de-orcamento-infraestrutura",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T03:00:13+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:29:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:55:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843166-coordenador-a-de-confiabilidade-e-automacao",
@@ -1674,10 +1674,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843166/coordenador-a-de-confiabilidade-e-automacao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T03:01:13+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:30:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:56:49+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843810-supervisor-de-enfermagem-i-novamed",
@@ -1690,10 +1690,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843810/supervisor-de-enfermagem-i-novamed",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T03:02:14+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:31:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:06:51+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840629-tecnico-cadista-bim-salvador",
@@ -1706,10 +1706,10 @@
   "link": "https://www.vagas.com.br/vagas/v2840629/tecnico-cadista-bim-salvador",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T03:03:15+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:32:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:07:51+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2838224-operador-de-atendimento-recepcao-laboratorio-a-diagnoson",
@@ -1722,10 +1722,10 @@
   "link": "https://www.vagas.com.br/vagas/v2838224/operador-de-atendimento-recepcao-laboratorio-a-diagnoson",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 8,
+  "tentativas": 9,
   "primeira_falha_em": "2026-11-19T03:04:15+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:33:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:08:51+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842120-analista-de-projetos-educacionais",
@@ -1754,10 +1754,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843939/analista-de-controle-e-gestao-pleno-industrial",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T03:56:34+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:35:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:45:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843941-analista-de-controle-e-gestao-pleno-corporativo",
@@ -1770,10 +1770,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843941/analista-de-controle-e-gestao-pleno-corporativo",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T03:57:34+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:36:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:46:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843940-analista-de-planejamento-senior",
@@ -1786,10 +1786,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843940/analista-de-planejamento-senior",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T03:58:35+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:37:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:48:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843972-analista-de-planejamento-junior",
@@ -1802,10 +1802,10 @@
   "link": "https://www.vagas.com.br/vagas/v2843972/analista-de-planejamento-junior",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T03:59:35+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:38:36+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:47:45+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2835470-engenheiro-civil-de-obras-e-montagens",
@@ -1818,26 +1818,26 @@
   "link": "https://www.vagas.com.br/vagas/v2835470/engenheiro-civil-de-obras-e-montagens",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T04:09:40+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:39:37+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:05:50+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844021-eletricista-manutencao-industrial-i",
   "fonte": "Vagas.com.br",
   "tipo": "vaga",
-  "termo": "planejamento e controle",
+  "termo": "planejamento de manutenção",
   "titulo": "Eletricista Manutenção Industrial I",
   "empresa": "Confidencial",
   "local": "Santa Luzia / MG",
   "link": "https://www.vagas.com.br/vagas/v2844021/eletricista-manutencao-industrial-i",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T04:10:43+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:40:37+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:07:38+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844017-analista-senior-de-gestao-de-pedidos-e-projetos-operacoes-de-vend",
@@ -1850,10 +1850,10 @@
   "link": "https://www.vagas.com.br/vagas/v2844017/analista-senior-de-gestao-de-pedidos-e-projetos-operacoes-de-vendas-e-suporte-119914",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T04:14:49+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:41:37+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:24:59+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843991-tecnico-de-obras-vaga-extensiva-para-pessoas-com-deficiencia",
@@ -1882,10 +1882,10 @@
   "link": "https://www.vagas.com.br/vagas/v2844020/projetista-eletrico-senior",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T04:18:13+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:43:37+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:47:23+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2837916-tecnico-a-planejamento-manutencao-sr-cajati-sp",
@@ -1898,10 +1898,10 @@
   "link": "https://www.vagas.com.br/vagas/v2837916/tecnico-a-planejamento-manutencao-sr-cajati-sp",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 7,
+  "tentativas": 8,
   "primeira_falha_em": "2026-11-20T04:19:25+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:44:37+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T23:05:35+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2829499-engenheiro-producao-pl",
@@ -1914,10 +1914,10 @@
   "link": "https://www.vagas.com.br/vagas/v2829499/engenheiro-producao-pl",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 6,
+  "tentativas": 7,
   "primeira_falha_em": "2026-11-21T03:36:01+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:45:38+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:45:20+00:00",
+  "status_fila": "esgotada"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843279-tecnico-de-ar-condicionado-jr",
@@ -1976,12 +1976,12 @@
   "empresa": "bp bioenergy",
   "local": "Localização não informada",
   "link": "https://www.vagas.com.br/vagas/v2839467/programa-engenheiras-e-engenheiros-2027-bp-bioenergy",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 5,
   "primeira_falha_em": "2026-11-22T02:25:36+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:49:38+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T22:55:29+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842934-gerente-de-obras-e-construcao",
@@ -1994,9 +1994,9 @@
   "link": "https://www.vagas.com.br/vagas/v2842934/gerente-de-obras-e-construcao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:42:28+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:50:38+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:10:53+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2010,9 +2010,9 @@
   "link": "https://www.vagas.com.br/vagas/v2843117/gerente-de-manutencao-industrial",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:43:28+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:51:38+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:11:53+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2026,9 +2026,9 @@
   "link": "https://www.vagas.com.br/vagas/v2844119/pessoa-supervisora-de-manutencao-refrigeracao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:44:28+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:52:38+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:12:53+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2042,9 +2042,9 @@
   "link": "https://www.vagas.com.br/vagas/v2844228/encarregado-de-manutencao",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:45:28+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:53:38+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:15:53+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2058,9 +2058,9 @@
   "link": "https://www.vagas.com.br/vagas/v2844117/tecnico-a-planejamento-manutencao-jr-campo-formoso-ba",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:46:29+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:54:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:13:53+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2074,9 +2074,9 @@
   "link": "https://www.vagas.com.br/vagas/v2839484/gerente-de-obras-e-infraestrutura",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:47:02+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:55:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:14:53+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2090,9 +2090,9 @@
   "link": "https://www.vagas.com.br/vagas/v2844015/analista-de-projetos-pleno-iper",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:50:09+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:56:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:22:59+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2106,25 +2106,25 @@
   "link": "https://www.vagas.com.br/vagas/v2844281/analista-de-projetos-pl-121062",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:51:09+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:57:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:23:59+00:00",
   "status_fila": "pendente"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2843118-gerente-de-projetos-de-energia",
   "fonte": "Vagas.com.br",
   "tipo": "vaga",
-  "termo": "planejador",
+  "termo": "gestão de projetos",
   "titulo": "Gerente de Projetos de Energia",
   "empresa": "Confidencial",
   "local": "Localização não informada",
   "link": "https://www.vagas.com.br/vagas/v2843118/gerente-de-projetos-de-energia",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:53:15+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:58:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:42:18+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2138,25 +2138,25 @@
   "link": "https://www.vagas.com.br/vagas/v2844250/analista-de-engenharia-de-produto-chicotes-eletricos-120713",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:54:18+00:00",
-  "ultima_tentativa_em": "2026-11-24T20:59:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:33:08+00:00",
   "status_fila": "pendente"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2842978-analista-de-controladoria-e-contratos-sr",
   "fonte": "Vagas.com.br",
   "tipo": "vaga",
-  "termo": "analista de custos",
+  "termo": "analista de manutenção",
   "titulo": "Analista de Controladoria e Contratos Sr",
   "empresa": "Reggiani Hunting",
   "local": "Contagem / MG",
   "link": "https://www.vagas.com.br/vagas/v2842978/analista-de-controladoria-e-contratos-sr",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:55:18+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:00:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:57:32+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2170,9 +2170,9 @@
   "link": "https://www.vagas.com.br/vagas/v2838245/estagiario-de-engenharia-mecanica-projetos",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:56:21+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:01:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:36:12+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2186,9 +2186,9 @@
   "link": "https://www.vagas.com.br/vagas/v2834355/projetista-de-eletrica-senior",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 3,
+  "tentativas": 4,
   "primeira_falha_em": "2026-11-24T06:58:33+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:02:39+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:46:23+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2200,12 +2200,12 @@
   "empresa": "Lyon Engenharia",
   "local": "Parauapebas / PA",
   "link": "https://www.vagas.com.br/vagas/v2844359/analista-de-planejamento-sr-v028047",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:29:18+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:03:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844362-analista-de-planejamento-pcd-028047-2",
@@ -2216,12 +2216,12 @@
   "empresa": "Lyon Engenharia",
   "local": "Parauapebas / PA",
   "link": "https://www.vagas.com.br/vagas/v2844362/analista-de-planejamento-pcd-028047-2",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:30:18+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:04:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844400-assistente-de-pcm-planejamento-e-controle-da-manutencao",
@@ -2232,12 +2232,12 @@
   "empresa": "Zydus",
   "local": "Rio de Janeiro / RJ",
   "link": "https://www.vagas.com.br/vagas/v2844400/assistente-de-pcm-planejamento-e-controle-da-manutencao",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:31:24+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:05:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844371-tecnico-a-planejamento-manutencao-sr",
@@ -2248,12 +2248,12 @@
   "empresa": "Confidencial",
   "local": "Contagem / MG",
   "link": "https://www.vagas.com.br/vagas/v2844371/tecnico-a-planejamento-manutencao-sr",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:32:24+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:06:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844364-fiscal-planejamento-pl-v028049",
@@ -2264,12 +2264,12 @@
   "empresa": "Lyon Engenharia",
   "local": "Parauapebas / PA",
   "link": "https://www.vagas.com.br/vagas/v2844364/fiscal-planejamento-pl-v028049",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:33:24+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:07:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844444-assistente-de-facilities-manutencao-civil-e-predial",
@@ -2280,12 +2280,12 @@
   "empresa": "Zeentech",
   "local": "Betim / MG",
   "link": "https://www.vagas.com.br/vagas/v2844444/assistente-de-facilities-manutencao-civil-e-predial",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:34:24+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:08:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844361-gerente-de-projetos",
@@ -2296,12 +2296,12 @@
   "empresa": "The Adecco Group",
   "local": "São Paulo / SP",
   "link": "https://www.vagas.com.br/vagas/v2844361/gerente-de-projetos",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:35:27+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:09:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844424-supervisor-de-manutencao-automotiva",
@@ -2312,12 +2312,12 @@
   "empresa": "Clealco",
   "local": "Clementina / SP",
   "link": "https://www.vagas.com.br/vagas/v2844424/supervisor-de-manutencao-automotiva",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:48:39+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:10:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844131-coordenador-confiabilidade-e-engenharia-de-manutencao",
@@ -2328,12 +2328,12 @@
   "empresa": "Porto Sudeste Brasil",
   "local": "Itaguaí / RJ",
   "link": "https://www.vagas.com.br/vagas/v2844131/coordenador-confiabilidade-e-engenharia-de-manutencao",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 2,
   "primeira_falha_em": "2026-11-24T15:49:45+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:11:40+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:42+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844367-eletricista",
@@ -2346,9 +2346,9 @@
   "link": "https://www.vagas.com.br/vagas/v2844367/eletricista",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 2,
+  "tentativas": 3,
   "primeira_falha_em": "2026-11-24T15:50:56+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:12:41+00:00",
+  "ultima_tentativa_em": "2026-11-24T21:41:42+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2362,9 +2362,9 @@
   "link": "https://www.vagas.com.br/vagas/v2844405/analista-de-gestao-de-contratos-jr",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
-  "tentativas": 2,
+  "tentativas": 3,
   "primeira_falha_em": "2026-11-24T15:53:00+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:13:41+00:00",
+  "ultima_tentativa_em": "2026-11-24T21:42:43+00:00",
   "status_fila": "pendente"
  },
  {
@@ -2376,12 +2376,12 @@
   "empresa": "bp bioenergy",
   "local": "São José do Rio Preto / SP",
   "link": "https://www.vagas.com.br/vagas/v2844427/analista-custos-orcamento-jr",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 1,
   "primeira_falha_em": "2026-11-24T21:14:43+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:14:43+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2840486-eletricista-de-manutencao-pl",
@@ -2392,12 +2392,12 @@
   "empresa": "Dori Ferrara",
   "local": "Rolândia / PR",
   "link": "https://www.vagas.com.br/vagas/v2840486/eletricista-de-manutencao-pl",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 1,
   "primeira_falha_em": "2026-11-24T21:23:49+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:23:49+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844507-especialista-de-pcm-cabreuva-sp",
@@ -2408,12 +2408,12 @@
   "empresa": "Confidencial",
   "local": "Cabreúva / SP",
   "link": "https://www.vagas.com.br/vagas/v2844507/especialista-de-pcm-cabreuva-sp",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 1,
   "primeira_falha_em": "2026-11-24T21:24:49+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:24:49+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844450-analista-controle-qualidade-senior",
@@ -2424,12 +2424,12 @@
   "empresa": "União Química Farmacêutica Nacional",
   "local": "Pouso Alegre / MG",
   "link": "https://www.vagas.com.br/vagas/v2844450/analista-controle-qualidade-senior",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 1,
   "primeira_falha_em": "2026-11-24T21:26:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:26:55+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844452-analista-controle-qualidade-junior",
@@ -2440,12 +2440,12 @@
   "empresa": "União Química Farmacêutica Nacional",
   "local": "Pouso Alegre / MG",
   "link": "https://www.vagas.com.br/vagas/v2844452/analista-controle-qualidade-junior",
-  "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-  "codigo_http": null,
+  "erro": "",
+  "codigo_http": 200,
   "tentativas": 1,
   "primeira_falha_em": "2026-11-24T21:27:55+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:27:55+00:00",
-  "status_fila": "pendente"
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
  },
  {
   "id": "erro-vagas-vaga-vagas-v2844491-supervisor-de-manutencao-utilidades",
@@ -2456,11 +2456,27 @@
   "empresa": "União Química Farmacêutica Nacional",
   "local": "Taboão da Serra / SP",
   "link": "https://www.vagas.com.br/vagas/v2844491/supervisor-de-manutencao-utilidades",
+  "erro": "",
+  "codigo_http": 200,
+  "tentativas": 1,
+  "primeira_falha_em": "2026-11-24T21:33:09+00:00",
+  "ultima_tentativa_em": "2026-11-24T21:40:41+00:00",
+  "status_fila": "resolvida"
+ },
+ {
+  "id": "erro-vagas-vaga-vagas-v2844534-gerente-de-contrato",
+  "fonte": "Vagas.com.br",
+  "tipo": "vaga",
+  "termo": "planejamento e controle",
+  "titulo": "Gerente de Contrato",
+  "empresa": "Confidencial",
+  "local": "São João de Meriti / RJ",
+  "link": "https://www.vagas.com.br/vagas/v2844534/gerente-de-contrato",
   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
   "codigo_http": null,
   "tentativas": 1,
-  "primeira_falha_em": "2026-11-24T21:33:09+00:00",
-  "ultima_tentativa_em": "2026-11-24T21:33:09+00:00",
+  "primeira_falha_em": "2026-11-24T22:09:53+00:00",
+  "ultima_tentativa_em": "2026-11-24T22:09:53+00:00",
   "status_fila": "pendente"
  }
 ]
