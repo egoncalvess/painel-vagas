@@ -92,6 +92,45 @@ def get(url, **kw):
 
 # ---------------------------------------------------------------- fila de erros Vagas.com.br
 
+MAX_TENTATIVAS_FILA = 5
+MAX_REPROCESSAR_FILA = 30
+BACKOFF_HORAS_FILA = {1: 0, 2: 0, 3: 2, 4: 6, 5: 12}
+
+
+def _parse_iso_utc(txt):
+    if not txt or not isinstance(txt, str):
+        return None
+    try:
+        d = dt.datetime.fromisoformat(txt.replace("Z", "+00:00"))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=dt.timezone.utc)
+        return d
+    except ValueError:
+        return None
+
+
+def _horas_backoff_fila(tentativas):
+    t = max(1, int(tentativas or 1))
+    if t in BACKOFF_HORAS_FILA:
+        return BACKOFF_HORAS_FILA[t]
+    return 12
+
+
+def _item_fila_elegivel(item, agora=None):
+    if item.get("status_fila") != "pendente":
+        return False
+    if int(item.get("tentativas") or 1) >= MAX_TENTATIVAS_FILA:
+        return False
+    horas = _horas_backoff_fila(item.get("tentativas"))
+    if horas <= 0:
+        return True
+    ultima = _parse_iso_utc(item.get("ultima_tentativa_em"))
+    if ultima is None:
+        return True
+    ref = agora or dt.datetime.now(dt.timezone.utc)
+    return (ref - ultima) >= dt.timedelta(hours=horas)
+
+
 def id_erro_vaga(tipo, link="", termo="", titulo="", empresa=""):
     tipo_norm = "busca" if tipo == "busca" else "vaga"
     alvo = (link or "").strip()
@@ -122,7 +161,7 @@ def _normalizar_item_fila(item):
     elif not isinstance(cod_http, int) or isinstance(cod_http, bool):
         cod_http = None
     status_fila = item.get("status_fila")
-    if status_fila not in ("pendente", "resolvida", "descartada"):
+    if status_fila not in ("pendente", "resolvida", "descartada", "esgotada", "removida"):
         status_fila = "pendente"
     return {
         "id": eid,
@@ -183,6 +222,13 @@ def fila_erros_pendentes(fila=None):
     return [x for x in alvo if x.get("status_fila") == "pendente"]
 
 
+def fila_erros_reprocessaveis(fila=None, agora=None, limite=MAX_REPROCESSAR_FILA):
+    ref = agora or dt.datetime.now(dt.timezone.utc)
+    elegiveis = [x for x in fila_erros_pendentes(fila) if _item_fila_elegivel(x, agora=ref)]
+    elegiveis.sort(key=lambda x: (int(x.get("tentativas") or 1), x.get("ultima_tentativa_em") or ""))
+    return elegiveis[:max(0, int(limite))]
+
+
 def registrar_erro_vaga(tipo, erro, codigo_http=None, termo="", titulo="", empresa="", local="", link="", fila=None):
     alvo = FILA_ERROS_VAGAS if fila is None else fila
     tipo_norm = "busca" if tipo == "busca" else "vaga"
@@ -198,15 +244,19 @@ def registrar_erro_vaga(tipo, erro, codigo_http=None, termo="", titulo="", empre
             break
 
     if existente is not None:
-        existente["tentativas"] = int(existente.get("tentativas") or 0) + 1
+        tentativas = int(existente.get("tentativas") or 0) + 1
+        existente["tentativas"] = tentativas
         existente["ultima_tentativa_em"] = agora
         existente["erro"] = str(erro)[:300]
         existente["codigo_http"] = cod_int
         for campo, valor in (("termo", termo), ("titulo", titulo), ("empresa", empresa), ("local", local), ("link", link_limpo)):
             if valor:
                 existente[campo] = valor.strip()
-        if existente.get("status_fila") != "descartada":
-            existente["status_fila"] = "pendente"
+        if existente.get("status_fila") not in ("descartada", "removida"):
+            if cod_int != 404 and tentativas >= MAX_TENTATIVAS_FILA:
+                existente["status_fila"] = "esgotada"
+            else:
+                existente["status_fila"] = "pendente"
         return existente
 
     novo = {
@@ -658,8 +708,8 @@ def fonte_vagas_com_br():
     urls_busca_reprocessadas = set()
     carregar_fila_erros()
     try:
-        # 1) Reprocessar itens pendentes da fila de erros do Vagas.com.br
-        pendentes = list(fila_erros_pendentes())
+        # 1) Reprocessar itens pendentes elegíveis da fila de erros do Vagas.com.br (com backoff e limite por execução)
+        pendentes = fila_erros_reprocessaveis()
         for item in pendentes:
             tipo = item.get("tipo") or "vaga"
             link = (item.get("link") or "").strip()

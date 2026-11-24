@@ -324,3 +324,71 @@ def test_main_expoe_fila_erros_em_docs_vagas_json(tmp_path, monkeypatch):
     fontes_no_painel = {v["fonte"] for v in painel_2["vagas"]}
     assert "Vagas.com.br" in fontes_no_painel
 
+
+def test_fila_erros_teto_esgotada_backoff_e_limite_por_execucao(tmp_path, monkeypatch):
+    import datetime as dt
+
+    arq_fila = tmp_path / "fila_erros_vagas.json"
+    monkeypatch.setattr(coletar, "ARQ_FILA_ERROS", str(arq_fila))
+    monkeypatch.setattr(coletar, "FILA_ERROS_VAGAS", [])
+    monkeypatch.setattr(coletar.time, "sleep", lambda *_: None)
+
+    link_vaga = "https://www.vagas.com.br/vagas/v777777/engenheiro-teste"
+    for i in range(coletar.MAX_TENTATIVAS_FILA - 1):
+        item = coletar.registrar_erro_vaga("vaga", "Falha 502", codigo_http=502, link=link_vaga)
+        assert item["tentativas"] == i + 1
+        assert item["status_fila"] == "pendente"
+
+    # Ao atingir MAX_TENTATIVAS_FILA (5), marca status_fila = "esgotada"
+    item_final = coletar.registrar_erro_vaga("vaga", "Falha 502", codigo_http=502, link=link_vaga)
+    assert item_final["tentativas"] == coletar.MAX_TENTATIVAS_FILA
+    assert item_final["status_fila"] == "esgotada"
+
+    # fila_erros_pendentes exclui esgotada e removida
+    fila_mista = [
+        item_final,
+        {"id": "erro-vagas-vaga-rem", "tipo": "vaga", "link": "https://www.vagas.com.br/vagas/v888/x", "status_fila": "removida", "tentativas": 1},
+        {"id": "erro-vagas-vaga-pend", "tipo": "vaga", "link": "https://www.vagas.com.br/vagas/v999/y", "status_fila": "pendente", "tentativas": 3, "ultima_tentativa_em": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")},
+    ]
+    pendentes = coletar.fila_erros_pendentes(fila_mista)
+    assert [x["id"] for x in pendentes] == ["erro-vagas-vaga-pend"]
+
+    # Backoff: item com tentativas=3 precisa de >= 2h desde ultima_tentativa_em
+    agora = dt.datetime.now(dt.timezone.utc)
+    assert coletar.fila_erros_reprocessaveis(fila_mista, agora=agora) == []
+    fila_mista[2]["ultima_tentativa_em"] = (agora - dt.timedelta(hours=3)).isoformat(timespec="seconds")
+    assert [x["id"] for x in coletar.fila_erros_reprocessaveis(fila_mista, agora=agora)] == ["erro-vagas-vaga-pend"]
+
+    # Limite por execução em fonte_vagas_com_br (MAX_REPROCESSAR_FILA)
+    fila_lote = [
+        {
+            "id": f"erro-vagas-vaga-{i}",
+            "fonte": "Vagas.com.br",
+            "tipo": "vaga",
+            "termo": "engenharia",
+            "titulo": f"Vaga {i}",
+            "empresa": "Emp",
+            "local": "Salvador",
+            "link": f"https://www.vagas.com.br/vagas/v{1000+i}/teste",
+            "erro": "HTTP 502",
+            "codigo_http": 502,
+            "tentativas": 1,
+            "primeira_falha_em": agora.isoformat(timespec="seconds"),
+            "ultima_tentativa_em": agora.isoformat(timespec="seconds"),
+            "status_fila": "pendente",
+        }
+        for i in range(coletar.MAX_REPROCESSAR_FILA + 10)
+    ]
+    arq_fila.write_text(json.dumps(fila_lote), encoding="utf-8")
+    monkeypatch.setattr(coletar, "todos_termos", lambda: [])
+    chamadas = []
+
+    def fake_get_lote(url, **kw):
+        chamadas.append(url)
+        return FakeResponse(500, "Erro")
+
+    monkeypatch.setattr(coletar, "get", fake_get_lote)
+    list(coletar.fonte_vagas_com_br())
+    assert len(chamadas) == coletar.MAX_REPROCESSAR_FILA
+
+

@@ -105,12 +105,12 @@
       <div class="auth-msg" id="login-msg" role="alert"></div>
 
       <div class="auth-tabs" role="tablist" aria-label="Modo de acesso">
-        <button class="auth-tab active" type="button" role="tab" aria-selected="true" id="tab-signin" data-auth-tab="signin">Entrar</button>
-        <button class="auth-tab" type="button" role="tab" aria-selected="false" id="tab-signup" data-auth-tab="signup">Criar acesso</button>
+        <button class="auth-tab active" type="button" role="tab" aria-selected="true" aria-controls="auth-email-form" id="tab-signin" data-auth-tab="signin">Entrar</button>
+        <button class="auth-tab" type="button" role="tab" aria-selected="false" aria-controls="form-setup" id="tab-signup" data-auth-tab="signup">Criar acesso</button>
       </div>
 
       <!-- Aba 1: Entrar -->
-      <form id="auth-email-form" autocomplete="on" novalidate style="display:grid;gap:12px">
+      <form id="auth-email-form" role="tabpanel" aria-labelledby="tab-signin" autocomplete="on" novalidate style="display:grid;gap:12px">
         <label class="auth-field">Usuário ou E-mail
           <div class="auth-input-wrap">
             <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
@@ -135,7 +135,7 @@
       </form>
 
       <!-- Aba 2: Criar acesso (com medidor de força da senha .meter e 3 regras .rules idênticos ao entrar.html) -->
-      <form id="form-setup" autocomplete="on" novalidate hidden style="display:grid;gap:12px">
+      <form id="form-setup" role="tabpanel" aria-labelledby="tab-signup" autocomplete="on" novalidate hidden style="display:grid;gap:12px">
         <label class="auth-field">Seu nome completo
           <div class="auth-input-wrap">
             <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
@@ -192,7 +192,7 @@
       <span class="brand-name">Radar</span>
     </a>
     <nav class="tabs" aria-label="Seções">
-      <button class="nav-item active" type="button" data-view="overview">
+      <button class="nav-item active" type="button" data-view="overview" aria-current="page">
         <svg class="i" aria-hidden="true"><use href="#i-home"/></svg>
         <span class="long">Visão geral</span><span class="short">Início</span>
       </button>
@@ -375,7 +375,7 @@
       </div>
 
       <p class="notice info" id="msg-atual" role="status" aria-live="polite" hidden></p>
-      <p class="notice bad alerta-fontes" id="alerta-fontes" hidden></p>
+      <p class="notice bad alerta-fontes" id="alerta-fontes" role="alert" hidden></p>
 
       <!-- Formulário para adicionar vaga manual -->
       <form id="manual-panel" class="manual-panel" hidden>
@@ -707,8 +707,8 @@
             </div>
           </div>
           <div class="segmented" role="group" aria-label="Tema">
-            <button type="button" class="seg" data-theme-choice="light">Claro</button>
-            <button type="button" class="seg" data-theme-choice="dark">Escuro</button>
+            <button type="button" class="seg" data-theme-choice="light" aria-pressed="true">Claro</button>
+            <button type="button" class="seg" data-theme-choice="dark" aria-pressed="false">Escuro</button>
           </div>
         </section>
 

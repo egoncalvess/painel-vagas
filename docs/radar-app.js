@@ -256,7 +256,11 @@
     const mt=qs('meta[name="theme-color"]');if(mt)mt.content=t==="dark"?"#0b1412":"#112926";
     const useEl=qs("#theme-icon use");
     if(useEl)useEl.setAttribute("href",t==="dark"?"#i-sun":"#i-moon");
-    qsa("[data-theme-choice]").forEach(b=>b.classList.toggle("active",b.dataset.themeChoice===t));
+    qsa("[data-theme-choice]").forEach(b=>{
+      const on=b.dataset.themeChoice===t;
+      b.classList.toggle("active",on);
+      b.setAttribute("aria-pressed",String(on));
+    });
     gravarGlobal("radar-theme",t);
   }
   (function initTema(){
@@ -2023,7 +2027,12 @@
   function setView(view){
     activeView=view;
     qsa(".view").forEach(v=>v.classList.toggle("active",v.id===view));
-    qsa(".nav-item").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+    qsa(".nav-item").forEach(b=>{
+      const on=b.dataset.view===view;
+      b.classList.toggle("active",on);
+      if(on)b.setAttribute("aria-current","page");
+      else b.removeAttribute("aria-current");
+    });
     qs(".profile-chip")?.classList.toggle("active",view==="profile");
     window.scrollTo({top:0,behavior:"instant"});
   }
@@ -2384,16 +2393,19 @@
   }
 
   // Alternar abas Entrar / Criar acesso
+  function alternarAbaAuth(mode){
+    qsa("[data-auth-tab], #tab-signin, #tab-signup").forEach(b=>{
+      const tabMode=b.dataset.authTab||(b.id==="tab-signup"?"signup":"signin");
+      const on=tabMode===mode;
+      b.classList.toggle("active",on);
+      b.setAttribute("aria-selected",String(on));
+    });
+    if($("auth-email-form"))$("auth-email-form").hidden=mode!=="signin";
+    if($("form-setup"))$("form-setup").hidden=mode!=="signup";
+  }
   qsa("[data-auth-tab]").forEach(tab=>{
     tab.addEventListener("click",()=>{
-      const mode=tab.dataset.authTab;
-      qsa("[data-auth-tab]").forEach(b=>{
-        const on=b.dataset.authTab===mode;
-        b.classList.toggle("active",on);
-        b.setAttribute("aria-selected",String(on));
-      });
-      if($("auth-email-form"))$("auth-email-form").hidden=mode!=="signin";
-      if($("form-setup"))$("form-setup").hidden=mode!=="signup";
+      alternarAbaAuth(tab.dataset.authTab||(tab.id==="tab-signup"?"signup":"signin"));
       exibirMsgLogin("");
     });
   });
