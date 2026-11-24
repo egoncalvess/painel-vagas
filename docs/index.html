@@ -7,10 +7,10 @@
 <meta name="color-scheme" content="light">
 <title>Radar · Vagas, Currículo e Carreira</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d7f35a'/%3E%3Cg fill='none' stroke='%23112926' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M24.5 9.5A10 10 0 1 0 26 16'/%3E%3Cpath d='M20.8 12.2A5.5 5.5 0 1 0 21.5 16'/%3E%3Cpath d='m17.5 14.5 7-7'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='2' fill='%23112926'/%3E%3C/svg%3E">
-<script src="supabase-config.js"></script>
+<script src="supabase-config.js?v=20261124-005"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="radar.css">
+<link rel="stylesheet" href="radar.css?v=20261124-005">
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
@@ -695,6 +695,42 @@
 
       <div class="profile-layout">
         <div class="settings-stack">
+          <section class="workspace-panel li-import-panel" id="li-import-panel" aria-labelledby="li-import-title">
+            <div class="panel-heading">
+              <div>
+                <h2 id="li-import-title">Importar do LinkedIn</h2>
+                <p class="helper">No LinkedIn: Perfil → Mais → Salvar como PDF. O arquivo é lido só no seu navegador (ou arraste o PDF para este cartão).</p>
+              </div>
+            </div>
+            <div class="li-import-dropzone" id="li-import-dropzone">
+              <div class="li-import-drop-main">
+                <label class="button button-secondary" for="li-import-file">Escolher PDF do LinkedIn</label>
+                <input type="file" id="li-import-file" accept="application/pdf,.pdf" class="visually-hidden">
+                <span class="muted small">Arraste o PDF aqui (máx. 5 MB · 100% local no navegador)</span>
+              </div>
+              <label class="check li-import-overwrite">
+                <input type="checkbox" id="li-import-overwrite">
+                <span>Sobrescrever campos que já estão preenchidos</span>
+              </label>
+            </div>
+            <details class="disclosure" id="li-import-paste-box">
+              <summary>Não tem o PDF? Colar o texto do perfil <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+              <div class="disclosure-body">
+                <label for="li-import-paste" class="small muted">Copie o texto do PDF ou da página do seu perfil no LinkedIn e cole abaixo:</label>
+                <textarea id="li-import-paste" rows="8" maxlength="30000" placeholder="Cole aqui o texto completo do seu perfil do LinkedIn (Resumo, Experiência, Formação acadêmica, Competências, Idiomas)..."></textarea>
+                <div class="form-actions" style="margin-top:8px">
+                  <button type="button" class="button button-secondary button-sm" id="li-import-paste-apply">Analisar texto</button>
+                </div>
+              </div>
+            </details>
+            <p id="li-import-status" class="li-import-status" role="status" aria-live="polite"></p>
+            <div id="li-import-preview" class="li-import-preview" hidden></div>
+            <div class="form-actions" id="li-import-actions" hidden>
+              <button type="button" class="button" id="li-import-apply">Aplicar ao perfil e salvar</button>
+              <button type="button" class="button button-ghost" id="li-import-cancel">Descartar</button>
+            </div>
+          </section>
+
           <section class="workspace-panel" aria-labelledby="base-title">
             <div class="panel-heading">
               <div>
@@ -745,8 +781,8 @@
                   <label class="full">Seção &ldquo;Sobre&rdquo; atual do LinkedIn (até 2600 caracteres)
                     <textarea name="linkedinAbout" rows="4" maxlength="2600" placeholder="Cole seu texto Sobre do LinkedIn para auditoria de métricas, tamanho e palavras-chave."></textarea>
                   </label>
-                  <label class="full">Experiências profissionais (Cargo | Empresa | Período + bullets com verbo e resultado)
-                    <textarea name="experiencesText" rows="8" maxlength="6000" placeholder="Engenheiro de Planejamento | Empresa X | 03/2021 – Atual&#10;- Reduzi o tempo de fechamento do cronograma em 30% integrando MS Project e Power BI&#10;- Controlei físico-financeiro de 12 contratos com curva S e EVM&#10;&#10;Analista de Planejamento | Empresa Y | 01/2019 – 02/2021&#10;- Padronizei relatórios semanais de manutenção no SAP PM"></textarea>
+                  <label class="full">Experiências profissionais (Cargo | Empresa | Período + bullets; linha em branco entre experiências é opcional)
+                    <textarea name="experiencesText" rows="8" maxlength="6000" placeholder="Engenheiro de Planejamento | Empresa X | 03/2021 – Atual&#10;- Reduzi o tempo de fechamento do cronograma em 30% integrando MS Project e Power BI&#10;- Controlei físico-financeiro de 12 contratos com curva S e EVM&#10;Analista de Planejamento | Empresa Y | 01/2019 – 02/2021&#10;- Padronizei relatórios semanais de manutenção no SAP PM (linha em branco entre experiências é opcional)"></textarea>
                   </label>
                   <label class="full">Formação acadêmica (Curso | Instituição | Ano, uma por linha)
                     <textarea name="educationText" rows="3" maxlength="1000" placeholder="Engenharia Elétrica | UFBA | 2018&#10;Pós-graduação em Gestão de Projetos | FGV | 2020"></textarea>
@@ -903,6 +939,6 @@
 
 <div id="ats-print-root" aria-hidden="true"></div>
 
-<script src="radar-app.js"></script>
+<script src="radar-app.js?v=20261124-005"></script>
 </body>
 </html>

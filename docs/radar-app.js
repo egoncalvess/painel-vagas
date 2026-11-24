@@ -5,6 +5,8 @@
  */
 (function(){
   "use strict";
+  const ASSET_VERSION="20261124-005";
+  console.info("Radar",ASSET_VERSION);
 
   const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
   const STATUS=[
@@ -39,10 +41,13 @@
     ["CNH", /\bcnh\b|carteira de habilita/i]
   ];
 
-  const CAMPOS_TEXTO_PERFIL=[
-    "name","city","regionCities","headline","roles","maxDays","contact","skills","summary",
+  const CAMPOS_EXTRAS_PERFIL=[
     "targetRole","seniority","phone","linkedinUrl","linkedinHeadline","linkedinAbout",
     "experiencesText","educationText","certifications","languages"
+  ];
+  const CAMPOS_TEXTO_PERFIL=[
+    "name","city","regionCities","headline","roles","maxDays","contact","skills","summary",
+    ...CAMPOS_EXTRAS_PERFIL
   ];
 
   const PRESET_DEFAULT_PROFILE={
@@ -203,9 +208,14 @@
     return p;
   }
   function gravarUser(k,v){
-    try{localStorage.setItem(userKey(k),JSON.stringify(v))}catch(e){}
-    if(RadarDynamicDB.stores.includes(k))RadarDynamicDB.put(k,activeNamespace,v);
-    else RadarDynamicDB.put("progress",`${activeNamespace}:${k}`,v);
+    let val=v;
+    if(k==="profiles"&&val&&typeof val==="object"&&!Array.isArray(val)){
+      val={...val,_atualizadoEm:new Date().toISOString()};
+      if(val===profile||profile)profile=val;
+    }
+    try{localStorage.setItem(userKey(k),JSON.stringify(val))}catch(e){}
+    if(RadarDynamicDB.stores.includes(k))RadarDynamicDB.put(k,activeNamespace,val);
+    else RadarDynamicDB.put("progress",`${activeNamespace}:${k}`,val);
     sincronizarProgressoContasSupabase();
     sinalizarSincronizacaoBase();
     atualizarOnboardingBanner();
@@ -1881,30 +1891,77 @@
   const LI_METRIC_RE=/(\d+(?:[.,]\d+)?\s*(?:%|r\$|mil|k|m\b|horas?|dias?|meses?|anos?|pessoas?|projetos?|obras?|contratos?|unidades?|mw|kw|kva)|\br\$\s*\d+)/i;
   const SENIORITY_LABELS={junior:"Júnior",pleno:"Pleno",senior:"Sênior",coordenacao:"Coordenação",gerencia:"Gerência"};
 
+  const DATE_RE=/(?:^|\b)((?:jan(?:eiro)?|fev(?:ereiro)?|mar(?:[cç]o)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?|january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:de\s*)?\d{4}|\d{2}\/\d{4})\s*[-–—]\s*((?:jan(?:eiro)?|fev(?:ereiro)?|mar(?:[cç]o)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?|january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:de\s*)?\d{4}|\d{2}\/\d{4}|presente|present|atual|o momento|at[eé] o momento|current)(?:\s*\([^)]+\))?/i;
+
   function parseExperiencias(txt){
     try{
-      const blocos=String(txt||"").trim().split(/\r?\n\s*\r?\n+/).filter(Boolean);
+      const linhasBrutas=String(txt||"").split(/\r?\n/);
       const saida=[];
-      for(const bloco of blocos){
-        const linhas=bloco.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-        if(!linhas.length)continue;
-        let exp=null;
-        for(const linha of linhas){
-          const ehBullet=/^[-*•]\s*/.test(linha);
-          if(!ehBullet&&!exp&&linha.includes("|")){
-            const partes=linha.split("|").map(s=>s.trim());
-            exp={titulo:partes[0]||"Experiência",empresa:partes[1]||"",periodo:partes[2]||"",bullets:[]};
-          }else{
-            if(!exp){
-              exp={titulo:ehBullet?"Experiência profissional":linha,empresa:"",periodo:"",bullets:[]};
-              if(!ehBullet)continue;
-            }
-            const limpo=linha.replace(/^[-*•]\s*/,"").trim();
-            if(limpo)exp.bullets.push(limpo);
+      let exp=null;
+      let pendente=null;
+      const ehBulletLinha=l=>/^[-*•\uf0b7]\s*/.test(l);
+      const ehDuracaoLinha=l=>/^\d+\s+(?:anos?|years?|meses?|months?)/i.test(l);
+
+      for(let i=0;i<linhasBrutas.length;i++){
+        const linha=linhasBrutas[i].trim();
+        if(!linha){
+          if(pendente){
+            if(!exp)exp={titulo:pendente,empresa:"",periodo:"",bullets:[]};
+            else exp.bullets.push(pendente);
+            pendente=null;
           }
+          if(exp){saida.push(exp);exp=null}
+          continue;
         }
-        if(exp)saida.push(exp);
+        const ehBullet=ehBulletLinha(linha);
+        if(!ehBullet&&linha.includes("|")&&linha.split("|").length>=2){
+          if(pendente){
+            if(exp)exp.bullets.push(pendente);
+            pendente=null;
+          }
+          if(exp)saida.push(exp);
+          const partes=linha.split("|").map(s=>s.trim());
+          exp={titulo:partes[0]||"Experiência",empresa:partes[1]||"",periodo:partes[2]||"",bullets:[]};
+          continue;
+        }
+        const prox=linhasBrutas[i+1]?.trim()||"";
+        if(!ehBullet&&prox&&DATE_RE.test(prox)&&!prox.includes("|")){
+          if(exp)saida.push(exp);
+          exp={titulo:linha,empresa:(pendente&&!ehDuracaoLinha(pendente))?pendente:"",periodo:prox,bullets:[]};
+          pendente=null;
+          i++;
+          continue;
+        }
+        if(!ehBullet&&DATE_RE.test(linha)&&exp&&!exp.periodo){
+          exp.periodo=linha;
+          continue;
+        }
+        if(ehBullet){
+          if(pendente){
+            if(!exp)exp={titulo:pendente,empresa:"",periodo:"",bullets:[]};
+            else exp.bullets.push(pendente);
+            pendente=null;
+          }
+          if(!exp)exp={titulo:"Experiência profissional",empresa:"",periodo:"",bullets:[]};
+          const limpo=linha.replace(/^[-*•\uf0b7]\s*/,"").trim();
+          if(limpo)exp.bullets.push(limpo);
+          continue;
+        }
+        if(!exp){
+          if(!pendente){pendente=linha}
+          else{
+            exp={titulo:linha,empresa:pendente,periodo:"",bullets:[]};
+            pendente=null;
+          }
+        }else{
+          exp.bullets.push(linha);
+        }
       }
+      if(pendente){
+        if(!exp)exp={titulo:pendente,empresa:"",periodo:"",bullets:[]};
+        else exp.bullets.push(pendente);
+      }
+      if(exp)saida.push(exp);
       return saida;
     }catch(_){
       return [];
@@ -2315,13 +2372,17 @@
     if(dados.certificacoes?.length)extras.push(`Certificações: ${dados.certificacoes.join(", ")}`);
     if(dados.idiomas?.length)extras.push(`Idiomas: ${dados.idiomas.join(", ")}`);
 
+    const anterioresHtml=(dados.experienciasAnteriores?.length)
+      ?`<p class="ats-anteriores"><strong>Experiências anteriores:</strong> ${dados.experienciasAnteriores.map(e=>escapeHtml(`${e.titulo}${e.empresa?` — ${e.empresa}`:""}${e.periodo?` (${e.periodo})`:""}`)).join("; ")}</p>`
+      :"";
+
     return`<article id="ats-sheet" class="ats-sheet" data-densidade="${escapeHtml(densidade)}">
       <h1>${escapeHtml(dados.nome)}</h1>
       ${dados.titulo?`<p class="ats-titulo">${escapeHtml(dados.titulo)}</p>`:""}
       ${dados.contato?.length?`<p class="ats-contato">${dados.contato.map(escapeHtml).join(" | ")}</p>`:""}
       ${dados.resumo?`<section><h2>Resumo</h2><p>${escapeHtml(dados.resumo)}</p></section>`:""}
       ${dados.competencias?.length?`<section><h2>Competências</h2><p>${dados.competencias.map(escapeHtml).join(" · ")}</p></section>`:""}
-      ${dados.experiencias?.length?`<section><h2>Experiência</h2>${expsHtml}</section>`:""}
+      ${(dados.experiencias?.length||anterioresHtml)?`<section><h2>Experiência</h2>${expsHtml}${anterioresHtml}</section>`:""}
       ${dados.formacao?.length?`<section><h2>Formação</h2>${formHtml}</section>`:""}
       ${extras.length?`<section><h2>Certificações e Idiomas</h2><p>${escapeHtml(extras.join(" | "))}</p></section>`:""}
     </article>`;
@@ -2399,9 +2460,10 @@
       if(passo===3){
         passo=4;
         if(clone.experiencias.length>4){
-          const rem=clone.experiencias.slice(4).map(e=>e.titulo).join(", ");
+          const movidas=clone.experiencias.slice(4);
+          clone.experienciasAnteriores=(clone.experienciasAnteriores||[]).concat(movidas.map(e=>({titulo:e.titulo,empresa:e.empresa,periodo:e.periodo})));
           clone.experiencias=clone.experiencias.slice(0,4);
-          cortes.push(`Removidas experiências mais antigas (${rem})`);
+          cortes.push(`Experiências antigas resumidas em 1 linha (${movidas.map(e=>e.titulo).join(", ")})`);
           _substituirSheetDOM(sheet,clone,densidade);
           continue;
         }
@@ -2409,9 +2471,10 @@
       if(passo===4){
         passo=5;
         if(clone.experiencias.length>3){
-          const rem=clone.experiencias.slice(3).map(e=>e.titulo).join(", ");
+          const movidas=clone.experiencias.slice(3);
+          clone.experienciasAnteriores=(clone.experienciasAnteriores||[]).concat(movidas.map(e=>({titulo:e.titulo,empresa:e.empresa,periodo:e.periodo})));
           clone.experiencias=clone.experiencias.slice(0,3);
-          cortes.push(`Experiências reduzidas para 3 (${rem} removida)`);
+          cortes.push(`Experiências reduzidas para 3 + resumo (${movidas.map(e=>e.titulo).join(", ")})`);
           _substituirSheetDOM(sheet,clone,densidade);
           continue;
         }
@@ -2471,6 +2534,15 @@
           continue;
         }
       }
+      if(passo===10){
+        passo=11;
+        if(clone.experienciasAnteriores?.length){
+          clone.experienciasAnteriores=[];
+          cortes.push("Linha de experiências anteriores removida por espaço");
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
       break;
     }
 
@@ -2485,11 +2557,14 @@
     if(dados.contato?.length)linhas.push(dados.contato.join(" | "));
     if(dados.resumo){linhas.push("","RESUMO",dados.resumo)}
     if(dados.competencias?.length){linhas.push("","COMPETÊNCIAS",dados.competencias.join(" · "))}
-    if(dados.experiencias?.length){
+    if(dados.experiencias?.length||dados.experienciasAnteriores?.length){
       linhas.push("","EXPERIÊNCIA");
-      for(const exp of dados.experiencias){
+      for(const exp of (dados.experiencias||[])){
         linhas.push(`${exp.titulo}${exp.empresa?` — ${exp.empresa}`:""}${exp.periodo?` (${exp.periodo})`:""}`);
         for(const b of (exp.bullets||[]))linhas.push(`- ${b}`);
+      }
+      if(dados.experienciasAnteriores?.length){
+        linhas.push("Experiências anteriores: "+dados.experienciasAnteriores.map(e=>`${e.titulo}${e.empresa?` — ${e.empresa}`:""}${e.periodo?` (${e.periodo})`:""}`).join("; "));
       }
     }
     if(dados.formacao?.length){
@@ -3149,10 +3224,28 @@
       try{
         const{data:remotoConta}=await sb.from("progresso_contas").select("*").eq("account_key",activeNamespace).maybeSingle();
         if(remotoConta){
-          if(remotoConta.perfil&&Object.keys(remotoConta.perfil).length&&!lerUser("profiles",null))RadarDynamicDB.put("profiles",activeNamespace,remotoConta.perfil);
+          const perfilLocal=lerUser("profiles",null);
+          const tsRemoto=Date.parse(remotoConta.perfil?._atualizadoEm||remotoConta.atualizado_em||"")||0;
+          const tsLocal=Date.parse(perfilLocal?._atualizadoEm||"")||0;
+          if(remotoConta.perfil&&Object.keys(remotoConta.perfil).length&&(!perfilLocal||tsRemoto>tsLocal)){
+            RadarDynamicDB.put("profiles",activeNamespace,remotoConta.perfil);
+            try{localStorage.setItem(userKey("profiles"),JSON.stringify(remotoConta.perfil))}catch(e){}
+          }
           if(remotoConta.estado&&!lerUser("progress",null))RadarDynamicDB.put("progress",activeNamespace,remotoConta.estado);
           if(Array.isArray(remotoConta.posts)&&remotoConta.posts.length&&!lerUser("posts",null))RadarDynamicDB.put("posts",activeNamespace,remotoConta.posts);
           if(Array.isArray(remotoConta.stories)&&remotoConta.stories.length&&!lerUser("stories",null))RadarDynamicDB.put("stories",activeNamespace,remotoConta.stories);
+        }
+        if(usuario?.isSupabase){
+          const{data:remotoPerfil}=await sb.from("perfis_usuarios").select("config,atualizado_em").eq("user_id",usuario.id).maybeSingle();
+          if(remotoPerfil?.config&&Object.keys(remotoPerfil.config).length){
+            const perfilLocal=lerUser("profiles",null);
+            const tsRemoto=Date.parse(remotoPerfil.config._atualizadoEm||remotoPerfil.atualizado_em||"")||0;
+            const tsLocal=Date.parse(perfilLocal?._atualizadoEm||"")||0;
+            if(!perfilLocal||tsRemoto>tsLocal){
+              RadarDynamicDB.put("profiles",activeNamespace,remotoPerfil.config);
+              try{localStorage.setItem(userKey("profiles"),JSON.stringify(remotoPerfil.config))}catch(e){}
+            }
+          }
         }
       }catch(e){}
     }
@@ -3829,6 +3922,550 @@
   });
   $("plan-posts")?.addEventListener("click",gerarNovaPautaDoPerfil);
 
+  // ==================== IMPORTAÇÃO DE PDF DO LINKEDIN (PT/EN) ====================
+  const PDFJS_LOCAL_URL=`./vendor/pdfjs/pdf.min.mjs?v=${ASSET_VERSION}`;
+  const PDFJS_LOCAL_WORKER=`./vendor/pdfjs/pdf.worker.min.mjs?v=${ASSET_VERSION}`;
+  const PDFJS_CDN_URL="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs";
+  const PDFJS_CDN_WORKER="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+  let pdfjsLibPromise=null;
+
+  async function carregarPdfJs(){
+    if(pdfjsLibPromise)return pdfjsLibPromise;
+    pdfjsLibPromise=(async()=>{
+      try{
+        const mod=await import(PDFJS_LOCAL_URL);
+        if(mod?.GlobalWorkerOptions)mod.GlobalWorkerOptions.workerSrc=PDFJS_LOCAL_WORKER;
+        return mod;
+      }catch(_){
+        const mod=await import(PDFJS_CDN_URL);
+        if(mod?.GlobalWorkerOptions)mod.GlobalWorkerOptions.workerSrc=PDFJS_CDN_WORKER;
+        return mod;
+      }
+    })();
+    try{
+      return await pdfjsLibPromise;
+    }catch(err){
+      pdfjsLibPromise=null;
+      throw err;
+    }
+  }
+
+  function textoPassaQualidadePdf(txt){
+    const limpo=String(txt||"").trim();
+    if(limpo.length<200)return false;
+    const letras=(limpo.match(/[A-Za-zÀ-ÖØ-öø-ÿ]/g)||[]).length;
+    if(letras/Math.max(1,limpo.length)<0.55)return false;
+    const temSecao=/(?:experi[eê]ncia|experience|forma[cç][aã]o|education|sobre|summary|about|contato|contact|compet[eê]ncias|skills)/i.test(limpo);
+    const temNome=/^[A-ZÀ-Ý][a-zà-ÿ]+(?:\s+[A-ZÀ-Ý][a-zà-ÿ]+){1,4}$/m.test(limpo);
+    return temSecao||temNome;
+  }
+
+  async function extrairTextoPdf(file){
+    if(!file)throw new Error("Nenhum arquivo selecionado.");
+    const ehPdf=file.type==="application/pdf"||/\.pdf$/i.test(file.name||"");
+    if(!ehPdf)throw new Error("Arquivo inválido: selecione um arquivo .pdf exportado do LinkedIn.");
+    if(file.size>5*1024*1024)throw new Error("O PDF excede o limite de 5 MB.");
+
+    const pdfjs=await carregarPdfJs();
+    const buf=await file.arrayBuffer();
+    const tarefa=pdfjs.getDocument({data:new Uint8Array(buf),isEvalSupported:false,disableFontFace:true});
+    const doc=await Promise.race([
+      tarefa.promise,
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error("Tempo limite excedido ao ler o PDF (20s).")),20000))
+    ]);
+
+    const paginas=Math.min(10,doc.numPages||0);
+    const pagsLateral=[];
+    const pagsPrincipal=[];
+
+    const agruparColuna=itens=>{
+      if(!itens.length)return"";
+      const ordenados=[...itens].sort((a,b)=>(b.y-a.y)||(a.x-b.x));
+      const linhas=[];
+      let atual=[];
+      let refY=ordenados[0].y;
+      for(const it of ordenados){
+        if(Math.abs(it.y-refY)<=2.5){
+          atual.push(it);
+        }else{
+          linhas.push(atual.sort((a,b)=>a.x-b.x).map(t=>t.str).join(" ").replace(/\s+/g," ").trim());
+          atual=[it];
+          refY=it.y;
+        }
+      }
+      if(atual.length)linhas.push(atual.sort((a,b)=>a.x-b.x).map(t=>t.str).join(" ").replace(/\s+/g," ").trim());
+      return linhas.filter(Boolean).join("\n");
+    };
+
+    for(let p=1;p<=paginas;p++){
+      const page=await doc.getPage(p);
+      const vp=page.getViewport({scale:1});
+      const tc=await page.getTextContent();
+      const limiteX=vp.width*0.33;
+      const lat=[], prin=[];
+      for(const it of (tc.items||[])){
+        const str=String(it.str||"").trim();
+        if(!str)continue;
+        const x=it.transform?.[4]??0;
+        const y=it.transform?.[5]??0;
+        (x<limiteX?lat:prin).push({str,x,y});
+      }
+      const txtLat=agruparColuna(lat);
+      const txtPrin=agruparColuna(prin);
+      if(txtLat)pagsLateral.push(txtLat);
+      if(txtPrin)pagsPrincipal.push(txtPrin);
+    }
+
+    const lateral=pagsLateral.join("\n");
+    const principal=pagsPrincipal.join("\n");
+    if(!textoPassaQualidadePdf(lateral+"\n"+principal)){
+      throw new Error("PDF sem texto selecionável (escaneado ou protegido). Cole o texto do perfil manualmente.");
+    }
+    return{lateral,principal,origem:"pdfjs"};
+  }
+
+  const LI_MESES_NUM={
+    jan:"01",janeiro:"01",january:"01",
+    fev:"02",fevereiro:"02",feb:"02",february:"02",
+    mar:"03",marco:"03",march:"03",
+    abr:"04",abril:"04",apr:"04",april:"04",
+    mai:"05",maio:"05",may:"05",
+    jun:"06",junho:"06",june:"06",
+    jul:"07",julho:"07",july:"07",
+    ago:"08",agosto:"08",aug:"08",august:"08",
+    set:"09",setembro:"09",sep:"09",september:"09",
+    out:"10",outubro:"10",oct:"10",october:"10",
+    nov:"11",novembro:"11",november:"11",
+    dez:"12",dezembro:"12",dec:"12",december:"12"
+  };
+
+  function _normalizarDataParte(parte){
+    const s=semAcento(parte).trim();
+    if(!s)return"";
+    if(/^(presente|present|atual|o momento|ate o momento|current)$/.test(s))return"Atual";
+    const mNum=s.match(/^(\d{2})\/(\d{4})$/);
+    if(mNum)return`${mNum[1]}/${mNum[2]}`;
+    const mMes=s.match(/^([a-z]+)\s*(?:de\s*)?(\d{4})$/);
+    if(mMes&&LI_MESES_NUM[mMes[1]])return`${LI_MESES_NUM[mMes[1]]}/${mMes[2]}`;
+    const mAno=s.match(/(\d{4})/);
+    return mAno?mAno[1]:parte.trim();
+  }
+
+  function _normalizarPeriodoLinkedIn(linha){
+    const semDur=String(linha||"").replace(/\s*\([^)]+\)\s*$/,"").trim();
+    const partes=semDur.split(/\s*[-–—]\s*/);
+    if(partes.length>=2){
+      const ini=_normalizarDataParte(partes[0]);
+      const fim=_normalizarDataParte(partes.slice(1).join("-"));
+      if(ini&&fim)return`${ini} – ${fim}`;
+    }
+    return semDur;
+  }
+
+  const LI_SECAO_MAP={
+    "contato":"contato","contact":"contato",
+    "principais competencias":"skills","competencias":"skills","top skills":"skills","skills":"skills",
+    "idiomas":"languages","languages":"languages",
+    "certificacoes":"certifications","licencas e certificados":"certifications","certifications":"certifications","licenses & certifications":"certifications",
+    "resumo":"about","sobre":"about","summary":"about","about":"about",
+    "experiencia":"experience","experience":"experience",
+    "formacao academica":"education","formacao":"education","education":"education",
+    "honras e premios":"ignorar","projetos":"ignorar","recomendacoes":"ignorar","publicacoes":"ignorar",
+    "honors & awards":"ignorar","projects":"ignorar","recommendations":"ignorar","publications":"ignorar"
+  };
+
+  function _dividirSecoesLinkedIn(texto){
+    const linhas=String(texto||"").split(/\r?\n/)
+      .map(l=>l.trim())
+      .filter(l=>l&&!/^(?:page\s+\d+\s+of\s+\d+|p[aá]gina\s+\d+\s+de\s+\d+|--\s*\d+\s+of\s+\d+\s*--)$/i.test(l));
+    const secoes={topo:[]};
+    let atual="topo";
+    for(const l of linhas){
+      const chaveSec=semAcento(l).replace(/:$/,"").trim();
+      if(LI_SECAO_MAP[chaveSec]){
+        atual=LI_SECAO_MAP[chaveSec];
+        if(!secoes[atual])secoes[atual]=[];
+      }else{
+        if(!secoes[atual])secoes[atual]=[];
+        secoes[atual].push(l);
+      }
+    }
+    return secoes;
+  }
+
+  function parseLinkedInTexto({lateral="",principal=""},origem="pdfjs"){
+    const avisos=[];
+    const secLat=_dividirSecoesLinkedIn(lateral);
+    const secPrin=_dividirSecoesLinkedIn(principal);
+    const pegarSecao=nome=>[...(secLat[nome]||[]),...(secPrin[nome]||[])];
+
+    const topo=secPrin.topo||[];
+    const ehLocal=l=>/,\s*(?:brasil|brazil|bahia|s[aã]o paulo|rio de janeiro|minas gerais|paran[aá]|pernambuco|cear[aá]|[a-z]{2})\b|^regi[aã]o de\b/i.test(l);
+    const ehNome=l=>!/\d/.test(l)&&!ehLocal(l)&&!l.includes("|")&&l.split(/\s+/).length>=2&&l.split(/\s+/).length<=5&&/^[A-ZÀ-Ý]/.test(l);
+
+    let name="",linkedinHeadline="",city="";
+    let idxNome=-1;
+    for(let i=0;i<topo.length;i++){
+      if(ehNome(topo[i])){name=topo[i];idxNome=i;break}
+    }
+    const hlPartes=[];
+    for(let i=Math.max(0,idxNome+1);i<topo.length;i++){
+      const l=topo[i];
+      if(ehLocal(l)){city=l.replace(/,\s*(?:brasil|brazil)$/i,"").trim();break}
+      hlPartes.push(l);
+    }
+    if(hlPartes.length)linkedinHeadline=hlPartes.join(" ").replace(/\s+/g," ").trim().slice(0,220);
+
+    const contatoTxt=pegarSecao("contato").join("\n")+"\n"+principal;
+    const urlJunta=contatoTxt.replace(/linkedin\.com\/in\/\s*\n\s*/gi,"linkedin.com/in/");
+    const mLi=urlJunta.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[\w-]+/i);
+    const linkedinUrl=mLi?(mLi[0].startsWith("http")?mLi[0]:"https://"+mLi[0]):"";
+    const mEmail=contatoTxt.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    const contact=mEmail?mEmail[0]:"";
+
+    let linkedinAbout=pegarSecao("about").join("\n").trim();
+    if(linkedinAbout.length>2600){
+      linkedinAbout=linkedinAbout.slice(0,2600).trim();
+      avisos.push("Sobre truncado em 2600 caracteres.");
+    }
+
+    const expLinhas=pegarSecao("experience");
+    const exps=[];
+    const ehDuracao=l=>/^\d+\s+(?:anos?|years?|meses?|months?)/i.test(l);
+    let ultimaEmpresa="";
+    let semPeriodo=0;
+
+    let i=0;
+    while(i<expLinhas.length){
+      if(DATE_RE.test(expLinhas[i])){
+        const periodo=_normalizarPeriodoLinkedIn(expLinhas[i]);
+        const cargo=(expLinhas[i-1]||"").trim();
+        let empresa="";
+        const cand2=(expLinhas[i-2]||"").trim();
+        const cand3=(expLinhas[i-3]||"").trim();
+        if(cand2&&ehDuracao(cand2)&&cand3){
+          empresa=cand3;
+        }else if(cand2&&!DATE_RE.test(cand2)&&!/^[-*•\uf0b7]/.test(cand2)&&cand2.length<=80&&!ehLocal(cand2)){
+          const jaFoiDesc=exps.some(e=>e.bullets.includes(cand2)||e.periodo===_normalizarPeriodoLinkedIn(cand2));
+          empresa=jaFoiDesc?ultimaEmpresa:cand2;
+        }else{
+          empresa=ultimaEmpresa;
+        }
+        if(empresa)ultimaEmpresa=empresa;
+        if(!periodo)semPeriodo++;
+
+        const descLinhas=[];
+        let j=i+1;
+        while(j<expLinhas.length){
+          const prox1=expLinhas[j+1]||"";
+          const prox2=expLinhas[j+2]||"";
+          if(DATE_RE.test(prox1)||DATE_RE.test(prox2)&&!ehDuracao(expLinhas[j]))break;
+          if(DATE_RE.test(expLinhas[j]))break;
+          if(j===i+1&&ehLocal(expLinhas[j])){j++;continue}
+          descLinhas.push(expLinhas[j]);
+          j++;
+        }
+
+        const bullets=[];
+        for(const dl of descLinhas){
+          if(/^[-*•\uf0b7]\s*/.test(dl)){
+            const b=dl.replace(/^[-*•\uf0b7]\s*/,"").trim();
+            if(b)bullets.push(b);
+          }else{
+            const frases=dl.split(/\.\s+(?=[A-ZÀ-Ý])/).map(s=>s.trim()).filter(Boolean);
+            for(const f of frases)bullets.push(f.endsWith(".")?f:f+".");
+          }
+        }
+        const bulletsLimitados=bullets.slice(0,6).map(b=>{
+          if(b.length<=300)return b;
+          const c=b.slice(0,300);
+          const sp=c.lastIndexOf(" ");
+          return (sp>150?c.slice(0,sp):c).trim()+"…";
+        });
+        if(cargo){
+          exps.push({titulo:cargo,empresa:empresa||"Empresa",periodo,bullets:bulletsLimitados});
+        }
+        i=j;
+      }else{
+        i++;
+      }
+    }
+    if(semPeriodo)avisos.push(`${semPeriodo} experiência(s) sem período identificado.`);
+
+    const formatarExps=lista=>lista.map(e=>`${e.titulo} | ${e.empresa} | ${e.periodo}${e.bullets.length?"\n"+e.bullets.map(b=>`- ${b}`).join("\n"):""}`).join("\n\n");
+    let experiencesText=formatarExps(exps);
+    if(experiencesText.length>6000){
+      const copia=JSON.parse(JSON.stringify(exps));
+      for(let k=copia.length-1;k>=0&&formatarExps(copia).length>6000;k--){
+        while(copia[k].bullets.length>1&&formatarExps(copia).length>6000)copia[k].bullets.pop();
+      }
+      experiencesText=formatarExps(copia).slice(0,6000).trim();
+      avisos.push("Experiências ajustadas para caber em 6000 caracteres.");
+    }
+
+    const eduLinhas=pegarSecao("education");
+    const eduItems=[];
+    for(let idx=0;idx<eduLinhas.length;idx++){
+      const l=eduLinhas[idx];
+      if(!l||ehDuracao(l))continue;
+      const prox=eduLinhas[idx+1]||"";
+      const mAno=(l+" "+prox).match(/\((\d{4})[^)]*\)$|\b(\d{4})\b(?![^()]*\()/);
+      if(prox&&!ehDuracao(prox)&&!/^\d{4}$/.test(prox)){
+        const inst=l;
+        const curso=prox.split("·")[0].replace(/\s*\([^)]*\)\s*$/,"").trim();
+        const anoMatch=(prox.match(/\b(\d{4})\b/g)||[]).pop()||"";
+        if(curso)eduItems.push(`${curso} | ${inst}${anoMatch?` | ${anoMatch}`:""}`);
+        idx++;
+      }else if(l.includes("|")){
+        eduItems.push(l);
+      }else if(mAno){
+        eduItems.push(`${l.replace(/\s*\([^)]*\)\s*$/,"").trim()} | | ${mAno[1]||mAno[2]}`);
+      }
+    }
+    const educationText=eduItems.join("\n").slice(0,1000);
+
+    const skillsLista=pegarSecao("skills").filter(l=>l.length<=60&&!l.includes("|"));
+    const skills=skillsLista.join(", ");
+    const languages=pegarSecao("languages").join(", ").slice(0,200);
+    const certifications=pegarSecao("certifications").filter(l=>l.length<=120).join(", ").slice(0,400);
+
+    const targetRole=exps[0]?.titulo||(linkedinHeadline.split("|")[0]||"").trim().slice(0,80);
+    let seniority="";
+    const senSource=semAcento(`${targetRole} ${linkedinHeadline}`);
+    if(/\b(junior|jr)\b/.test(senSource))seniority="junior";
+    else if(/\bpleno\b/.test(senSource))seniority="pleno";
+    else if(/\b(senior|sr)\b/.test(senSource))seniority="senior";
+    else if(/\bcoordenador(?:a)?\b/.test(senSource))seniority="coordenacao";
+    else if(/\b(gerente|manager)\b/.test(senSource))seniority="gerencia";
+
+    const rolesCand=[
+      ...exps.slice(0,3).map(e=>e.titulo),
+      ...linkedinHeadline.split("|").slice(0,2).map(s=>s.trim())
+    ].filter(Boolean);
+    const rolesUnicos=[];
+    const rolesVistos=new Set();
+    for(const r of rolesCand){
+      const nr=semAcento(r);
+      if(nr&&!rolesVistos.has(nr)){rolesVistos.add(nr);rolesUnicos.push(r)}
+      if(rolesUnicos.length>=8)break;
+    }
+    const roles=rolesUnicos.join(", ");
+
+    const camposBrutos={name,linkedinHeadline,city,linkedinUrl,contact,linkedinAbout,experiencesText,educationText,skills,languages,certifications,targetRole,roles,seniority};
+    const campos={};
+    for(const [k,v] of Object.entries(camposBrutos)){
+      if(String(v||"").trim())campos[k]=String(v).trim();
+    }
+
+    const stats={
+      experiencias:exps.length,
+      bulletsTotal:exps.reduce((s,e)=>s+e.bullets.length,0),
+      formacoes:eduItems.length,
+      skills:skillsLista.length,
+      idiomas:pegarSecao("languages").length
+    };
+    return{ok:Object.keys(campos).length>0,origem,campos,stats,avisos};
+  }
+
+  function _mesclarListaSemDuplicata(atual,nova,maxItens=99){
+    const saida=[];
+    const vistos=new Set();
+    for(const raw of [...String(atual||"").split(/[,;\n]+/),...String(nova||"").split(/[,;\n]+/)]){
+      const limpo=raw.trim();
+      const norm=semAcento(limpo);
+      if(!limpo||!norm||vistos.has(norm))continue;
+      vistos.add(norm);
+      saida.push(limpo);
+      if(saida.length>=maxItens)break;
+    }
+    return saida.join(", ");
+  }
+
+  function mesclarImportacaoNoPerfil(atual,campos,modo="preencher-vazios"){
+    const proximo={...(atual||{})};
+    for(const [k,v] of Object.entries(campos||{})){
+      if(!v)continue;
+      if(k==="skills"){
+        proximo.skills=_mesclarListaSemDuplicata(proximo.skills,v,40);
+      }else if(k==="roles"){
+        proximo.roles=_mesclarListaSemDuplicata(proximo.roles,v,8);
+      }else if(modo==="substituir"||!String(proximo[k]||"").trim()){
+        proximo[k]=v;
+      }
+    }
+    return proximo;
+  }
+
+  window.RadarImport={parseLinkedInTexto,parseExperiencias,mesclarImportacaoNoPerfil};
+
+  (function initImportacaoLinkedIn(){
+    const panel=$("li-import-panel");
+    const fileInput=$("li-import-file");
+    const pasteApply=$("li-import-paste-apply");
+    const pasteInput=$("li-import-paste");
+    const statusEl=$("li-import-status");
+    const previewEl=$("li-import-preview");
+    const actionsEl=$("li-import-actions");
+    const applyBtn=$("li-import-apply");
+    const cancelBtn=$("li-import-cancel");
+    if(!panel)return;
+
+    let ultimoResultado=null;
+    const setStatus=(msg,state="")=>{
+      if(!statusEl)return;
+      statusEl.textContent=msg||"";
+      if(state)statusEl.dataset.state=state;
+      else delete statusEl.dataset.state;
+    };
+
+    const ROTULOS={
+      name:"Nome",linkedinHeadline:"Headline LinkedIn",city:"Cidade",linkedinUrl:"URL LinkedIn",
+      contact:"E-mail",linkedinAbout:"Sobre",experiencesText:"Experiências",educationText:"Formação",
+      skills:"Competências",languages:"Idiomas",certifications:"Certificações",targetRole:"Cargo-alvo",
+      roles:"Áreas / Cargos",seniority:"Senioridade"
+    };
+
+    const mostrarPrevia=res=>{
+      ultimoResultado=res;
+      if(!res?.ok){
+        setStatus("Não foi possível extrair campos válidos do LinkedIn.","error");
+        if(previewEl)previewEl.hidden=true;
+        if(actionsEl)actionsEl.hidden=true;
+        return;
+      }
+      const entradas=Object.entries(res.campos);
+      if(previewEl){
+        previewEl.innerHTML=entradas.map(([k,val])=>{
+          const atual=String(profile?.[k]||"").trim();
+          const marcar=(k==="skills"||k==="roles"||!atual);
+          return`
+            <div class="li-import-row">
+              <strong>${escapeHtml(ROTULOS[k]||k)}</strong>
+              <div><small class="muted">Atual:</small><pre>${escapeHtml(atual||"—")}</pre></div>
+              <div><small class="muted">Importado:</small><pre>${escapeHtml(val)}</pre></div>
+              <label><input type="checkbox" data-import-field="${escapeHtml(k)}"${marcar?" checked":""}> Aplicar</label>
+            </div>
+          `;
+        }).join("");
+        previewEl.hidden=false;
+      }
+      if(actionsEl)actionsEl.hidden=false;
+      const avisoTxt=res.avisos?.length?` (${res.avisos.join(" ")})`:"";
+      setStatus(`Pronto: ${res.stats.experiencias} experiências, ${res.stats.formacoes} formações e ${res.stats.skills} competências identificadas.${avisoTxt}`,res.avisos?.length?"warn":"ok");
+    };
+
+    const processarArquivo=async file=>{
+      if(!file)return;
+      setStatus("Lendo PDF do LinkedIn no navegador…","loading");
+      try{
+        const extraido=await extrairTextoPdf(file);
+        const res=parseLinkedInTexto(extraido,extraido.origem);
+        mostrarPrevia(res);
+      }catch(err){
+        setStatus(err?.message||"Erro ao ler PDF.","error");
+        if(previewEl)previewEl.hidden=true;
+        if(actionsEl)actionsEl.hidden=true;
+        const pasteBox=$("li-import-paste-box");
+        if(pasteBox)pasteBox.open=true;
+        pasteInput?.focus();
+      }
+    };
+
+    fileInput?.addEventListener("change",e=>{
+      const f=e.target.files?.[0];
+      if(f)processarArquivo(f);
+      e.target.value="";
+    });
+
+    panel.addEventListener("dragover",e=>{e.preventDefault();panel.classList.add("is-dragover")});
+    panel.addEventListener("dragleave",()=>panel.classList.remove("is-dragover"));
+    panel.addEventListener("drop",e=>{
+      e.preventDefault();
+      panel.classList.remove("is-dragover");
+      const f=e.dataTransfer?.files?.[0];
+      if(f)processarArquivo(f);
+    });
+
+    pasteApply?.addEventListener("click",()=>{
+      const txt=String(pasteInput?.value||"").trim();
+      if(!txt){setStatus("Cole o texto do perfil do LinkedIn antes de analisar.","warn");pasteInput?.focus();return}
+      const res=parseLinkedInTexto({lateral:"",principal:txt},"colado");
+      mostrarPrevia(res);
+    });
+
+    cancelBtn?.addEventListener("click",()=>{
+      ultimoResultado=null;
+      if(previewEl){previewEl.innerHTML="";previewEl.hidden=true}
+      if(actionsEl)actionsEl.hidden=true;
+      setStatus("");
+    });
+
+    applyBtn?.addEventListener("click",()=>{
+      if(!ultimoResultado?.ok)return;
+      const selecionados={};
+      qsa("[data-import-field]",previewEl||panel).forEach(cb=>{
+        if(cb.checked){
+          const k=cb.dataset.importField;
+          if(ultimoResultado.campos[k])selecionados[k]=ultimoResultado.campos[k];
+        }
+      });
+      const mesclado=mesclarImportacaoNoPerfil(profile,selecionados,"substituir");
+      const extraDetails=$("profile-extra-fields");
+      if(extraDetails)extraDetails.open=true;
+      salvarPerfil(mesclado,false);
+      preencherFormularioPerfil();
+      desenharOtimizadorLinkedIn(visiveis());
+      desenharViewCurriculoATS();
+
+      const form=$("profile-form");
+      for(const k of Object.keys(selecionados)){
+        const inp=form?.elements[k];
+        if(inp){
+          inp.classList.add("field-imported");
+          setTimeout(()=>inp.classList.remove("field-imported"),4000);
+        }
+      }
+      if(previewEl){previewEl.innerHTML="";previewEl.hidden=true}
+      if(actionsEl)actionsEl.hidden=true;
+      setStatus("Dados aplicados e salvos no perfil.","ok");
+      showToast(`Importado: ${ultimoResultado.stats.experiencias} experiências, ${ultimoResultado.stats.formacoes} formações, ${ultimoResultado.stats.skills} competências`);
+      ultimoResultado=null;
+    });
+  })();
+
+  function salvarPerfil(camposDoForm,silencioso=false){
+    profile={...profile,...camposDoForm,_atualizadoEm:new Date().toISOString()};
+    gravarUser("profiles",profile);
+    if(sb&&usuario&&usuario.isSupabase){
+      sb.from("perfis_usuarios").upsert({
+        user_id:usuario.id,
+        email:usuario.email||profile.contact||null,
+        nome:profile.name,
+        cargo_objetivo:profile.headline,
+        cidade:profile.city,
+        cidades_proximas:listaCidadesPerfil(),
+        modalidades:[profile.acceptRemote&&"remoto",profile.acceptHybrid&&"hibrido",profile.acceptOnsite&&"presencial"].filter(Boolean),
+        max_dias:profile.maxDays||14,
+        areas:listaAreasPerfil(),
+        competencias:listaSkillsPerfil(),
+        config:profile,
+        atualizado_em:profile._atualizadoEm
+      }).then(()=>{}).catch(()=>{});
+    }
+    sincronizarCabecalhoPerfil();
+    atualizarUIAutenticacao();
+    render();
+    if(activeView==="linkedin")desenharOtimizadorLinkedIn(visiveis());
+    if(activeView==="resume")desenharViewCurriculoATS();
+    if(!silencioso){
+      if($("profile-saved")){
+        $("profile-saved").textContent="Salvo na sua base dinâmica! Scores e requisitos recalculados.";
+        setTimeout(()=>{if($("profile-saved"))$("profile-saved").textContent=""},4000);
+      }
+      showToast(`Perfil de ${profile.name} salvo e vagas recalculadas!`);
+    }
+  }
+
   // Eventos de Meu Perfil
   $("profile-form")?.addEventListener("submit",e=>{
     e.preventDefault();
@@ -3844,36 +4481,11 @@
     camposDoForm.acceptRemote=fd.get("acceptRemote")==="on";
     camposDoForm.acceptHybrid=fd.get("acceptHybrid")==="on";
     camposDoForm.acceptOnsite=fd.get("acceptOnsite")==="on";
-    profile={...profile,...camposDoForm};
-    gravarUser("profiles",profile);
-    if(sb&&usuario&&usuario.isSupabase){
-      sb.from("perfis_usuarios").upsert({
-        user_id:usuario.id,
-        email:usuario.email||profile.contact||null,
-        nome:profile.name,
-        cargo_objetivo:profile.headline,
-        cidade:profile.city,
-        cidades_proximas:listaCidadesPerfil(),
-        modalidades:[profile.acceptRemote&&"remoto",profile.acceptHybrid&&"hibrido",profile.acceptOnsite&&"presencial"].filter(Boolean),
-        max_dias:profile.maxDays||14,
-        areas:listaAreasPerfil(),
-        competencias:listaSkillsPerfil(),
-        config:profile,
-        atualizado_em:new Date().toISOString()
-      }).then(()=>{}).catch(()=>{});
-    }
-    sincronizarCabecalhoPerfil();
-    atualizarUIAutenticacao();
-    render();
-    if($("profile-saved")){
-      $("profile-saved").textContent="Salvo na sua base dinâmica! Scores e requisitos recalculados.";
-      setTimeout(()=>{if($("profile-saved"))$("profile-saved").textContent=""},4000);
-    }
-    showToast(`Perfil de ${profile.name} salvo e vagas recalculadas!`);
+    salvarPerfil(camposDoForm,false);
   });
 
   $("btn-preset-erick")?.addEventListener("click",()=>{
-    profile=ehContaDoErick()?{...PRESET_DEFAULT_PROFILE}:{
+    const basePreset=ehContaDoErick()?{...PRESET_DEFAULT_PROFILE}:{
       ...PRESET_BLANK_PROFILE,
       name:"Profissional de Engenharia",
       headline:"Planejamento, Projetos e Manutenção",
@@ -3881,15 +4493,19 @@
       skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, PCM / Manutenção",
       summary:"Experiência em planejamento e controle de obras, cronogramas físico-financeiros, indicadores em Power BI e gestão de manutenção."
     };
+    for(const k of CAMPOS_EXTRAS_PERFIL)delete basePreset[k];
+    profile={...profile,...basePreset};
     gravarUser("profiles",profile);
     preencherFormularioPerfil();
     sincronizarCabecalhoPerfil();
     render();
-    showToast("Exemplo de currículo preenchido.");
+    showToast("Exemplo de currículo preenchido (dados do LinkedIn preservados).");
   });
 
   $("btn-preset-blank")?.addEventListener("click",()=>{
+    if((profile?.experiencesText||"").trim()&&!window.confirm("Você já tem experiências preenchidas. Deseja limpar todos os campos do perfil?"))return;
     profile={...PRESET_BLANK_PROFILE};
+    gravarUser("profiles",profile);
     preencherFormularioPerfil();
     sincronizarCabecalhoPerfil();
     render();
