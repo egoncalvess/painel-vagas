@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: painel
+  group: coletar-vagas
   cancel-in-progress: false
 
 jobs:
@@ -21,6 +21,8 @@ jobs:
       name: github-pages
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -36,11 +38,47 @@ jobs:
         run: |
           git config user.name "robo-vagas"
           git config user.email "robo-vagas@users.noreply.github.com"
-          git add docs/vagas.json docs/catalogo.json dados/historico.json dados/fila_erros_vagas.json docs/estado.json
-          git diff --cached --quiet && exit 0
-          git commit -m "Vagas de $(date +%d/%m/%Y)"
-          git pull --rebase origin main
-          git push
+
+          GENERATED_FILES=(
+            docs/vagas.json
+            docs/catalogo.json
+            dados/historico.json
+            dados/fila_erros_vagas.json
+            docs/estado.json
+          )
+
+          TMP_DIR=$(mktemp -d)
+          trap 'rm -rf "$TMP_DIR"' EXIT
+          EXISTING_FILES=()
+          for f in "${GENERATED_FILES[@]}"; do
+            if [ -f "$f" ]; then
+              mkdir -p "$TMP_DIR/$(dirname "$f")"
+              cp "$f" "$TMP_DIR/$f"
+              EXISTING_FILES+=("$f")
+            fi
+          done
+
+          if [ ${#EXISTING_FILES[@]} -eq 0 ]; then
+            exit 0
+          fi
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git checkout -f -B main origin/main
+            for f in "${EXISTING_FILES[@]}"; do
+              mkdir -p "$(dirname "$f")"
+              cp "$TMP_DIR/$f" "$f"
+            done
+            git add -- "${EXISTING_FILES[@]}"
+            git diff --cached --quiet && exit 0
+            git commit -m "Vagas de $(date +%d/%m/%Y)"
+            if git push origin main; then
+              exit 0
+            fi
+            echo "Push concorrente detectado (tentativa $attempt/3), reaplicando sobre origin/main..."
+            sleep 2
+          done
+          exit 1
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
