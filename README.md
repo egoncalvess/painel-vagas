@@ -45,16 +45,16 @@ No fim do painel, em "Salvar marcações em todos os aparelhos", cole um token d
 GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Repositório: só `painel-vagas`. Permissões: **Contents: Read and write** e **Actions: Read and write** (para o botão "Buscar vagas agora").
 Sem token, as marcações ficam só no navegador.
 
-## Login com Google e banco Supabase
+## Login e banco Supabase
 
-Com isso o painel pede login com Google e guarda vagas e marcações no Supabase (grátis). Só os e-mails da tabela `permitidos` entram (hoje: engerickgoncalves@gmail.com).
+O painel guarda vagas e marcações no Supabase (grátis). O acesso é por e-mail e senha no Supabase Auth, com confirmação de e-mail e "Esqueci minha senha"; não há acesso de convidado. O papel `admin` vem da tabela `perfis` (defina o primeiro com `supabase/primeiro_admin.sql`). Passo a passo de administração no `MANUAL.md`, seção 6.
 
 1. **Supabase:** crie a conta em supabase.com, crie o projeto `painel-vagas` (região São Paulo). Anote o *Reference ID* (Project Settings → General). Gere um token em https://supabase.com/dashboard/account/tokens.
-2. **Google:** em https://console.cloud.google.com crie um projeto. Em *Google Auth Platform*, configure a tela de consentimento (Externo; adicione seu e-mail como usuário de teste). Em *Clientes* → Criar cliente → Aplicativo da Web. Em *URIs de redirecionamento autorizados* coloque `https://SEU_REFERENCE_ID.supabase.co/auth/v1/callback`. Copie o ID e a chave secreta do cliente.
-3. **Secrets do GitHub** (Settings → Secrets and variables → Actions): `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e `PAINEL_GH_TOKEN` (o token do GitHub com Actions de leitura e escrita, para o botão Buscar vagas agora).
-4. Aba Actions → **Configurar Supabase** → Run workflow. Ele cria as tabelas (`supabase/schema.sql`), liga o login, copia as vagas atuais, publica a função do botão e liga o painel ao banco.
+2. **Google (opcional; o painel atual entra por e-mail e senha):** em https://console.cloud.google.com crie um projeto. Em *Google Auth Platform*, configure a tela de consentimento (Externo; adicione seu e-mail como usuário de teste). Em *Clientes* → Criar cliente → Aplicativo da Web. Em *URIs de redirecionamento autorizados* coloque `https://SEU_REFERENCE_ID.supabase.co/auth/v1/callback`. Copie o ID e a chave secreta do cliente.
+3. **Secrets do GitHub** (Settings → Secrets and variables → Actions): `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN` e `PAINEL_GH_TOKEN` (e, só se usar o passo 2 opcional, `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`) (o token do GitHub com Actions de leitura e escrita, para o botão Buscar vagas agora).
+4. Aba Actions → **Configurar Supabase** → Run workflow. Ele cria as tabelas (`supabase/schema.sql`), copia as vagas atuais, publica a função do botão e liga o painel ao banco. A configuração de login do projeto só é alterada com a variável `APLICAR_CONFIG_AUTH=1` no script (o workflow ainda não oferece essa opção); em projeto já existente, prefira aplicar `supabase/migracao_20261124_008_auth.sql` no SQL Editor.
 
-No primeiro login, as marcações antigas (`docs/estado.json` e as deste navegador) são copiadas para o banco. Depois disso o robô grava as vagas novas direto no Supabase também.
+As marcações de `docs/estado.json` servem de ponto de partida só para a conta admin. Dados de uma conta antiga guardada no navegador só vão para a conta nova pela migração com confirmação (veja `MANUAL.md`). O robô grava as vagas novas direto no Supabase também.
 
 ## Retornos do Gmail (opcional)
 

@@ -8,12 +8,18 @@ Guia prático para qualquer pessoa usar o **Radar de Vagas** (`https://egoncalve
 
 Ao abrir o link, você verá a tela de entrada do Radar:
 
-1. **Criar acesso (usuário e senha)**:
-   - Clique na aba **Criar acesso**, informe seu nome, usuário ou e-mail e defina uma senha forte (o medidor valida tamanho mínimo e combinação de caracteres; a senha é protegida com hash `SHA-256` localmente ou via Supabase Auth quando configurado).
+1. **Criar acesso (e-mail e senha)**:
+   - Clique na aba **Criar acesso**, informe seu nome, um **e-mail real** e uma senha forte. A conta é criada no Supabase e você recebe um e-mail de confirmação: clique no link e depois entre.
 2. **Entrar**:
-   - Informe seu usuário/e-mail e senha para abrir seu painel individual.
-3. **Continuar como convidado**:
-   - Permite testar o painel imediatamente no navegador atual sem cadastro prévio.
+   - Informe seu e-mail e senha. Se aparecer "Confirme seu e-mail pelo link que enviamos.", use **Reenviar e-mail de confirmação**.
+3. **Esqueci minha senha**:
+   - Abaixo do botão Entrar. Informe o e-mail, abra o link recebido e defina a nova senha no próprio painel.
+
+Não há mais acesso de convidado nem conta salva só no navegador: todo acesso passa pelo Supabase.
+
+### Dados de uma conta antiga deste navegador
+
+Se você usava uma conta antiga criada só com nome de usuário (sem e-mail), depois de entrar com o e-mail o painel pergunta uma vez se quer trazer esses dados, pedindo o **usuário e a senha antigos**. A senha é conferida só no seu navegador, não é enviada nem guardada, e são no máximo 5 tentativas. Nada é apagado. A opção também fica em **Configurações → Backup local**.
 
 > **Privacidade**: Cada conta possui sua própria base isolada (`RadarDynamicDB` no navegador e sincronização opcional no Supabase). Suas vagas salvas, candidaturas e currículo nunca se misturam com os dados de outras pessoas.
 
@@ -93,6 +99,10 @@ A sincronização entre celular e computador é automática:
 
 Para sincronizar contas e perfis na nuvem para todos os usuários no GitHub Pages:
 
-1. Crie um projeto no Supabase, execute `supabase/schema.sql` e mantenha o provedor **Email** ativo em *Authentication → Providers*.
-2. Preencha `url` e `anon` (chave pública `anon`, nunca a `service_role`) em `docs/supabase-config.js`.
-3. A conta administradora (`engerickgoncalves@gmail.com`) recebe automaticamente o papel `admin`, liberando a gestão de usuários e controles avançados em **Configurações**.
+1. Crie um projeto no Supabase, execute `supabase/schema.sql` no **SQL Editor** (em projeto já existente, `supabase/migracao_20261124_008_auth.sql`) e mantenha o provedor **Email** ativo, com **Confirm email** ligado.
+2. Em *Authentication → URL Configuration*: **Site URL** `https://egoncalvess.github.io/painel-vagas/` e, em **Redirect URLs**, `https://egoncalvess.github.io/painel-vagas/**` (necessário para a confirmação e o "Esqueci minha senha").
+3. Preencha `url` e `anon` (chave pública `anon`, nunca a `service_role`) em `docs/supabase-config.js`.
+4. **Primeiro admin:** crie sua conta pelo painel, confirme o e-mail e rode uma vez `supabase/primeiro_admin.sql` no SQL Editor trocando `<SEU_EMAIL>`. Saia e entre de novo. O papel `admin` vem só da tabela `perfis` no banco; nenhum usuário consegue se promover sozinho.
+5. **Dados antigos no Supabase** sob um usuário sem e-mail: `supabase/reatribuir_conta_antiga.sql` (troque `<CHAVE_ANTIGA>` e `<SEU_EMAIL>`) passa esses dados para a conta nova sem apagar nada.
+
+> O workflow "Configurar Supabase" altera a configuração de autenticação do projeto só com `APLICAR_CONFIG_AUTH=1`.
