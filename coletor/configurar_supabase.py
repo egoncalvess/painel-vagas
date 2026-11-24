@@ -2,6 +2,7 @@
 
 Roda no workflow "Configurar Supabase". Precisa dos secrets SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF,
 e opcionalmente GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET.
+A configuração de login do projeto (URL Configuration, confirmação de e-mail) só é aplicada com APLICAR_CONFIG_AUTH=1.
 """
 import json
 import os
@@ -15,6 +16,30 @@ dono, nome = REPO.split("/")
 SITE = f"https://{dono.lower()}.github.io/{nome}/"
 
 
+def config_auth():
+    """Configuração de login do projeto. Confirmação de e-mail LIGADA: ninguém cria conta com o e-mail de outra pessoa."""
+    auth = {
+        "site_url": SITE,
+        "uri_allow_list": f"{SITE}**,http://localhost:8000/**,http://127.0.0.1:8000/**",
+        "disable_signup": False,
+        "external_email_enabled": True,
+        "mailer_autoconfirm": False,
+    }
+    gid, gsec = os.environ.get("GOOGLE_CLIENT_ID", "").strip(), os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
+    if gid and gsec:
+        auth.update(external_google_enabled=True, external_google_client_id=gid, external_google_secret=gsec)
+    return auth
+
+
+def configurar_auth():
+    """Só roda com APLICAR_CONFIG_AUTH=1: sobrescreve a URL Configuration e as opções de login do projeto."""
+    print("Configurando login multiusuário (confirmação de e-mail ligada)")
+    auth = config_auth()
+    if not auth.get("external_google_enabled"):
+        print("Sem GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET: login por e-mail/senha ativo; Google fica opcional.")
+    supa.gerencia("PATCH", "/config/auth", auth)
+
+
 def configurar():
     if not supa.ativo:
         sys.exit("Faltam os secrets SUPABASE_PROJECT_REF e SUPABASE_ACCESS_TOKEN.")
@@ -22,20 +47,10 @@ def configurar():
     print("Criando tabelas e políticas multiusuário (vagas, fila_erros_vagas, perfis_usuarios, clientes_leads, publicacoes_posts)")
     supa.sql(open(os.path.join(RAIZ, "supabase", "schema.sql"), encoding="utf-8").read())
 
-    print("Configurando login multiusuário")
-    auth = {
-        "site_url": SITE,
-        "uri_allow_list": f"{SITE}**,http://localhost:8000/**,http://127.0.0.1:8000/**",
-        "disable_signup": False,
-        "external_email_enabled": True,
-        "mailer_autoconfirm": True,
-    }
-    gid, gsec = os.environ.get("GOOGLE_CLIENT_ID", "").strip(), os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
-    if gid and gsec:
-        auth.update(external_google_enabled=True, external_google_client_id=gid, external_google_secret=gsec)
+    if os.environ.get("APLICAR_CONFIG_AUTH") == "1":
+        configurar_auth()
     else:
-        print("Sem GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET: login por e-mail/senha ativo; Google fica opcional.")
-    supa.gerencia("PATCH", "/config/auth", auth)
+        print("Configuração de login do projeto mantida (para aplicar, rode com APLICAR_CONFIG_AUTH=1).")
 
     anon, servico = supa.chaves()
     print("Copiando as vagas atuais e a fila de erros para o banco")

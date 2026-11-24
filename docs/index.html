@@ -7,10 +7,10 @@
 <meta name="color-scheme" content="light">
 <title>Radar · Vagas, Currículo e Carreira</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d7f35a'/%3E%3Cg fill='none' stroke='%23112926' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M24.5 9.5A10 10 0 1 0 26 16'/%3E%3Cpath d='M20.8 12.2A5.5 5.5 0 1 0 21.5 16'/%3E%3Cpath d='m17.5 14.5 7-7'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='2' fill='%23112926'/%3E%3C/svg%3E">
-<script src="supabase-config.js?v=20261124-007"></script>
+<script src="supabase-config.js?v=20261124-008"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="radar.css?v=20261124-007">
+<link rel="stylesheet" href="radar.css?v=20261124-008">
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
@@ -100,7 +100,7 @@
 
     <div class="auth-card">
       <h2>Bem-vindo ao Radar</h2>
-      <p class="sub" id="msg-login">Entre com seu usuário/e-mail e senha ou crie seu acesso para abrir seu painel individual.</p>
+      <p class="sub" id="msg-login">Entre com seu e-mail e senha ou crie seu acesso.</p>
 
       <div class="auth-msg" id="login-msg" role="alert"></div>
 
@@ -111,10 +111,10 @@
 
       <!-- Aba 1: Entrar -->
       <form id="auth-email-form" role="tabpanel" aria-labelledby="tab-signin" autocomplete="on" novalidate style="display:grid;gap:12px">
-        <label class="auth-field">Usuário ou E-mail
+        <label class="auth-field">E-mail
           <div class="auth-input-wrap">
-            <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-            <input id="auth-email" name="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="ex.: seuusuario ou voce@gmail.com">
+            <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <input id="auth-email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="voce@gmail.com">
           </div>
         </label>
         <label class="auth-field">Senha
@@ -131,7 +131,11 @@
           <input type="checkbox" name="remember" id="auth-remember" checked>
           <span>Manter conectado neste aparelho</span>
         </label>
-        <button class="button button-block" type="submit" style="min-height:48px;font-size:15px">Entrar no meu painel</button>
+        <button class="button button-block" type="submit" id="auth-signin-btn" style="min-height:48px;font-size:15px">Entrar no meu painel</button>
+        <div class="auth-aux">
+          <button type="button" class="link" id="auth-forgot" aria-controls="auth-forgot-form">Esqueci minha senha</button>
+          <button type="button" class="button button-secondary button-sm" id="auth-resend" hidden>Reenviar e-mail de confirmação</button>
+        </div>
       </form>
 
       <!-- Aba 2: Criar acesso (com medidor de força da senha .meter e 3 regras .rules idênticos ao entrar.html) -->
@@ -142,10 +146,10 @@
             <input id="auth-name" name="name" type="text" autocomplete="name" required placeholder="Ex.: Ana Souza">
           </div>
         </label>
-        <label class="auth-field">Usuário ou E-mail
+        <label class="auth-field">E-mail
           <div class="auth-input-wrap">
-            <svg class="lead-ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-            <input id="setup-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="ex.: anasouza ou ana@gmail.com">
+            <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <input id="setup-username" name="username" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" required placeholder="voce@gmail.com">
           </div>
         </label>
         <label class="auth-field">Crie uma senha
@@ -161,7 +165,7 @@
         <ul class="rules" id="rules">
           <li data-rule="len">Pelo menos <span id="minlen">8</span> caracteres</li>
           <li data-rule="mix">Letras e números (ou símbolos)</li>
-          <li data-rule="user">Diferente do usuário/e-mail</li>
+          <li data-rule="user">Diferente do seu e-mail</li>
         </ul>
         <label class="auth-field">Repita a senha
           <div class="auth-input-wrap">
@@ -172,8 +176,58 @@
         <button class="button button-block" type="submit" id="auth-signup-btn" style="min-height:48px;font-size:15px">Criar acesso e abrir meu painel</button>
       </form>
 
-      <div class="auth-divider">ou testar sem cadastro</div>
-      <button class="button button-secondary button-block" id="auth-guest-btn" type="button">Continuar como convidado</button>
+      <!-- Esqueci minha senha: envia link de recuperação (resposta sempre igual) -->
+      <form id="auth-forgot-form" class="auth-flow" aria-labelledby="auth-forgot-title" novalidate hidden>
+        <h3 id="auth-forgot-title">Recuperar acesso</h3>
+        <p class="auth-flow-sub">Enviaremos um link para você criar uma nova senha.</p>
+        <label class="auth-field">E-mail
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <input id="auth-forgot-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" required placeholder="voce@gmail.com">
+          </div>
+        </label>
+        <button class="button button-block" type="submit" id="auth-forgot-send">Enviar link de recuperação</button>
+        <button type="button" class="link auth-back" id="auth-forgot-back">Voltar para entrar</button>
+      </form>
+
+      <!-- Nova senha (aberto pelo link de recuperação) -->
+      <form id="auth-reset-form" class="auth-flow" aria-labelledby="auth-reset-title" novalidate hidden>
+        <h3 id="auth-reset-title">Criar nova senha</h3>
+        <label class="auth-field">Nova senha
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <input id="reset-pass" name="password" type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" aria-describedby="reset-rules">
+            <button type="button" class="eye" aria-label="Mostrar senha" data-eye="reset-pass">
+              <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </label>
+        <div class="meter" aria-hidden="true"><i id="reset-meter"></i></div>
+        <ul class="rules" id="reset-rules">
+          <li data-rule="len">Pelo menos 8 caracteres</li>
+          <li data-rule="mix">Letras e números (ou símbolos)</li>
+          <li data-rule="user">Diferente do seu e-mail</li>
+        </ul>
+        <label class="auth-field">Repita a nova senha
+          <div class="auth-input-wrap">
+            <svg class="lead-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+            <input id="reset-confirm" name="confirm" type="password" autocomplete="new-password" required placeholder="Confirme a nova senha">
+          </div>
+        </label>
+        <button class="button button-block" type="submit" id="auth-reset-save">Salvar nova senha</button>
+      </form>
+
+      <!-- Migração de dados antigos deste navegador para a conta -->
+      <div id="auth-migrar" class="auth-msg warn auth-migrar" role="region" aria-labelledby="auth-migrar-title" hidden>
+        <strong id="auth-migrar-title">Trazer dados antigos para sua conta?</strong>
+        <p id="auth-migrar-texto">Encontramos dados de uma conta antiga neste navegador.</p>
+        <p class="auth-migrar-nota">Nada é apagado: os dados antigos continuam guardados neste navegador.</p>
+        <div class="auth-migrar-acoes">
+          <button type="button" class="button button-sm" id="auth-migrar-sim">Trazer para minha conta</button>
+          <button type="button" class="button button-ghost button-sm" id="auth-migrar-nao">Agora não</button>
+        </div>
+      </div>
+
       <p class="helper" id="auth-feedback" role="status" aria-live="polite"></p>
 
       <div class="trust-foot" aria-label="Proteções">
@@ -971,6 +1025,6 @@
 
 <div id="ats-print-root" aria-hidden="true"></div>
 
-<script src="radar-app.js?v=20261124-007"></script>
+<script src="radar-app.js?v=20261124-008"></script>
 </body>
 </html>

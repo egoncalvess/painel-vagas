@@ -5,7 +5,7 @@
  */
 (function(){
   "use strict";
-  const ASSET_VERSION="20261124-007";
+  const ASSET_VERSION="20261124-008";
   console.info("Radar",ASSET_VERSION);
 
   const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
@@ -64,7 +64,7 @@
     acceptHybrid:true,
     acceptOnsite:false,
     maxDays:14,
-    contact:"engerickgoncalves@gmail.com",
+    contact:"",
     skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, Curva S / valor agregado, PCM / Manutenção, CREA ativo, NR-10",
     summary:"Engenharia e planejamento com foco em controle de obras, cronogramas físico-financeiros (MS Project / Curva S), indicadores em Power BI, SAP PM/MM e gestão de manutenção e contratos.",
     targetRole:"",seniority:"",phone:"",linkedinUrl:"",linkedinHeadline:"",linkedinAbout:"",
@@ -171,19 +171,10 @@
   };
   window.RadarDynamicDB=RadarDynamicDB;
 
-  async function sha256Hex(texto){
-    if(window.crypto&&window.crypto.subtle){
-      const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(texto)));
-      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
-    }
-    let h=0;
-    const s=String(texto);
-    for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;
-    return "fallback-"+Math.abs(h).toString(16);
-  }
-
-  // Estado Global e Sessão Ativa por Pessoa
-  let sb=null, usuario=null, activeNamespace="guest";
+  // Estado Global e Sessão Ativa por Pessoa. Sem login não há namespace de dados (não existe mais convidado).
+  const SEM_SESSAO="__sem_sessao__";
+  let sb=null, usuario=null, activeNamespace=SEM_SESSAO;
+  let modoRecuperacao=false, emailRecuperacao="", emailPendenteConfirmacao="";
   let activeView="overview";
   let todas=[], vagasManuais=[], filaErrosRemota=[], filaErrosLocal=[], meta={};
   let estado={candidatei:{},salvas:{},descartadas:[],candidaturas:{}}, sha=null;
@@ -219,6 +210,7 @@
       val={...val,_atualizadoEm:new Date().toISOString()};
       if(val===profile||profile)profile=val;
     }
+    if(activeNamespace===SEM_SESSAO)return; // sem login nada é gravado
     try{localStorage.setItem(userKey(k),JSON.stringify(val))}catch(e){}
     if(RadarDynamicDB.stores.includes(k))RadarDynamicDB.put(k,activeNamespace,val);
     else RadarDynamicDB.put("progress",`${activeNamespace}:${k}`,val);
@@ -229,17 +221,16 @@
 
   let syncSupaTimer=null;
   function sincronizarProgressoContasSupabase(){
-    if(!sb||!activeNamespace||activeNamespace==="guest")return;
+    if(!sb||!usuario?.isSupabase||!activeNamespace||activeNamespace===SEM_SESSAO)return;
     clearTimeout(syncSupaTimer);
     syncSupaTimer=setTimeout(async()=>{
       try{
         await sb.from("progresso_contas").upsert({
           account_key:activeNamespace,
-          user_id:usuario?.isSupabase?usuario.id:null,
-          email:usuario?.email||profile?.contact||null,
+          user_id:usuario.id,
+          email:usuario.email||null,
           nome:profile?.name||usuario?.name||activeNamespace,
-          provider:usuario?.provider||"local",
-          role:usuario?.role||"user",
+          provider:"supabase",
           perfil:profile||{},
           estado:estado||{candidatei:{},salvas:{},descartadas:[],candidaturas:{}},
           posts:posts||[],
@@ -340,20 +331,9 @@
     return map&&typeof map==="object"&&!Array.isArray(map)?map:{};
   }
 
-  function registrarContaNoAparelho(acc){
-    const map=listarContasLocais();
-    const key=(acc.email||acc.username||acc.userId).toLowerCase();
-    map[key]={...(map[key]||{}),...acc,updatedAt:new Date().toISOString()};
-    gravarGlobal("radar-accounts-registry",map);
-    RadarDynamicDB.put("users",key,map[key]);
-    return map[key];
-  }
-
+  // Admin = papel lido de perfis no Supabase (seed de estado.json, preset e token do GitHub)
   function ehContaDoErick(){
-    const id=semAcento(activeNamespace);
-    const em=semAcento(usuario?.email||"");
-    const nm=semAcento(profile?.name||"");
-    return id==="erick"||id==="user-engerickgoncalves-gmail-com"||em==="engerickgoncalves@gmail.com"||nm==="erick goncalves";
+    return usuario?.role==="admin";
   }
 
   // ==================== PERFIL MULTIUSUÁRIO & AVALIAÇÃO DINÂMICA ====================
@@ -361,13 +341,14 @@
     const salvo=lerUser("profiles",null)||lerUser("perfil",null);
     if(salvo&&typeof salvo==="object"&&salvo.name){
       profile={...PRESET_BLANK_PROFILE,...salvo};
-    }else if(usuario&&(semAcento(usuario.email)==="engerickgoncalves@gmail.com"||semAcento(usuario.userId)==="erick")){
+    }else if(usuario?.role==="admin"){
       profile={...PRESET_DEFAULT_PROFILE};
     }else if(usuario&&usuario.name){
       profile={...PRESET_BLANK_PROFILE,name:usuario.name,contact:usuario.email||""};
     }else{
       profile={...PRESET_BLANK_PROFILE};
     }
+    profile=perfilComContato(profile,usuario?.email);
     const filtrosSalvos=lerUser("filtros",{});
     f=Object.assign({status:"todas",ordem:"data",fonte:"",area:"",mod:"",score:"0",cidade:"",salario:""},filtrosSalvos&&typeof filtrosSalvos==="object"?filtrosSalvos:{});
     const vm=lerUser("vagas-manuais",[]);
@@ -763,6 +744,176 @@
     return resumo;
   }
   // </triagem-puras>
+
+  // <auth-puras> Funções puras de login e migração (testadas por tests/test_auth_js.py via node).
+  // Login e cadastro só pelo Supabase com e-mail; o papel (admin/user) vem do banco, nunca do navegador.
+  const RE_EMAIL=/^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  const RE_UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const CHAVES_MIGRACAO=["profiles","progress","posts","stories","vagas-manuais","error_queue"];
+  const emailValido=e=>RE_EMAIL.test(String(e||"").trim());
+  // Pasta do site (em produção https://egoncalvess.github.io/painel-vagas/): destino dos links de e-mail
+  const siteUrlDe=loc=>loc.origin+loc.pathname.replace(/[^/]*$/,"");
+  function mensagemErroAuth(err){
+    if(!err)return{texto:"",tipo:"bad",codigo:null};
+    const codigo=String(err.code||err.error_code||"").toLowerCase();
+    const msg=String(err.message||err.msg||"");
+    const status=Number(err.status)||0;
+    if(codigo==="invalid_credentials"||/invalid login credentials/i.test(msg))
+      return{texto:"E-mail ou senha incorretos.",tipo:"bad",codigo:"invalid_credentials"};
+    if(codigo==="email_not_confirmed"||/email not confirmed/i.test(msg))
+      return{texto:"Confirme seu e-mail pelo link que enviamos.",tipo:"warn",codigo:"email_not_confirmed"};
+    if(codigo==="over_request_rate_limit"||codigo==="over_email_send_rate_limit"||status===429)
+      return{texto:"Muitas tentativas. Aguarde alguns minutos.",tipo:"warn",codigo:"rate_limit"};
+    if(codigo==="same_password")
+      return{texto:"A nova senha precisa ser diferente da anterior.",tipo:"bad",codigo};
+    if(codigo==="weak_password")
+      return{texto:"Senha fraca: use pelo menos 8 caracteres com letras e números.",tipo:"bad",codigo};
+    return{texto:msg||"Não foi possível concluir agora. Tente de novo.",tipo:"bad",codigo:codigo||"outro"};
+  }
+  function regrasSenha(senha,email){
+    const p=String(senha||"");
+    const u=String(email||"").trim().toLowerCase().split("@")[0];
+    const r={len:p.length>=8,mix:/[a-zA-Z]/.test(p)&&/[^a-zA-Z]/.test(p),user:!!p&&(!u||!p.toLowerCase().includes(u))};
+    const score=(r.len?1:0)+(r.mix?1:0)+(p.length>=12?1:0)+(/[^a-zA-Z0-9]/.test(p)?1:0);
+    return{...r,ok:r.len&&r.mix&&r.user,score};
+  }
+  // Lê o retorno dos links de e-mail do Supabase SEM alterar a URL (o supabase-js precisa ler o hash)
+  function lerHashAuth(hash){
+    const h=String(hash||"").replace(/^#/,"");
+    if(!h.includes("="))return{tipo:null};
+    const q=new URLSearchParams(h);
+    if(q.get("error")||q.get("error_description"))
+      return{tipo:"erro",erro:q.get("error_description")||q.get("error"),codigo:q.get("error_code")||q.get("error")};
+    if(q.get("access_token"))return{tipo:q.get("type")==="recovery"?"recovery":(q.get("type")||"login")};
+    return{tipo:null};
+  }
+  // Contas antigas deste navegador que podem ser trazidas para a conta logada (uid): só as que correspondem
+  // ao e-mail da sessão (mesmo e-mail ou usuário no registro, ou id user-<slug do e-mail>). Nunca uuids.
+  function candidatosMigracao({registro,idsComDados,email,uid,migrados}){
+    const em=String(email||"").trim().toLowerCase();
+    const local=em.split("@")[0];
+    const comDados=new Set(idsComDados||[]);
+    const reg=objetoSimples(registro),mig=objetoSimples(migrados);
+    const legado=id=>!!id&&id!==uid&&id!==SEM_SESSAO&&id!=="guest"&&!RE_UUID.test(id);
+    const tratado=id=>{const m=mig[id];return !!m&&(!!m.para||(Array.isArray(m.recusado_por)&&m.recusado_por.includes(uid)))};
+    const out=[];
+    const add=(id,correspondente)=>{
+      if(legado(id)&&comDados.has(id)&&!tratado(id)&&!out.some(o=>o.id===id))out.push({id,correspondente});
+    };
+    for(const c of Object.values(reg)){
+      if(!c||!c.userId)continue;
+      const ce=String(c.email||"").trim().toLowerCase(),cu=semAcento(c.username);
+      if((em&&ce===em)||(local&&cu===semAcento(local)))add(String(c.userId),true);
+    }
+    if(em){add(`user-${slug(em)}`,true);add(`user-${slug(local)}`,true)}
+    // Contas antigas que não correspondem ao e-mail logado (de outras pessoas neste navegador) nunca são oferecidas
+    return out;
+  }
+  function resumoDadosConta(d){
+    const est=normalizarEstado(d?.progress);
+    const vagas=new Set([...Object.keys(est.candidatei),...Object.keys(est.salvas),...Object.keys(est.candidaturas)]).size;
+    const posts=Array.isArray(d?.posts)?d.posts.length:0;
+    const perfil=!!(d?.profiles&&typeof d.profiles==="object"&&Object.keys(d.profiles).length);
+    return{perfil,vagas,posts};
+  }
+  // Contato do perfil: nunca herdado de outra conta; vazio = e-mail da sessão
+  function perfilComContato(p,emailSessao){
+    const perfil={...objetoSimples(p)};
+    if(!String(perfil.contact||"").trim()&&emailSessao)perfil.contact=String(emailSessao).trim().toLowerCase();
+    return perfil;
+  }
+  function textoMigracao(id,r){
+    const partes=[r.perfil?"perfil":null,`${r.vagas} vaga${r.vagas===1?"":"s"} marcada${r.vagas===1?"":"s"}`,`${r.posts} post${r.posts===1?"":"s"}`].filter(Boolean);
+    return`Encontramos dados de '${id}' neste navegador (${partes.join(", ")}). Trazer para sua conta?`;
+  }
+  const valorVazio=v=>v===undefined||v===null||v==="";
+  // Perfil: vence o atualizado por último, sem perder campos que só o outro tem
+  function mesclarPerfis(a,b){
+    const pa=objetoSimples(a),pb=objetoSimples(b);
+    const ta=Date.parse(pa._atualizadoEm||"")||0,tb=Date.parse(pb._atualizadoEm||"")||0;
+    const[velho,novo]=ta>tb?[pb,pa]:[pa,pb];
+    const out={...velho};
+    for(const[k,v]of Object.entries(novo))if(!valorVazio(v))out[k]=v;
+    return out;
+  }
+  function mesclarEstadosConta(a,b){
+    const x=normalizarEstado(a),y=normalizarEstado(b);
+    return{
+      ...x,...y,
+      candidatei:{...x.candidatei,...y.candidatei},
+      salvas:{...x.salvas,...y.salvas},
+      descartadas:[...new Set([...x.descartadas,...y.descartadas])],
+      candidaturas:mesclarCandidaturas(x.candidaturas,y.candidaturas)
+    };
+  }
+  // Listas por id: junta as duas; se o mesmo id aparece nas duas, vale o item de b
+  function uniaoPorId(a,b){
+    const m=new Map();
+    for(const it of[...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])]){
+      const k=it&&typeof it==="object"&&it.id!=null?"id:"+it.id:"json:"+JSON.stringify(it);
+      m.set(k,it);
+    }
+    return[...m.values()];
+  }
+  // antigo = dados da conta antiga; atual = dados da conta logada. Devolve só as chaves que existem em algum dos dois.
+  function mesclarDadosConta(antigo,atual){
+    const A=objetoSimples(antigo),B=objetoSimples(atual),out={};
+    if(A.profiles!==undefined||B.profiles!==undefined)out.profiles=mesclarPerfis(A.profiles,B.profiles);
+    if(A.progress!==undefined||B.progress!==undefined)out.progress=mesclarEstadosConta(A.progress,B.progress);
+    for(const k of["posts","stories","vagas-manuais","error_queue"]){
+      if(A[k]!==undefined||B[k]!==undefined)out[k]=uniaoPorId(A[k],B[k]);
+    }
+    return out;
+  }
+  // Mesmo hash que o login local antigo gravava em radar-accounts-registry (passwordHash)
+  async function sha256Hex(texto){
+    const c=globalThis.crypto;
+    if(c&&c.subtle){
+      const buf=await c.subtle.digest("SHA-256",new TextEncoder().encode(String(texto)));
+      return[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+    }
+    let h=0;
+    const t=String(texto);
+    for(let i=0;i<t.length;i++)h=((h<<5)-h)+t.charCodeAt(i)|0;
+    return"fallback-"+Math.abs(h).toString(16);
+  }
+  function acharContaAntiga(registro,nome){
+    const n=semAcento(String(nome||"").trim());
+    if(!n)return null;
+    for(const[k,c]of Object.entries(objetoSimples(registro))){
+      if(!c||!c.userId)continue;
+      if([k,c.userId,c.username,c.email].some(x=>x&&semAcento(String(x).trim())===n))return c;
+    }
+    return null;
+  }
+  // Prova de posse de uma conta antiga NÃO correspondente: usuário + senha antigos conferidos só neste navegador
+  // contra o hash guardado. A senha não é guardada nem enviada. Usuário inexistente e senha errada dão a mesma resposta.
+  function criarVerificadorContaAntiga({registro,uid,hash=sha256Hex,max=5}){
+    let tentativas=0;
+    return async function verificar(nome,senha){
+      if(tentativas>=max)return{status:"bloqueado",restantes:0};
+      tentativas++;
+      const restantes=max-tentativas;
+      const h=await hash(String(senha||"")); // calcula sempre, exista ou não a conta
+      const conta=acharContaAntiga(registro,nome);
+      const id=conta?String(conta.userId):"";
+      if(!conta||!senha||id===uid||id===SEM_SESSAO||id==="guest"||RE_UUID.test(id))return{status:"invalida",restantes};
+      if(!conta.passwordHash)return{status:"sem_hash",id,restantes};
+      if(h!==conta.passwordHash)return{status:"invalida",restantes};
+      return{status:"ok",id,restantes};
+    };
+  }
+  function mensagemVerificacao(r){
+    if(r.status==="ok")return{texto:`Senha antiga conferida. Trazendo os dados de '${r.id}'…`,tipo:"ok"};
+    if(r.status==="sem_hash")return{texto:`A conta antiga '${r.id}' não tem senha guardada neste navegador, então não dá para conferir aqui. Peça ao administrador o passo manual no Supabase (supabase/reatribuir_conta_antiga.sql, chave '${r.id}').`,tipo:"warn"};
+    if(r.status==="bloqueado")return{texto:"Muitas tentativas. Recarregue a página para tentar de novo.",tipo:"bad"};
+    return{texto:`Usuário ou senha antigos não conferem.${r.restantes>0?` Restam ${r.restantes} tentativa${r.restantes===1?"":"s"}.`:""}`,tipo:"bad"};
+  }
+  // </auth-puras>
+
+  const SITE_URL=siteUrlDe(location);
+  const MSG_SEM_SERVIDOR="Não foi possível conectar ao servidor de login. Verifique a conexão e tente de novo.";
+  const MSG_RESET_ENVIADO="Se existir uma conta com esse e-mail, enviamos um link.";
 
   const ctxTriagem=v=>({perfil:profile,estado,nota:sc(v),hoje:hoje()});
   const elegivel=v=>elegivelCom(v,ctxTriagem(v));
@@ -1821,7 +1972,7 @@
       const lidas=fs.reduce((a,[,x])=>a+(x.lidas||0),0);
       const novas=fs.reduce((a,[,x])=>a+(x.novas||0),0);
       SG.innerHTML=`
-        <div><dt>Conta ativa</dt><dd>${escapeHtml(profile?.name?.split(" ")[0]||"Convidado")}</dd></div>
+        <div><dt>Conta ativa</dt><dd>${escapeHtml(profile?.name?.split(" ")[0]||"Não conectado")}</dd></div>
         <div><dt>Anúncios lidos na busca</dt><dd>${lidas||"—"}</dd></div>
         <div><dt>Novas na última coleta</dt><dd>${novas}</dd></div>
         <div><dt>No painel ativo</dt><dd>${vs.length}</dd></div>
@@ -3324,13 +3475,6 @@
     });
   }
 
-  function resolverPapelUsuario(dados){
-    const em=semAcento(dados?.email||"");
-    const uid=semAcento(dados?.userId||dados?.id||"");
-    if(em==="engerickgoncalves@gmail.com"||uid==="erick"||uid==="user-engerickgoncalves-gmail-com")return "admin";
-    return dados?.role==="admin"?"admin":"user";
-  }
-
   function atualizarOnboardingBanner(){
     const precisa=!profile||!String(profile.skills||"").trim()||profile.name==="Novo Usuário"||profile.name==="Visitante";
     if($("onboarding-banner"))$("onboarding-banner").hidden=!precisa;
@@ -3341,15 +3485,6 @@
     const box=$("admin-users-list");
     if(!box||usuario?.role!=="admin")return;
     const mapa=new Map();
-    for(const [k,c] of Object.entries(listarContasLocais())){
-      const role=resolverPapelUsuario(c);
-      mapa.set((c.email||c.userId||k).toLowerCase(),{
-        name:c.name||c.username||k,
-        email:c.email||k,
-        provider:c.provider||"local",
-        role
-      });
-    }
     if(sb){
       try{
         const{data:perfis}=await sb.from("perfis").select("id,email,nome,role,atualizado_em");
@@ -3417,48 +3552,55 @@
       if(emailEl)emailEl.textContent=pNome;
       if(authLbl)authLbl.textContent="Trocar conta";
     }else{
-      if(emailEl)emailEl.textContent="Convidado";
+      if(emailEl)emailEl.textContent="Não conectado";
       if(authLbl)authLbl.textContent="Entrar / Conta";
     }
     aplicarVisibilidadePorPapel();
     atualizarOnboardingBanner();
   }
 
+  const dadosSessaoDe=u=>({
+    userId:u.id,
+    email:u.email,
+    name:u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0],
+    provider:"password",
+    isSupabase:true
+  });
+
   async function autenticarSessaoPessoa(dadosSessao,remember=true){
-    const roleInicial=resolverPapelUsuario(dadosSessao);
+    // Só sessão real do Supabase entra; o papel começa como "user" e só o banco promove
+    if(!sb||!dadosSessao?.isSupabase||!(dadosSessao.userId||dadosSessao.id)){
+      prepararTelaSemSessao();
+      mostrarFluxoAuth("signin");
+      return;
+    }
     usuario={
-      id:dadosSessao.userId||dadosSessao.id||`user-${slug(dadosSessao.email||dadosSessao.name||"ativo")}`,
-      userId:dadosSessao.userId||dadosSessao.id||`user-${slug(dadosSessao.email||dadosSessao.name||"ativo")}`,
-      email:dadosSessao.email||"",
-      name:dadosSessao.name||dadosSessao.username||"Usuário",
+      id:dadosSessao.userId||dadosSessao.id,
+      userId:dadosSessao.userId||dadosSessao.id,
+      email:String(dadosSessao.email||"").toLowerCase(),
+      name:dadosSessao.name||"Usuário",
       provider:dadosSessao.provider||"password",
-      role:roleInicial,
-      isSupabase:!!dadosSessao.isSupabase
+      role:"user",
+      isSupabase:true
     };
     activeNamespace=usuario.userId;
 
-    if(sb&&usuario.isSupabase&&usuario.id){
-      try{
-        const{data:perfilDb}=await sb.from("perfis").select("role").eq("id",usuario.id).maybeSingle();
-        if(perfilDb?.role){
-          usuario.role=perfilDb.role==="admin"||ehContaDoErick()?"admin":"user";
-        }else{
-          await sb.from("perfis").upsert({
-            id:usuario.id,
-            email:usuario.email||null,
-            nome:usuario.name,
-            role:usuario.role,
-            atualizado_em:new Date().toISOString()
-          });
+    try{
+      const{data:perfilDb,error}=await sb.from("perfis").select("role").eq("id",usuario.id).maybeSingle();
+      if(!error){
+        if(perfilDb)usuario.role=perfilDb.role==="admin"?"admin":"user";
+        else{
+          // Primeira entrada: cria a linha sem papel (o gatilho do banco grava "user" e o e-mail do token)
+          await sb.from("perfis").upsert({id:usuario.id,nome:usuario.name,atualizado_em:new Date().toISOString()});
         }
-      }catch(e){}
-    }
+      }
+    }catch(e){}
 
     const sessaoSalva={...usuario,loggedInAt:new Date().toISOString(),remember};
     gravarGlobal("radar-active-session",sessaoSalva);
 
     await RadarDynamicDB.hydrateUserToLocal(activeNamespace);
-    if(sb&&activeNamespace&&activeNamespace!=="guest"){
+    if(sb&&activeNamespace&&activeNamespace!==SEM_SESSAO){
       try{
         const{data:remotoConta}=await sb.from("progresso_contas").select("*").eq("account_key",activeNamespace).maybeSingle();
         if(remotoConta){
@@ -3486,7 +3628,7 @@
           if(Array.isArray(remotoConta.posts)&&remotoConta.posts.length&&!lerUser("posts",null))RadarDynamicDB.put("posts",activeNamespace,remotoConta.posts);
           if(Array.isArray(remotoConta.stories)&&remotoConta.stories.length&&!lerUser("stories",null))RadarDynamicDB.put("stories",activeNamespace,remotoConta.stories);
         }
-        if(usuario?.isSupabase){
+        {
           const{data:remotoPerfil}=await sb.from("perfis_usuarios").select("config,atualizado_em").eq("user_id",usuario.id).maybeSingle();
           if(remotoPerfil?.config&&Object.keys(remotoPerfil.config).length){
             const perfilLocal=lerUser("profiles",null);
@@ -3500,6 +3642,8 @@
         }
       }catch(e){}
     }
+    let migrou=false;
+    try{migrou=await oferecerMigracao()}catch(e){}
     carregarPerfilUsuario();
 
     // Carrega o progresso isolado desta pessoa do RadarDynamicDB
@@ -3523,13 +3667,226 @@
     }
 
     if($("login"))$("login").hidden=true;
+    if($("auth-migrar"))$("auth-migrar").hidden=true;
     if(location.hash==="#login")history.replaceState(null,"",location.pathname+location.search);
 
     atualizarUIAutenticacao();
     carregarPostsUsuario();
     render();
+    if(migrou)sincronizarProgressoContasSupabase();
     showToast(`Bem-vindo(a), ${profile?.name||usuario.name}!`);
   }
+
+  function prepararTelaSemSessao(){
+    usuario=null;
+    activeNamespace=SEM_SESSAO;
+    carregarPerfilUsuario();
+    carregarPostsUsuario();
+    atualizarUIAutenticacao();
+    render();
+  }
+
+  // ==================== MIGRAÇÃO DE CONTAS ANTIGAS DESTE NAVEGADOR (nada é apagado) ====================
+  function lerDadoLegado(ns,k){
+    for(const chave of[`radar_db:${k}:${ns}`,`radar_db:progress:${ns}:${k}`,`radar:${ns}:${k}`]){
+      try{
+        const raw=localStorage.getItem(chave);
+        if(raw!=null){const v=JSON.parse(raw);if(v!==null&&v!==undefined)return v}
+      }catch(e){}
+    }
+    return undefined;
+  }
+  function idsNoLocalStorage(){
+    const ids=new Set();
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i)||"";let m;
+      if((m=/^radar:([^:]+):/.exec(k)))ids.add(m[1]);
+      else if((m=/^radar_db:(?:progress|profiles|posts|stories|error_queue):([^:]+)/.exec(k)))ids.add(m[1]);
+    }
+    return[...ids];
+  }
+  async function idsNoIndexedDB(){
+    const db=RadarDynamicDB.db;if(!db)return[];
+    const ids=new Set();
+    for(const st of RadarDynamicDB.stores){
+      if(st==="users"||!db.objectStoreNames.contains(st))continue;
+      await new Promise(res=>{
+        try{
+          const r=db.transaction(st,"readonly").objectStore(st).getAllKeys();
+          r.onsuccess=()=>{for(const k of r.result||[])ids.add(String(k).split(":")[0]);res()};
+          r.onerror=()=>res();
+        }catch(e){res()}
+      });
+    }
+    return[...ids];
+  }
+  function gravarBrutoUser(k,v){
+    try{localStorage.setItem(userKey(k),JSON.stringify(v))}catch(e){}
+    if(RadarDynamicDB.stores.includes(k))RadarDynamicDB.put(k,activeNamespace,v);
+    else RadarDynamicDB.put("progress",`${activeNamespace}:${k}`,v);
+  }
+  function camposMigracaoManual(mostrar){
+    const box=$("auth-migrar");if(!box)return null;
+    let wrap=$("auth-migrar-campos");
+    if(!wrap&&mostrar){
+      wrap=el("div","auth-migrar-campos");
+      wrap.id="auth-migrar-campos";
+      wrap.innerHTML=`
+        <label class="auth-field">Usuário ou e-mail da conta antiga
+          <div class="auth-input-wrap"><input id="auth-migrar-usuario" type="text" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
+        </label>
+        <label class="auth-field">Senha da conta antiga
+          <div class="auth-input-wrap"><input id="auth-migrar-senha" type="password" autocomplete="off"></div>
+        </label>`;
+      box.insertBefore(wrap,qs(".auth-migrar-acoes",box)||null);
+    }
+    if(wrap)wrap.hidden=!mostrar;
+    return wrap;
+  }
+  function perguntarMigracao(texto){
+    return new Promise(resolve=>{
+      const box=$("auth-migrar"),sim=$("auth-migrar-sim"),nao=$("auth-migrar-nao");
+      if(!box||!sim||!nao){resolve(false);return}
+      camposMigracaoManual(false);
+      sim.textContent="Trazer para minha conta";
+      if($("auth-migrar-texto"))$("auth-migrar-texto").textContent=texto;
+      mostrarFluxoAuth("migrar");
+      exibirMsgLogin("");
+      const fim=v=>{sim.onclick=null;nao.onclick=null;box.hidden=true;resolve(v)};
+      sim.onclick=()=>fim(true);
+      nao.onclick=()=>fim(false);
+    });
+  }
+  // Conta antiga de outro nome (ex.: usuário local "erick"): pede usuário + senha antigos. Devolve o id conferido ou null.
+  function perguntarMigracaoManual(){
+    return new Promise(async resolve=>{
+      const box=$("auth-migrar"),sim=$("auth-migrar-sim"),nao=$("auth-migrar-nao");
+      if(!box||!sim||!nao||!usuario?.isSupabase){resolve(null);return}
+      const verificar=verificadorSessao||(verificadorSessao=criarVerificadorContaAntiga({registro:await registroLocalCompleto(),uid:usuario.id}));
+      camposMigracaoManual(true);
+      sim.textContent="Conferir e trazer";
+      if($("auth-migrar-texto"))$("auth-migrar-texto").textContent="Se você tinha uma conta antiga neste navegador com outro nome de usuário, informe o usuário e a senha antigos. A senha é conferida só aqui e não é enviada nem guardada.";
+      mostrarFluxoAuth("migrar");
+      exibirMsgLogin("");
+      setTimeout(()=>$("auth-migrar-usuario")?.focus(),0);
+      const fim=v=>{
+        sim.onclick=null;nao.onclick=null;
+        if($("auth-migrar-senha"))$("auth-migrar-senha").value="";
+        if($("auth-migrar-usuario"))$("auth-migrar-usuario").value="";
+        camposMigracaoManual(false);
+        box.hidden=true;
+        resolve(v);
+      };
+      sim.onclick=async()=>{
+        const campoSenha=$("auth-migrar-senha");
+        const nome=String($("auth-migrar-usuario")?.value||"").trim();
+        const senha=String(campoSenha?.value||"");
+        if(campoSenha)campoSenha.value=""; // a senha antiga não fica na tela
+        await comBotaoOcupado(sim,async()=>{
+          const r=await verificar(nome,senha);
+          const m=mensagemVerificacao(r);
+          exibirMsgLogin(m.texto,m.tipo);
+          if(r.status==="ok"){
+            if(lerGlobal(`radar-migrado:${r.id}`,null)?.para){exibirMsgLogin(`Os dados de '${r.id}' já foram trazidos para uma conta.`,"warn");return}
+            fim(r.id);
+          }
+        });
+        if(sim.disabled===false&&verificar&&box.hidden===false)campoSenha?.focus();
+      };
+      nao.onclick=()=>fim(null);
+    });
+  }
+  let verificadorSessao=null; // limite de tentativas vale para a sessão da página
+  async function registroLocalCompleto(){
+    const reg={...listarContasLocais()};
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i)||"";
+      if(!k.startsWith("radar_db:users:"))continue;
+      try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.userId&&!reg[k.slice(15)])reg[k.slice(15)]=v}catch(e){}
+    }
+    const db=RadarDynamicDB.db;
+    if(db&&db.objectStoreNames.contains("users")){
+      await new Promise(res=>{
+        try{
+          const r=db.transaction("users","readonly").objectStore("users").getAll();
+          r.onsuccess=()=>{for(const it of r.result||[])if(it?.data?.userId&&!reg[it.userKey])reg[it.userKey]=it.data;res()};
+          r.onerror=()=>res();
+        }catch(e){res()}
+      });
+    }
+    return reg;
+  }
+  async function dadosLegados(id){
+    if(RadarDynamicDB.db)await RadarDynamicDB.hydrateUserToLocal(id);
+    const antigo={};
+    for(const k of CHAVES_MIGRACAO){const v=lerDadoLegado(id,k);if(v!==undefined)antigo[k]=v}
+    return antigo;
+  }
+  // Junta os dados da conta antiga na conta logada (nada é apagado) e tenta a cópia do servidor
+  async function executarMigracao(id,antigo){
+    const uid=usuario.id;
+    const atual={};
+    for(const k of CHAVES_MIGRACAO){const v=lerUser(k,undefined);if(v!==undefined)atual[k]=v}
+    for(const[k,v]of Object.entries(mesclarDadosConta(antigo,atual)))gravarBrutoUser(k,v);
+    gravarGlobal(`radar-migrado:${id}`,{para:uid,em:new Date().toISOString()});
+    try{await sb.rpc("reivindicar_conta_antiga",{chave:id})}catch(e){} // false/erro: o servidor não tinha cópia com o mesmo e-mail
+    showToast(`Dados de '${id}' trazidos para sua conta.`);
+  }
+  async function idsLegadosComDados(uid){
+    const daIdb=await idsNoIndexedDB();
+    for(const id of daIdb)if(id!==uid&&!RE_UUID.test(id))await RadarDynamicDB.hydrateUserToLocal(id);
+    const todos=[...new Set([...idsNoLocalStorage(),...daIdb])];
+    return todos.filter(id=>CHAVES_MIGRACAO.some(k=>lerDadoLegado(id,k)!==undefined));
+  }
+  // Depois do login: oferece trazer dados de contas antigas que correspondem ao e-mail; se só houver contas
+  // de outro nome, oferece (uma vez por conta) a prova por usuário + senha antigos.
+  async function oferecerMigracao(){
+    if(!usuario?.isSupabase)return false;
+    const uid=usuario.id;
+    const comDados=await idsLegadosComDados(uid);
+    const migrados={};
+    for(const id of comDados)migrados[id]=lerGlobal(`radar-migrado:${id}`,null);
+    const cands=candidatosMigracao({registro:listarContasLocais(),idsComDados:comDados,email:usuario.email,uid,migrados});
+    let migrou=false;
+    for(const c of cands){
+      const antigo=await dadosLegados(c.id);
+      if(await perguntarMigracao(textoMigracao(c.id,resumoDadosConta(antigo)))){
+        await executarMigracao(c.id,antigo);
+        migrou=true;
+      }else{
+        const m=lerGlobal(`radar-migrado:${c.id}`,null)||{};
+        gravarGlobal(`radar-migrado:${c.id}`,{...m,recusado_por:[...new Set([...(m.recusado_por||[]),uid])]});
+      }
+    }
+    const outrasLegadas=comDados.some(id=>id!==uid&&id!==SEM_SESSAO&&id!=="guest"&&!RE_UUID.test(id)&&!migrados[id]?.para);
+    if(!migrou&&!cands.length&&outrasLegadas&&!lerGlobal(`radar-migrar-manual-dispensado:${uid}`,false)){
+      const id=await perguntarMigracaoManual();
+      gravarGlobal(`radar-migrar-manual-dispensado:${uid}`,true); // pergunta uma vez; depois só por Configurações
+      if(id){await executarMigracao(id,await dadosLegados(id));migrou=true}
+    }
+    return migrou;
+  }
+  // Configurações → Backup local: acesso a qualquer momento à prova por usuário + senha antigos
+  (function botaoMigrarContaAntiga(){
+    const ref=$("btn-export-data");
+    if(!ref||$("btn-migrar-conta-antiga"))return;
+    const b=el("button","button button-secondary","Trazer dados de uma conta antiga deste navegador");
+    b.type="button";
+    b.id="btn-migrar-conta-antiga";
+    ref.parentElement.append(b);
+    b.addEventListener("click",async()=>{
+      if(!usuario?.isSupabase){showToast("Entre na sua conta primeiro.");return}
+      const id=await perguntarMigracaoManual();
+      if($("login"))$("login").hidden=true;
+      if(!id)return;
+      await executarMigracao(id,await dadosLegados(id));
+      carregarPerfilUsuario();
+      estado=normalizarEstado(lerUser("progress",null));
+      carregarPostsUsuario();
+      render();
+      sincronizarProgressoContasSupabase();
+    });
+  })();
 
   async function inicializarSessaoEPainel(){
     await RadarDynamicDB.init();
@@ -3538,50 +3895,55 @@
     const customSupa=lerGlobal("supabase-custom",null);
     const cfgSupa=(customSupa&&customSupa.url&&customSupa.anon)?customSupa:(window.SUPABASE&&window.SUPABASE.url?window.SUPABASE:null);
 
+    const hashAuth=lerHashAuth(location.hash);
+    if(hashAuth.tipo==="recovery")modoRecuperacao=true;
+
     if(cfgSupa&&cfgSupa.url&&cfgSupa.anon){
       try{
         await carregarScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js");
         sb=window.supabase.createClient(cfgSupa.url,cfgSupa.anon);
+        // Registrado antes de getSession: o link de "Esqueci minha senha" chega como PASSWORD_RECOVERY
+        sb.auth.onAuthStateChange((evento,sessao)=>{
+          if(evento==="PASSWORD_RECOVERY")abrirRecuperacaoSenha(sessao);
+        });
         const{data:{session}}=await sb.auth.getSession();
+        if(modoRecuperacao){
+          prepararTelaSemSessao();
+          abrirRecuperacaoSenha(session);
+          return;
+        }
         if(session&&session.user){
-          const u=session.user;
-          try{await carregarVagas()}catch(e){
-            const msgFalha="Não foi possível carregar as vagas da rede agora.";
-            if($("atual"))$("atual").textContent=msgFalha;
-            if($("last-run-home"))$("last-run-home").textContent=msgFalha;
-          }
-          await autenticarSessaoPessoa({
-            userId:u.id,
-            email:u.email,
-            name:u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0],
-            provider:"password",
-            isSupabase:true
-          },true);
+          await carregarVagasComAviso();
+          await autenticarSessaoPessoa(dadosSessaoDe(session.user),true);
           try{estado=await lerEstadoSupabase();gravarUser("progress",estado);render()}catch(e){}
           return;
         }
       }catch(e){sb=null}
     }
 
-    try{await carregarVagas()}catch(e){
-      const msgFalha="Não foi possível carregar as vagas da rede agora.";
-      if($("atual"))$("atual").textContent=msgFalha;
-      if($("last-run-home"))$("last-run-home").textContent=msgFalha;
-    }
+    await carregarVagasComAviso();
     mostrarContaGitHub();
 
+    // Sessões antigas guardadas no navegador não abrem mais o painel; os dados delas continuam guardados
     const sessaoAnterior=lerGlobal("radar-active-session",null);
-    if(sessaoAnterior&&sessaoAnterior.userId&&location.hash!=="#login"){
-      await autenticarSessaoPessoa(sessaoAnterior,true);
-    }else{
-      // Sem sessão ativa ou hash #login: mostra a Tela de Login como porta de entrada
-      activeNamespace="guest";
-      carregarPerfilUsuario();
-      carregarPostsUsuario();
-      atualizarUIAutenticacao();
-      render();
-      if($("login"))$("login").hidden=false;
+    let aviso=null;
+    if(sessaoAnterior&&sessaoAnterior.userId){
+      if(sessaoAnterior.provider!=="guest"&&sessaoAnterior.userId!=="guest"){
+        aviso=sessaoAnterior.isSupabase
+          ?"Sua sessão terminou. Entre de novo com seu e-mail e senha."
+          :"Sua conta antiga só existia neste navegador. Entre ou crie seu acesso com e-mail para recuperar seus dados.";
+      }
+      gravarGlobal("radar-active-session",null);
     }
+    prepararTelaSemSessao();
+    mostrarFluxoAuth("signin");
+    if(!sb)exibirMsgLogin(cfgSupa?MSG_SEM_SERVIDOR:"Login indisponível: o servidor de contas não está configurado.","bad");
+    else if(hashAuth.tipo==="erro"){
+      exibirMsgLogin(`O link do e-mail não funcionou: ${hashAuth.erro}. Peça um novo.`,"warn",{texto:"Pedir novo link",onClick:()=>mostrarFluxoAuth("forgot")});
+      history.replaceState(null,"",location.pathname+location.search);
+    }
+    else if(aviso)exibirMsgLogin(aviso,"warn");
+
     const supaStatus=$("admin-supa-status");
     if(supaStatus&&cfgSupa?.url){
       try{
@@ -3591,29 +3953,69 @@
     }
   }
 
+  async function carregarVagasComAviso(){
+    try{await carregarVagas()}catch(e){
+      const msgFalha="Não foi possível carregar as vagas da rede agora.";
+      if($("atual"))$("atual").textContent=msgFalha;
+      if($("last-run-home"))$("last-run-home").textContent=msgFalha;
+    }
+  }
+
+  function abrirRecuperacaoSenha(sessao){
+    modoRecuperacao=true;
+    if(sessao?.user?.email)emailRecuperacao=String(sessao.user.email).toLowerCase();
+    mostrarFluxoAuth("reset");
+    exibirMsgLogin("Crie sua nova senha.","ok");
+    validarRegrasSenha("reset");
+  }
+
   function mostrarContaGitHub(){
     const ec=$("estado-conta");
     if(ec)ec.textContent=token?`Token de administrador configurado (${REPO}).`:"Nenhum token configurado.";
   }
 
   // ==================== EVENTOS DA TELA DE LOGIN (FIEL AO ENTRAR.HTML) ====================
-  function exibirMsgLogin(texto,tipo="bad"){
+  function exibirMsgLogin(texto,tipo="bad",acao=null){
     const box=$("login-msg");if(!box)return;
     if(!texto){box.className="auth-msg";box.textContent="";return}
     box.className=`auth-msg ${tipo} show`;
     box.textContent=texto;
+    if(acao){
+      const b=el("button","link",acao.texto);
+      b.type="button";
+      b.addEventListener("click",acao.onClick);
+      box.append(" ",b);
+    }
+  }
+
+  // Um só lugar decide o que aparece na tela de login: abas, formulários e o aviso de migração
+  const FOCO_FLUXO={signin:"auth-email",signup:"auth-name",forgot:"auth-forgot-email",reset:"reset-pass",migrar:"auth-migrar-sim"};
+  function mostrarFluxoAuth(modo){
+    if($("login"))$("login").hidden=false;
+    const comAbas=modo==="signin"||modo==="signup";
+    const abas=qs(".auth-tabs");
+    if(abas)abas.hidden=!comAbas;
+    qsa("[data-auth-tab], #tab-signin, #tab-signup").forEach(b=>{
+      const on=(b.dataset.authTab||(b.id==="tab-signup"?"signup":"signin"))===modo;
+      b.classList.toggle("active",on);
+      b.setAttribute("aria-selected",String(on));
+    });
+    for(const[id,m]of[["auth-email-form","signin"],["form-setup","signup"],["auth-forgot-form","forgot"],["auth-reset-form","reset"],["auth-migrar","migrar"]]){
+      if($(id))$(id).hidden=modo!==m;
+    }
+    if(modo!=="signin"&&$("auth-resend"))$("auth-resend").hidden=true;
+    setTimeout(()=>$(FOCO_FLUXO[modo])?.focus(),0);
+  }
+
+  async function comBotaoOcupado(btn,fn){
+    if(btn){btn.disabled=true;btn.setAttribute("aria-busy","true")}
+    try{return await fn()}
+    finally{if(btn){btn.disabled=false;btn.removeAttribute("aria-busy")}}
   }
 
   // Alternar abas Entrar / Criar acesso
   function alternarAbaAuth(mode){
-    qsa("[data-auth-tab], #tab-signin, #tab-signup").forEach(b=>{
-      const tabMode=b.dataset.authTab||(b.id==="tab-signup"?"signup":"signin");
-      const on=tabMode===mode;
-      b.classList.toggle("active",on);
-      b.setAttribute("aria-selected",String(on));
-    });
-    if($("auth-email-form"))$("auth-email-form").hidden=mode!=="signin";
-    if($("form-setup"))$("form-setup").hidden=mode!=="signup";
+    mostrarFluxoAuth(mode==="signup"?"signup":"signin");
   }
   qsa("[data-auth-tab]").forEach(tab=>{
     tab.addEventListener("click",()=>{
@@ -3642,166 +4044,176 @@
   });
 
   // Medidor de força da senha (.meter) e 3 regras (.rules) idênticos ao radar-main/entrar.html
-  function validarRegrasSenha(){
-    const p=$("setup-pass")?.value||"";
-    const u=($("setup-username")?.value||"").trim().toLowerCase();
-    const r={
-      len:p.length>=8,
-      mix:/[a-zA-Z]/.test(p)&&/[^a-zA-Z]/.test(p),
-      user:!!p&&(!u||!p.toLowerCase().includes(u.split("@")[0]))
-    };
-    for(const [k,ok] of Object.entries(r)){
-      qs(`[data-rule="${k}"]`)?.classList.toggle("ok",ok);
-    }
-    const score=(r.len?1:0)+(r.mix?1:0)+(p.length>=12?1:0)+(/[^a-zA-Z0-9]/.test(p)?1:0);
-    const m=$("meter");
+  function validarRegrasSenha(modo="setup"){
+    const reset=modo==="reset";
+    const p=$(reset?"reset-pass":"setup-pass")?.value||"";
+    const email=reset?(emailRecuperacao||usuario?.email||""):($("setup-username")?.value||"");
+    const r=regrasSenha(p,email);
+    const raiz=$(reset?"reset-rules":"rules");
+    for(const k of["len","mix","user"])raiz?.querySelector(`[data-rule="${k}"]`)?.classList.toggle("ok",r[k]);
+    const m=$(reset?"reset-meter":"meter");
     if(m){
-      m.style.width=`${Math.max(p?14:0,score*25)}%`;
-      m.style.background=score<=1?"var(--bad)":score===2?"var(--maybe)":"var(--good)";
+      m.style.width=`${Math.max(p?14:0,r.score*25)}%`;
+      m.style.background=r.score<=1?"var(--bad)":r.score===2?"var(--maybe)":"var(--good)";
     }
-    return r.len&&r.mix&&r.user;
+    return r.ok;
   }
-  $("form-setup")?.addEventListener("input",validarRegrasSenha);
+  $("form-setup")?.addEventListener("input",()=>validarRegrasSenha("setup"));
+  $("auth-reset-form")?.addEventListener("input",()=>validarRegrasSenha("reset"));
 
-  // Formulário "Entrar" (#auth-email-form) com controle de bloqueio após 5 tentativas erradas
+  // Formulário "Entrar" (#auth-email-form): só e-mail + Supabase. Sem conta local e sem criar conta no login.
   $("auth-email-form")?.addEventListener("submit",async e=>{
     e.preventDefault();
     exibirMsgLogin("");
+    if($("auth-resend"))$("auth-resend").hidden=true;
     const lockUntil=lerGlobal("radar-login-lock-until",0);
     if(lockUntil>Date.now()){
       const min=Math.ceil((lockUntil-Date.now())/60000);
       exibirMsgLogin(`Muitas tentativas incorretas. Aguarde ${min} min.`,"warn");
       return;
     }
-
-    const rawUser=String($("auth-email")?.value||"").trim().toLowerCase();
+    const email=String($("auth-email")?.value||"").trim().toLowerCase();
     const pass=String($("auth-pass")?.value||"");
     const remember=$("auth-remember")?$("auth-remember").checked:true;
-    if(!rawUser||!pass){
-      exibirMsgLogin("Preencha seu usuário/e-mail e senha.");
+    if(!email||!pass){exibirMsgLogin("Preencha seu e-mail e senha.");return}
+    if(!email.includes("@")){
+      exibirMsgLogin("Use seu e-mail. Contas antigas por nome de usuário foram desativadas.","warn",{texto:"Criar acesso",onClick:()=>{mostrarFluxoAuth("signup");exibirMsgLogin("")}});
       return;
     }
+    if(!emailValido(email)){exibirMsgLogin("Digite um e-mail válido, como voce@gmail.com.");return}
+    if(!sb){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
 
-    if(sb){
-      const emailLogin=rawUser.includes("@")?rawUser:`${rawUser}@radar.local`;
-      const{data,error}=await sb.auth.signInWithPassword({email:emailLogin,password:pass});
-      if(!error&&data?.user){
-        await autenticarSessaoPessoa({
-          userId:data.user.id,
-          email:data.user.email,
-          name:data.user.user_metadata?.full_name||rawUser.split("@")[0],
-          provider:"password",
-          isSupabase:true
-        },remember);
+    await comBotaoOcupado($("auth-signin-btn"),async()=>{
+      let resp;
+      try{resp=await sb.auth.signInWithPassword({email,password:pass})}catch(err){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+      const{data,error}=resp||{};
+      if(error){
+        const m=mensagemErroAuth(error);
+        exibirMsgLogin(m.texto,m.tipo);
+        if(m.codigo==="email_not_confirmed"){
+          emailPendenteConfirmacao=email;
+          if($("auth-resend"))$("auth-resend").hidden=false;
+        }
+        if(m.codigo==="invalid_credentials"){
+          // Contador só de interface; o limite real é do Supabase
+          const falhas=(lerGlobal("radar-login-fails",0)||0)+1;
+          gravarGlobal("radar-login-fails",falhas);
+          if(falhas>=5){
+            gravarGlobal("radar-login-lock-until",Date.now()+5*60000);
+            gravarGlobal("radar-login-fails",0);
+            exibirMsgLogin("5 tentativas incorretas. Aguarde 5 minutos ou use \"Esqueci minha senha\".","warn");
+          }
+        }
         return;
       }
-      if(error&&rawUser.includes("@")){
-        exibirMsgLogin(error.message||"E-mail ou senha inválidos.","bad");
-        return;
-      }
-    }
-
-    const contas=listarContasLocais();
-    const conta=contas[rawUser]||Object.values(contas).find(c=>semAcento(c.username)===semAcento(rawUser)||semAcento(c.email)===semAcento(rawUser));
-    const passHash=await sha256Hex(pass);
-
-    if(conta&&conta.passwordHash&&conta.passwordHash!==passHash){
-      const falhas=(lerGlobal("radar-login-fails",0)||0)+1;
-      gravarGlobal("radar-login-fails",falhas);
-      if(falhas>=5){
-        gravarGlobal("radar-login-lock-until",Date.now()+5*60000);
-        gravarGlobal("radar-login-fails",0);
-        exibirMsgLogin("5 tentativas incorretas. Acesso pausado por 5 minutos.","warn");
-      }else{
-        exibirMsgLogin(`Senha incorreta (${falhas}/5 tentativas).`);
-      }
-      return;
-    }
-
-    gravarGlobal("radar-login-fails",0);
-    const ehErick=rawUser==="erick"||rawUser==="engerickgoncalves@gmail.com";
-    const userId=conta?.userId||(ehErick?"erick":`user-${slug(rawUser)}`);
-    const nomeFinal=conta?.name||(ehErick?"Erick Gonçalves":rawUser.split("@")[0]);
-    const contaFinal=registrarContaNoAparelho({
-      userId,
-      username:rawUser.split("@")[0],
-      email:rawUser.includes("@")?rawUser:`${rawUser}@radar.local`,
-      name:nomeFinal,
-      passwordHash:conta?.passwordHash||passHash,
-      provider:"password"
+      if(!data?.user||!data?.session){exibirMsgLogin("Não foi possível entrar agora. Tente de novo.");return}
+      gravarGlobal("radar-login-fails",0);
+      await autenticarSessaoPessoa(dadosSessaoDe(data.user),remember);
     });
-    await autenticarSessaoPessoa(contaFinal,remember);
   });
 
-  // Formulário "Criar acesso" (#form-setup)
+  $("auth-resend")?.addEventListener("click",async()=>{
+    const email=emailPendenteConfirmacao||String($("auth-email")?.value||"").trim().toLowerCase();
+    if(!emailValido(email)){exibirMsgLogin("Digite seu e-mail para reenviar a confirmação.");return}
+    if(!sb){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+    await comBotaoOcupado($("auth-resend"),async()=>{
+      try{
+        const{error}=await sb.auth.resend({type:"signup",email,options:{emailRedirectTo:SITE_URL}});
+        if(error){const m=mensagemErroAuth(error);exibirMsgLogin(m.texto,m.tipo);return}
+        exibirMsgLogin(`Enviamos um novo link de confirmação para ${email}.`,"ok");
+      }catch(err){exibirMsgLogin(MSG_SEM_SERVIDOR)}
+    });
+  });
+
+  // Formulário "Criar acesso" (#form-setup): conta no Supabase; sem sessão = falta confirmar o e-mail
   $("form-setup")?.addEventListener("submit",async e=>{
     e.preventDefault();
     exibirMsgLogin("");
     const nome=String($("auth-name")?.value||"").trim();
-    const rawUser=String($("setup-username")?.value||"").trim().toLowerCase();
+    const email=String($("setup-username")?.value||"").trim().toLowerCase();
     const pass=String($("setup-pass")?.value||"");
     const confirm=String($("setup-confirm")?.value||"");
+    if(!nome){exibirMsgLogin("Informe seu nome.");return}
+    if(!emailValido(email)){exibirMsgLogin("Use um e-mail válido, como voce@gmail.com. Nomes de usuário não são mais aceitos.");return}
+    if(!validarRegrasSenha("setup")){exibirMsgLogin("A senha precisa atender às 3 regras indicadas abaixo.");return}
+    if(pass!==confirm){exibirMsgLogin("As duas senhas não coincidem.");return}
+    if(!sb){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
 
-    if(!nome||rawUser.length<3){
-      exibirMsgLogin("Informe seu nome e um usuário ou e-mail válido.");
-      return;
-    }
-    if(!validarRegrasSenha()){
-      exibirMsgLogin("A senha precisa atender às 3 regras indicadas abaixo.");
-      return;
-    }
-    if(pass!==confirm){
-      exibirMsgLogin("As duas senhas não coincidem.");
-      return;
-    }
-
-    const passHash=await sha256Hex(pass);
-    const emailSignup=rawUser.includes("@")?rawUser:`${rawUser}@radar.local`;
-    const ehErickSignup=rawUser==="erick"||rawUser==="engerickgoncalves@gmail.com";
-    let supaUser=null;
-    if(sb){
+    await comBotaoOcupado($("auth-signup-btn"),async()=>{
+      let resp;
       try{
-        const{data,error}=await sb.auth.signUp({
-          email:emailSignup,
-          password:pass,
-          options:{data:{full_name:nome}}
-        });
-        if(error){
-          exibirMsgLogin(error.message||"Não foi possível criar a conta no Supabase.","bad");
-          return;
-        }
-        supaUser=data?.user||null;
-      }catch(err){}
-    }
-
-    const userId=supaUser?.id||(ehErickSignup?"erick":`user-${slug(rawUser)}`);
-    const novaConta=registrarContaNoAparelho({
-      userId,
-      username:rawUser.split("@")[0],
-      email:rawUser.includes("@")?rawUser:"",
-      name:nome,
-      passwordHash:passHash,
-      provider:"password",
-      role:ehErickSignup?"admin":"user",
-      isSupabase:!!supaUser
+        resp=await sb.auth.signUp({email,password:pass,options:{data:{full_name:nome},emailRedirectTo:SITE_URL}});
+      }catch(err){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+      const{data,error}=resp||{};
+      if(error){const m=mensagemErroAuth(error);exibirMsgLogin(m.texto,m.tipo);return}
+      if(!data?.session||!data?.user){
+        // Confirmação de e-mail ligada (ou e-mail já cadastrado, que o Supabase não revela): não entra
+        mostrarFluxoAuth("signin");
+        if($("auth-email"))$("auth-email").value=email;
+        emailPendenteConfirmacao=email;
+        exibirMsgLogin(`Enviamos um link para ${email}. Confirme e depois entre.`,"ok");
+        if($("auth-resend"))$("auth-resend").hidden=false;
+        return;
+      }
+      if(!RadarDynamicDB.get("profiles",data.user.id,null)){
+        RadarDynamicDB.put("profiles",data.user.id,{...PRESET_BLANK_PROFILE,name:nome,contact:email});
+      }
+      await autenticarSessaoPessoa(dadosSessaoDe(data.user),true);
+      setView("profile");
     });
-
-    // Cria perfil inicial para a nova pessoa
-    const novoPerfil={...PRESET_BLANK_PROFILE,name:nome,contact:rawUser.includes("@")?rawUser:""};
-    RadarDynamicDB.put("profiles",userId,novoPerfil);
-
-    await autenticarSessaoPessoa(novaConta,true);
-    setView("profile");
   });
 
-  // Botão "Continuar como convidado"
-  $("auth-guest-btn")?.addEventListener("click",async()=>{
-    await autenticarSessaoPessoa({
-      userId:"guest",
-      email:"",
-      name:"Visitante",
-      provider:"guest"
-    },false);
+  // Esqueci minha senha: a resposta é sempre a mesma (não revela se o e-mail tem conta)
+  $("auth-forgot")?.addEventListener("click",()=>{
+    const em=String($("auth-email")?.value||"").trim();
+    mostrarFluxoAuth("forgot");
+    exibirMsgLogin("");
+    if(em&&$("auth-forgot-email"))$("auth-forgot-email").value=em;
+  });
+  $("auth-forgot-back")?.addEventListener("click",()=>{mostrarFluxoAuth("signin");exibirMsgLogin("")});
+  $("auth-forgot-form")?.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const email=String($("auth-forgot-email")?.value||"").trim().toLowerCase();
+    if(!emailValido(email)){exibirMsgLogin("Digite um e-mail válido.");return}
+    if(!sb){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+    await comBotaoOcupado($("auth-forgot-send"),async()=>{
+      try{
+        const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:SITE_URL});
+        if(error&&mensagemErroAuth(error).codigo==="rate_limit"){exibirMsgLogin("Muitas tentativas. Aguarde alguns minutos.","warn");return}
+      }catch(err){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+      exibirMsgLogin(MSG_RESET_ENVIADO,"ok");
+    });
+  });
+
+  // Nova senha (link de recuperação): updateUser com a sessão de recuperação
+  $("auth-reset-form")?.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const pass=String($("reset-pass")?.value||"");
+    const confirm=String($("reset-confirm")?.value||"");
+    if(!validarRegrasSenha("reset")){exibirMsgLogin("A senha precisa atender às 3 regras indicadas abaixo.");return}
+    if(pass!==confirm){exibirMsgLogin("As duas senhas não coincidem.");return}
+    if(!sb){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+    await comBotaoOcupado($("auth-reset-save"),async()=>{
+      let resp;
+      try{resp=await sb.auth.updateUser({password:pass})}catch(err){exibirMsgLogin(MSG_SEM_SERVIDOR);return}
+      if(resp?.error){
+        const m=mensagemErroAuth(resp.error);
+        exibirMsgLogin(`${m.texto} Se o link expirou, peça outro.`,m.tipo,{texto:"Pedir novo link",onClick:()=>mostrarFluxoAuth("forgot")});
+        return;
+      }
+      modoRecuperacao=false;
+      history.replaceState(null,"",location.pathname+location.search);
+      exibirMsgLogin("Senha alterada.","ok");
+      if($("reset-pass"))$("reset-pass").value="";
+      if($("reset-confirm"))$("reset-confirm").value="";
+      let u=resp?.data?.user||null;
+      if(!u){try{u=(await sb.auth.getSession()).data?.session?.user||null}catch(err){}}
+      if(!u){mostrarFluxoAuth("signin");return}
+      await carregarVagasComAviso();
+      await autenticarSessaoPessoa(dadosSessaoDe(u),true);
+      try{estado=await lerEstadoSupabase();gravarUser("progress",estado);render()}catch(err){}
+      showToast("Senha alterada.");
+    });
   });
 
   // ==================== EVENTOS GERAIS E DELEGAÇÃO ====================
@@ -4859,10 +5271,7 @@
   });
 
   function abrirTelaLogin(){
-    if($("login")){
-      $("login").hidden=false;
-      $("auth-email")?.focus();
-    }
+    mostrarFluxoAuth("signin");
   }
   $("btn-switch-user")?.addEventListener("click",abrirTelaLogin);
   $("btn-open-auth-settings")?.addEventListener("click",abrirTelaLogin);
@@ -4871,10 +5280,8 @@
   $("sair")?.addEventListener("click",async()=>{
     if(sb){try{await sb.auth.signOut()}catch(e){}}
     gravarGlobal("radar-active-session",null);
-    usuario=null;
-    activeNamespace="guest";
+    prepararTelaSemSessao();
     abrirTelaLogin();
-    atualizarUIAutenticacao();
     showToast("Sessão encerrada. Entre com outra conta quando quiser.");
   });
 

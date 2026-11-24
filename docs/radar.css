@@ -799,3 +799,25 @@ pre.li-copy-text{margin:0;padding:10px 12px;border-radius:6px;border:1px solid v
   .fila-actions .button{width:100%;justify-content:center;text-align:center}
 }
 @media print{.fila-toolbar{display:none!important}}
+
+/* T-20261124-008 — Auth só por e-mail: recuperar senha, nova senha, reenviar confirmação e migração */
+.auth-msg.ok{background:var(--good-soft);color:var(--good)}
+.auth-aux{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:-4px}
+.auth-aux .link{padding-left:0}
+.auth-aux .button{min-width:0;overflow-wrap:anywhere}
+.auth-flow{display:grid;gap:12px}
+.auth-flow h3{margin:0;font:600 18px/1.25 var(--display);color:var(--text)}
+.auth-flow-sub{margin:-6px 0 0;font-size:13.5px;color:var(--text-2)}
+.auth-flow .button-block{min-height:48px;font-size:15px}
+.auth-back{justify-self:start;padding-left:0}
+.auth-migrar:not([hidden]){display:grid;gap:8px;margin:12px 0 0;border:1px solid var(--line)}
+.auth-migrar p{margin:0;color:var(--text)}
+.auth-migrar .auth-migrar-nota{font-size:12.5px;color:var(--text-2)}
+.auth-migrar-acoes{display:flex;flex-wrap:wrap;gap:8px}
+.auth-card button[aria-busy="true"]{cursor:progress;opacity:.7}
+.auth-card button:disabled{cursor:not-allowed}
+@media (max-width:480px){
+  .auth-aux{flex-direction:column;align-items:stretch}
+  .auth-aux .button,.auth-migrar-acoes .button{width:100%;justify-content:center;text-align:center}
+  .auth-migrar-acoes{display:grid;grid-template-columns:1fr}
+}
