@@ -363,6 +363,122 @@
     return String(profile?.roles||"").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
   }
 
+  const KW_STOPWORDS=new Set([
+    "a","o","as","os","um","uma","uns","umas","de","da","do","das","dos","em","na","no","nas","nos",
+    "por","para","pra","com","sem","sob","sobre","entre","ate","apos","desde","contra","perante",
+    "e","ou","mas","nem","que","se","como","quando","onde","quem","qual","quais","cujo","cuja",
+    "ao","aos","a","as","pelo","pela","pelos","pelas","num","numa","nuns","numas","dum","duma",
+    "este","esta","estes","estas","esse","essa","esses","essas","aquele","aquela","isto","isso","aquilo",
+    "meu","minha","seu","sua","seus","suas","nosso","nossa","nossos","nossas","dele","dela",
+    "ser","estar","ter","haver","fazer","poder","dever","ir","vir","ver","dar","atuar","trabalhar",
+    "sao","foi","era","sera","seja","tem","tinha","terao","pode","podem","deve","devem","esta","estao",
+    "mais","menos","muito","muita","muitos","muitas","pouco","pouca","todo","toda","todos","todas",
+    "outro","outra","outros","outras","mesmo","mesma","cada","algum","alguma","nenhum","nenhuma",
+    "bem","mal","ja","ainda","sempre","nunca","tambem","apenas","somente","inclusive","atraves",
+    "vaga","vagas","empresa","empresas","oportunidade","oportunidades","area","areas","cargo","funcao",
+    "atividade","atividades","requisito","requisitos","desejavel","diferencial","diferenciais",
+    "beneficio","beneficios","salario","remuneracao","contrato","regime","clt","pj","estagio",
+    "remoto","hibrido","presencial","candidatura","candidatar","curriculo","perfil","profissional",
+    "experiencia","experiencias","conhecimento","conhecimentos","habilidade","habilidades",
+    "formacao","superior","completo","completa","cursando","ensino","medio","tecnico","nivel",
+    "responsavel","responsabilidades","qualificacao","qualificacoes","atribuicoes","descricao",
+    "time","equipe","equipes","cliente","clientes","mercado","negocio","negocios","trabalho",
+    "dia","dias","semana","mes","meses","ano","anos","hora","horas","turno","escala",
+    "salvador","bahia","brasil","sao","paulo","rio","janeiro","belo","horizonte","curitiba",
+    "the","and","for","with","from","that","this","your","our","you","are","will","have","has",
+    "not","but","all","any","can","into","about","more","other","such","than","then","them",
+    "they","were","been","being","what","when","where","which","who","how","why","each","most",
+    "job","jobs","work","working","role","team","teams","company","position","opportunity",
+    "experience","skills","skill","requirements","requirement","preferred","required","plus",
+    "years","year","knowledge","ability","strong","good","great","new","using","used","use"
+  ]);
+  const KW_CURTAS_VALIDAS=new Set(["bi","qa","ti","rh","ux","ui","ai","ia","c#","go","r"]);
+
+  function gerarResumoPalavrasChave(v,req){
+    const titulo=String(v?.titulo||"");
+    const area=String(v?.area||"");
+    const motivo=String(v?.motivo||"");
+    const texto=String(v?.texto||"");
+    const corpoNorm=semAcento([titulo,area,motivo,texto].filter(Boolean).join(" "));
+    const tituloAreaNorm=semAcento([titulo,area].filter(Boolean).join(" "));
+
+    const noPerfil=[];
+    const vistos=new Set();
+    const addPerfil=termo=>{
+      const limpo=String(termo||"").trim();
+      const norm=semAcento(limpo);
+      if(!limpo||!norm||vistos.has(norm))return;
+      vistos.add(norm);
+      noPerfil.push(limpo);
+    };
+
+    for(const item of (req?.tenho||[]))addPerfil(item);
+    for(const sk of listaSkillsPerfil()){
+      const skNorm=semAcento(sk);
+      if(!skNorm)continue;
+      const escaped=skNorm.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      const rx=new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`,"i");
+      if(rx.test(corpoNorm))addPerfil(sk);
+    }
+
+    const daVaga=[];
+    const addVaga=termo=>{
+      const limpo=String(termo||"").trim();
+      const norm=semAcento(limpo);
+      if(!limpo||!norm||vistos.has(norm))return false;
+      vistos.add(norm);
+      daVaga.push(limpo);
+      return true;
+    };
+
+    for(const item of (req?.conferir||[])){
+      if(daVaga.length>=12)break;
+      addVaga(item);
+    }
+
+    const freq=new Map();
+    const origLabel=new Map();
+    const coletarTokens=(str,peso)=>{
+      const matches=String(str||"").match(/[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9+#.\-/]{1,28}/g)||[];
+      for(const raw of matches){
+        const limpo=raw.replace(/^[.\-/]+|[.\-/,;:!?()]+$/g,"");
+        if(!limpo)continue;
+        const norm=semAcento(limpo).replace(/^[.\-/]+|[.\-/]+$/g,"");
+        if(!norm||/^\d+$/.test(norm))continue;
+        if(norm.length<3&&!KW_CURTAS_VALIDAS.has(norm))continue;
+        if(KW_STOPWORDS.has(norm)||vistos.has(norm))continue;
+        freq.set(norm,(freq.get(norm)||0)+peso);
+        if(!origLabel.has(norm)){
+          const temMaiuscula=/[A-Z]/.test(limpo);
+          origLabel.set(norm,temMaiuscula?limpo:limpo.toLowerCase());
+        }
+      }
+    };
+
+    coletarTokens(titulo,4);
+    coletarTokens(area,3);
+    coletarTokens(motivo,2);
+    coletarTokens(texto,1);
+
+    const ordenados=[...freq.entries()]
+      .sort((a,b)=>{
+        if(b[1]!==a[1])return b[1]-a[1];
+        const aInTit=tituloAreaNorm.includes(a[0])?1:0;
+        const bInTit=tituloAreaNorm.includes(b[0])?1:0;
+        if(bInTit!==aInTit)return bInTit-aInTit;
+        return a[0].localeCompare(b[0]);
+      });
+
+    for(const [norm] of ordenados){
+      if(daVaga.length>=12)break;
+      addVaga(origLabel.get(norm)||norm);
+    }
+
+    const todas=[...noPerfil,...daVaga];
+    const textoCopia=`Vaga: ${titulo||"Vaga sem título"} (${v?.empresa||"Empresa não informada"})\nPalavras-chave principais: ${todas.length?todas.join(", "):"Nenhuma palavra-chave identificada"}`;
+    return {noPerfil,daVaga,textoCopia};
+  }
+
   function calcularRequisitosDinamicos(v){
     const skillsUsuario=listaSkillsPerfil();
     const setNorm=new Set(skillsUsuario.map(semAcento));
@@ -946,6 +1062,7 @@
     const clsNota=nota>=80?"boa":nota>=70?"possivel":"";
     const req=v._req||calcularRequisitosDinamicos(v);
     const tenho=req.tenho||[], conferir=req.conferir||[];
+    const kwResumo=gerarResumoPalavrasChave(v,req);
 
     D.innerHTML=`
       <header class="d-head">
@@ -996,6 +1113,19 @@
           :`<p class="muted">Nenhum requisito pendente identificado fora do seu perfil.</p>`}
       </section>
 
+      <section class="d-section">
+        <div class="kw-head">
+          <h3>Resumo de palavras-chave para candidatura</h3>
+          <button class="button button-secondary button-sm" type="button" data-copy-kw="${escapeHtml(v.id)}">Copiar palavras-chave</button>
+        </div>
+        ${(kwResumo.noPerfil.length||kwResumo.daVaga.length)
+          ?`<div class="kw-list">
+              ${kwResumo.noPerfil.map(k=>`<span class="kw-chip match" title="Já consta no seu perfil">✓ ${escapeHtml(k)}</span>`).join("")}
+              ${kwResumo.daVaga.map(k=>`<span class="kw-chip" title="Termo-chave da vaga">${escapeHtml(k)}</span>`).join("")}
+            </div>`
+          :`<p class="muted">Nenhuma palavra-chave relevante extraída para esta vaga.</p>`}
+      </section>
+
       ${v.tambem_em&&v.tambem_em.length?`
       <section class="d-section">
         <h3>Também encontrada em</h3>
@@ -1029,6 +1159,35 @@
         const cardBtn=qs(`#lista article.vaga[data-id="${CSS.escape(v.id)}"] .desc`);
         if(cardBtn)cardBtn.click();
         if(root.id==="mobile-drawer-body")closeModal();
+      });
+      qs("[data-copy-kw]",root)?.addEventListener("click",async()=>{
+        const texto=kwResumo.textoCopia;
+        let copiou=false;
+        try{
+          if(navigator.clipboard?.writeText){
+            await navigator.clipboard.writeText(texto);
+            copiou=true;
+          }
+        }catch(_){}
+        if(!copiou){
+          try{
+            const ta=document.createElement("textarea");
+            ta.value=texto;
+            ta.setAttribute("readonly","");
+            ta.style.position="fixed";
+            ta.style.opacity="0";
+            document.body.appendChild(ta);
+            ta.select();
+            copiou=document.execCommand("copy");
+            ta.remove();
+          }catch(_){}
+        }
+        if(copiou){
+          showToast("Palavras-chave copiadas para a área de transferência!");
+          anunciarAcao(`Palavras-chave da vaga ${v.titulo} copiadas.`);
+        }else{
+          showToast("Não foi possível copiar automaticamente.");
+        }
       });
     };
     bindDetailActions(D);
