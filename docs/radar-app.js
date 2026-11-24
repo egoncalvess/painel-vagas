@@ -5,7 +5,7 @@
  */
 (function(){
   "use strict";
-  const ASSET_VERSION="20261124-005";
+  const ASSET_VERSION="20261124-006";
   console.info("Radar",ASSET_VERSION);
 
   const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
