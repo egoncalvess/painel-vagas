@@ -29,6 +29,15 @@ Antes de avaliar as vagas, acesse **Meu perfil** no menu lateral:
 
 A partir desse momento, o Radar recalcula automaticamente o **Score (0–100)** e os **requisitos compatíveis** de todas as vagas para o seu perfil.
 
+### Triagem e candidatura
+
+No mesmo formulário, em **Triagem e candidatura**:
+
+- **Pretensão mínima / máxima (R$/mês)**: deixe `0` para não filtrar.
+- **Mostrar vagas sem salário informado**: vem marcado; a maioria das vagas não informa salário.
+- **Nota de corte para candidatura**: padrão **75**. Vagas acima do corte ganham uma faixa verde; as abaixo ficam mais apagadas.
+- **Cidades de interesse**: as cidades separadas por vírgula usadas no filtro de cidade.
+
 ---
 
 ## 3. Buscando e filtrando vagas (`Vagas`)
@@ -45,6 +54,17 @@ Na aba **Vagas**, você conta com:
   - **+ Adicionar vaga**: cadastre manualmente uma vaga encontrada fora dos portais.
 - **Prova de Cobertura**: cole links ou títulos de vagas para conferir se o coletor já leu aquela vaga ou por que ela ficou de fora.
 - **Fila Vagas.com.br**: exibe anúncios do Vagas.com.br que falharam ou ficaram sem modalidade definida na coleta para revisão manual.
+- **Filtros de triagem**: em Score, **Acima do meu corte**; em Cidade, **Minhas cidades + remoto**; em Salário, **Compatível com minha pretensão**.
+
+### Fila de candidatura
+
+1. Clique em **Elegíveis (corte N+)** para ver as vagas acima da sua nota de corte, na sua cidade e na sua faixa salarial.
+2. Abra a vaga e clique em **Pôr na fila de candidatura**. Depois, o status pode ser trocado ali mesmo.
+3. Em **Fila de candidatura**, use **Exportar fila-candidatura.json** e entregue o arquivo ao OpenBot (skill `candidatura-assistida-vagas`).
+4. O OpenBot prepara no máximo 5 vagas por vez, **pede sua aprovação antes de cada envio** e pede que você preencha senha, CPF e respostas pessoais. Ele não inventa habilidades.
+5. Volte ao painel e use **Importar resultado-candidatura.json** para atualizar os status: Na fila, Preparando, Aguardando você, Candidatado, Pulada ou Falhou. "Candidatado" também marca **Me candidatei**.
+
+> O painel nunca envia candidatura sozinho.
 
 ### Atalhos de teclado (computador)
 - **`/`**: foca a caixa de busca.
