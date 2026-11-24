@@ -39,6 +39,12 @@
     ["CNH", /\bcnh\b|carteira de habilita/i]
   ];
 
+  const CAMPOS_TEXTO_PERFIL=[
+    "name","city","regionCities","headline","roles","maxDays","contact","skills","summary",
+    "targetRole","seniority","phone","linkedinUrl","linkedinHeadline","linkedinAbout",
+    "experiencesText","educationText","certifications","languages"
+  ];
+
   const PRESET_DEFAULT_PROFILE={
     name:"Erick Gonçalves",
     city:"Salvador, BA",
@@ -51,7 +57,9 @@
     maxDays:14,
     contact:"engerickgoncalves@gmail.com",
     skills:"MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, Curva S / valor agregado, PCM / Manutenção, CREA ativo, NR-10",
-    summary:"Engenharia e planejamento com foco em controle de obras, cronogramas físico-financeiros (MS Project / Curva S), indicadores em Power BI, SAP PM/MM e gestão de manutenção e contratos."
+    summary:"Engenharia e planejamento com foco em controle de obras, cronogramas físico-financeiros (MS Project / Curva S), indicadores em Power BI, SAP PM/MM e gestão de manutenção e contratos.",
+    targetRole:"",seniority:"",phone:"",linkedinUrl:"",linkedinHeadline:"",linkedinAbout:"",
+    experiencesText:"",educationText:"",certifications:"",languages:""
   };
 
   const PRESET_BLANK_PROFILE={
@@ -66,7 +74,9 @@
     maxDays:14,
     contact:"",
     skills:"Excel avançado, Power BI, MS Project, Inglês",
-    summary:"Profissional com foco em organização de processos, indicadores e acompanhamento de projetos."
+    summary:"Profissional com foco em organização de processos, indicadores e acompanhamento de projetos.",
+    targetRole:"",seniority:"",phone:"",linkedinUrl:"",linkedinHeadline:"",linkedinAbout:"",
+    experiencesText:"",educationText:"",certifications:"",languages:""
   };
 
   const $=id=>document.getElementById(id);
@@ -246,6 +256,36 @@
   function anunciarAcao(txt){
     const a=$("anuncio-acao");
     if(a){a.textContent="";setTimeout(()=>{a.textContent=txt},20)}
+  }
+
+  async function copiarTexto(texto,rotulo="Texto"){
+    let copiou=false;
+    try{
+      if(navigator.clipboard?.writeText){
+        await navigator.clipboard.writeText(texto);
+        copiou=true;
+      }
+    }catch(_){}
+    if(!copiou){
+      try{
+        const ta=document.createElement("textarea");
+        ta.value=texto;
+        ta.setAttribute("readonly","");
+        ta.style.position="fixed";
+        ta.style.opacity="0";
+        document.body.appendChild(ta);
+        ta.select();
+        copiou=document.execCommand("copy");
+        ta.remove();
+      }catch(_){}
+    }
+    if(copiou){
+      showToast(`${rotulo} copiado para a área de transferência!`);
+      anunciarAcao(`${rotulo} copiado.`);
+    }else{
+      showToast("Não foi possível copiar automaticamente.");
+    }
+    return copiou;
   }
 
   // ==================== TEMA CLARO / ESCURO ====================
@@ -1099,6 +1139,7 @@
           <button class="button button-secondary" type="button" data-detail-save="${escapeHtml(v.id)}" aria-pressed="${!!v.salva}">
             ${v.salva?"★ Salva":"☆ Salvar vaga"}
           </button>
+          <button class="button button-secondary" type="button" data-detail-ats="${escapeHtml(v.id)}">Gerar currículo ATS</button>
           <button class="button button-ghost danger" type="button" data-detail-desc="${escapeHtml(v.id)}">Descartar vaga</button>
         </div>
       </header>
@@ -1164,34 +1205,12 @@
         if(cardBtn)cardBtn.click();
         if(root.id==="mobile-drawer-body")closeModal();
       });
-      qs("[data-copy-kw]",root)?.addEventListener("click",async()=>{
-        const texto=kwResumo.textoCopia;
-        let copiou=false;
-        try{
-          if(navigator.clipboard?.writeText){
-            await navigator.clipboard.writeText(texto);
-            copiou=true;
-          }
-        }catch(_){}
-        if(!copiou){
-          try{
-            const ta=document.createElement("textarea");
-            ta.value=texto;
-            ta.setAttribute("readonly","");
-            ta.style.position="fixed";
-            ta.style.opacity="0";
-            document.body.appendChild(ta);
-            ta.select();
-            copiou=document.execCommand("copy");
-            ta.remove();
-          }catch(_){}
-        }
-        if(copiou){
-          showToast("Palavras-chave copiadas para a área de transferência!");
-          anunciarAcao(`Palavras-chave da vaga ${v.titulo} copiadas.`);
-        }else{
-          showToast("Não foi possível copiar automaticamente.");
-        }
+      qs("[data-detail-ats]",root)?.addEventListener("click",()=>{
+        if(root.id==="mobile-drawer-body")closeModal();
+        abrirModalCurriculoATS(v);
+      });
+      qs("[data-copy-kw]",root)?.addEventListener("click",()=>{
+        copiarTexto(kwResumo.textoCopia,`Palavras-chave da vaga ${v.titulo}`);
       });
     };
     bindDetailActions(D);
@@ -1828,7 +1847,7 @@
   // ==================== MEU PERFIL & CONFIGURAÇÕES ====================
   function preencherFormularioPerfil(){
     const form=$("profile-form");if(!form||!profile)return;
-    for(const k of ["name","city","regionCities","headline","roles","maxDays","contact","skills","summary"]){
+    for(const k of CAMPOS_TEXTO_PERFIL){
       if(form.elements[k])form.elements[k].value=profile[k]??"";
     }
     if(form.elements.acceptRemote)form.elements.acceptRemote.checked=!!profile.acceptRemote;
@@ -1837,16 +1856,781 @@
   }
 
   function atualizarImpactoPerfil(vs){
-    const box=$("profile-impact-box");if(!box)return;
-    const comReq=vs.filter(v=>(v._req?.tenho?.length||0)>0).length;
-    const score70=vs.filter(v=>sc(v)>=70).length;
-    box.innerHTML=`
-      <div><dt>Perfil ativo</dt><dd>${escapeHtml(profile?.name||"—")}</dd></div>
-      <div><dt>Cidade / Região</dt><dd>${escapeHtml(profile?.city||"—")}</dd></div>
-      <div><dt>Competências mapeadas</dt><dd>${listaSkillsPerfil().length}</dd></div>
-      <div><dt>Vagas com match de currículo</dt><dd>${comReq} de ${vs.length}</dd></div>
-      <div><dt>Vagas com Score 70+</dt><dd>${score70}</dd></div>
-    `;
+    const box=$("profile-impact-box");
+    if(box){
+      const comReq=vs.filter(v=>(v._req?.tenho?.length||0)>0).length;
+      const score70=vs.filter(v=>sc(v)>=70).length;
+      box.innerHTML=`
+        <div><dt>Perfil ativo</dt><dd>${escapeHtml(profile?.name||"—")}</dd></div>
+        <div><dt>Cidade / Região</dt><dd>${escapeHtml(profile?.city||"—")}</dd></div>
+        <div><dt>Competências mapeadas</dt><dd>${listaSkillsPerfil().length}</dd></div>
+        <div><dt>Vagas com match de currículo</dt><dd>${comReq} de ${vs.length}</dd></div>
+        <div><dt>Vagas com Score 70+</dt><dd>${score70}</dd></div>
+      `;
+    }
+    desenharOtimizadorLinkedIn(vs);
+  }
+
+  // ==================== OTIMIZADOR DO LINKEDIN & CURRÍCULO ATS ====================
+  const LI_BUZZWORDS=[
+    "proativo","proativa","dinamico","dinamica","apaixonado","apaixonada",
+    "focado em resultados","sinergia","pensar fora da caixa","visionario","visionaria",
+    "ninja","guru","rockstar","passionate","motivated","team player",
+    "results-driven","self-starter","hardworking","detail-oriented","go-getter","synergy"
+  ];
+  const LI_METRIC_RE=/(\d+(?:[.,]\d+)?\s*(?:%|r\$|mil|k|m\b|horas?|dias?|meses?|anos?|pessoas?|projetos?|obras?|contratos?|unidades?|mw|kw|kva)|\br\$\s*\d+)/i;
+  const SENIORITY_LABELS={junior:"Júnior",pleno:"Pleno",senior:"Sênior",coordenacao:"Coordenação",gerencia:"Gerência"};
+
+  function parseExperiencias(txt){
+    try{
+      const blocos=String(txt||"").trim().split(/\r?\n\s*\r?\n+/).filter(Boolean);
+      const saida=[];
+      for(const bloco of blocos){
+        const linhas=bloco.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+        if(!linhas.length)continue;
+        let exp=null;
+        for(const linha of linhas){
+          const ehBullet=/^[-*•]\s*/.test(linha);
+          if(!ehBullet&&!exp&&linha.includes("|")){
+            const partes=linha.split("|").map(s=>s.trim());
+            exp={titulo:partes[0]||"Experiência",empresa:partes[1]||"",periodo:partes[2]||"",bullets:[]};
+          }else{
+            if(!exp){
+              exp={titulo:ehBullet?"Experiência profissional":linha,empresa:"",periodo:"",bullets:[]};
+              if(!ehBullet)continue;
+            }
+            const limpo=linha.replace(/^[-*•]\s*/,"").trim();
+            if(limpo)exp.bullets.push(limpo);
+          }
+        }
+        if(exp)saida.push(exp);
+      }
+      return saida;
+    }catch(_){
+      return [];
+    }
+  }
+
+  function parseFormacao(txt){
+    try{
+      return String(txt||"").split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(linha=>{
+        const partes=linha.split("|").map(s=>s.trim());
+        return{curso:partes[0]||linha,instituicao:partes[1]||"",ano:partes[2]||""};
+      });
+    }catch(_){
+      return [];
+    }
+  }
+
+  function obterVagasTopAderencia(n=10){
+    const base=(typeof visiveis==="function"?visiveis():[]).filter(v=>!estado?.descartadas?.includes(v.id));
+    const ordenadas=[...base].sort((a,b)=>sc(b)-sc(a));
+    const top70=ordenadas.filter(v=>sc(v)>=70);
+    return (top70.length>=3?top70:ordenadas).slice(0,n);
+  }
+
+  function extrairKeywordsMercado(vagas){
+    const mapa=new Map();
+    const skillsNorm=listaSkillsPerfil().map(s=>semAcento(s)).filter(Boolean);
+    for(const v of (vagas||[])){
+      const req=v._req||calcularRequisitosDinamicos(v);
+      const kw=gerarResumoPalavrasChave(v,req);
+      const pesoVaga=Math.max(0.1,(sc(v)||50)/100);
+      const vistosVaga=new Set();
+      for(const termo of [...(kw.noPerfil||[]),...(kw.daVaga||[])]){
+        const limpo=String(termo||"").trim();
+        const norm=semAcento(limpo);
+        if(!limpo||!norm||vistosVaga.has(norm))continue;
+        vistosVaga.add(norm);
+        const atual=mapa.get(norm)||{termo:limpo,peso:0,noPerfil:false};
+        atual.peso+=pesoVaga;
+        if(skillsNorm.some(sk=>sk===norm||sk.includes(norm)||norm.includes(sk))){
+          atual.noPerfil=true;
+        }
+        mapa.set(norm,atual);
+      }
+    }
+    return [...mapa.values()]
+      .sort((a,b)=>b.peso-a.peso)
+      .slice(0,20)
+      .map(x=>({termo:x.termo,peso:Number(x.peso.toFixed(2)),noPerfil:x.noPerfil}));
+  }
+
+  function truncarHeadlineNoPonto(str,max=220){
+    const txt=String(str||"").trim();
+    if(txt.length<=max)return txt;
+    const corte=txt.slice(0,max);
+    const ultPonto=corte.lastIndexOf("·");
+    if(ultPonto>40)return corte.slice(0,ultPonto).trim();
+    const ultPipe=corte.lastIndexOf("|");
+    if(ultPipe>40)return corte.slice(0,ultPipe).trim();
+    return corte.trim();
+  }
+
+  function sugerirHeadlines(p,kws){
+    const roles=listaAreasPerfil();
+    const skills=listaSkillsPerfil();
+    const sen=SENIORITY_LABELS[p?.seniority]||"";
+    const cargoBase=(p?.targetRole||"").trim()||roles[0]||"Profissional";
+    const cargo=sen&&!semAcento(cargoBase).includes(semAcento(sen))?`${cargoBase} ${sen}`:cargoBase;
+    const areas2=roles.slice(0,2).join(" & ")||"Projetos & Operações";
+
+    const kwsNorm=new Map((kws||[]).map(k=>[semAcento(k.termo),k.peso]));
+    const skillsOrdenadas=[...skills].sort((a,b)=>(kwsNorm.get(semAcento(b))||0)-(kwsNorm.get(semAcento(a))||0));
+    const skillsMatch=skillsOrdenadas.filter(s=>kwsNorm.has(semAcento(s)));
+    const blocoFerramentas=(skillsMatch.length?skillsMatch:skillsOrdenadas).slice(0,5).join(" · ")||"Gestão · Indicadores";
+
+    const modLista=[p?.acceptRemote&&"Remoto",p?.acceptHybrid&&"Híbrido",p?.acceptOnsite&&"Presencial"].filter(Boolean);
+    const contexto=[modLista.slice(0,2).join("/"),(p?.city||"").trim()].filter(Boolean).join(" · ")||"Disponível para projetos";
+
+    const a=truncarHeadlineNoPonto(`${cargo} | ${areas2} | ${blocoFerramentas}`,220);
+    const b=truncarHeadlineNoPonto(`${cargo} | Especialista em ${skillsOrdenadas.slice(0,4).join(" · ")||blocoFerramentas} | ${roles[0]||"Resultados"}`,220);
+    const c=truncarHeadlineNoPonto(`${cargo} | ${areas2} | ${contexto}`,220);
+    return [a,b,c];
+  }
+
+  function sugerirSobre(p,kws){
+    const roles=listaAreasPerfil();
+    const skills=listaSkillsPerfil();
+    const sen=SENIORITY_LABELS[p?.seniority]||"";
+    const cargoBase=(p?.targetRole||"").trim()||roles[0]||"Profissional";
+    const cargo=sen&&!semAcento(cargoBase).includes(semAcento(sen))?`${cargoBase} ${sen}`:cargoBase;
+    const kwsNorm=new Map((kws||[]).map(k=>[semAcento(k.termo),k.peso]));
+    const skillsOrdenadas=[...skills].sort((a,b)=>(kwsNorm.get(semAcento(b))||0)-(kwsNorm.get(semAcento(a))||0));
+
+    const exps=parseExperiencias(p?.experiencesText);
+    const fatosStories=(Array.isArray(stories)?stories:[]).flatMap(s=>Array.isArray(s?.facts)?s.facts:[]);
+    const bulletsExp=exps.flatMap(e=>e.bullets||[]);
+    const candidatosMetricas=[...fatosStories,...bulletsExp];
+    const comMetrica=candidatosMetricas.filter(t=>LI_METRIC_RE.test(String(t||"")));
+    const temMetricaNoResumo=LI_METRIC_RE.test(String(p?.summary||""));
+
+    const partes=[];
+    partes.push(`${cargo}${p?.city?` (${p.city})`:""}. ${String(p?.summary||"").trim()}`.trim());
+    if(comMetrica.length){
+      partes.push("Resultados e entregas de destaque:\n"+comMetrica.slice(0,3).map(f=>`• ${f}`).join("\n"));
+    }else if(!temMetricaNoResumo){
+      partes.push("Resultados e entregas: [inclua um resultado com número]");
+    }
+    if(roles.length)partes.push(`Áreas de atuação: ${roles.join(", ")}.`);
+    if(skillsOrdenadas.length)partes.push(`Competências: ${skillsOrdenadas.slice(0,12).join(" · ")}.`);
+
+    return partes.join("\n\n").slice(0,2600).trim();
+  }
+
+  function auditarPerfilLinkedIn(p,vagasTop){
+    const kwsAll=extrairKeywordsMercado(vagasTop);
+    const kws=kwsAll.slice(0,10);
+    const hl=String(p?.linkedinHeadline||"").trim();
+    const hlNorm=semAcento(hl);
+    const about=String(p?.linkedinAbout||"").trim();
+    const aboutNorm=semAcento(about);
+    const skills=listaSkillsPerfil();
+    const exps=parseExperiencias(p?.experiencesText);
+
+    const kwsNaHeadline=kws.filter(k=>hlNorm.includes(semAcento(k.termo)));
+    const kwsNoSobre=kws.filter(k=>aboutNorm.includes(semAcento(k.termo)));
+    const buzzEncontradas=LI_BUZZWORDS.filter(bw=>hlNorm.includes(semAcento(bw)));
+    const blocosHl=hl.split("|").map(s=>s.trim()).filter(s=>s.length>=5);
+    const temExpComMetrica=exps.some(e=>(e.bullets||[]).some(b=>LI_METRIC_RE.test(b)));
+    const cobertas=kws.filter(k=>k.noPerfil);
+
+    const checks=[
+      {
+        id:"headline_presente",area:"headline",peso:10,
+        passou:Boolean(hl),
+        mensagem:hl?"Headline do LinkedIn preenchida.":"Headline do LinkedIn está vazia.",
+        sugestao:"Preencha sua headline atual para auditoria completa."
+      },
+      {
+        id:"headline_3_blocos",area:"headline",peso:10,
+        passou:blocosHl.length===3,
+        mensagem:blocosHl.length===3?"Headline estruturada em 3 blocos separados por '|'.":"Headline fora da estrutura de 3 blocos (Posição | Áreas | Ferramentas).",
+        sugestao:"Use 3 blocos claros com '|' e pelo menos 5 caracteres em cada."
+      },
+      {
+        id:"headline_tamanho",area:"headline",peso:5,
+        passou:hl.length>=40&&hl.length<=220,
+        mensagem:hl.length>=40&&hl.length<=220?`Tamanho adequado (${hl.length}/220 caracteres).`:`Tamanho fora do ideal (${hl.length} caracteres; recomendado 40–220).`,
+        sugestao:"Ajuste a headline para ficar entre 40 e 220 caracteres."
+      },
+      {
+        id:"headline_keywords",area:"headline",peso:10,
+        passou:kws.length>0&&kwsNaHeadline.length>=2,
+        mensagem:kws.length===0?"Carregue vagas para validar palavras-chave de mercado na headline.":(kwsNaHeadline.length>=2?`${kwsNaHeadline.length} palavras-chave do mercado presentes na headline.`:`Apenas ${kwsNaHeadline.length} palavra-chave do mercado na headline (meta: ≥2).`),
+        sugestao:"Inclua termos-chave das vagas de maior aderência na headline."
+      },
+      {
+        id:"headline_sem_buzzword",area:"headline",peso:5,
+        passou:buzzEncontradas.length===0,
+        mensagem:buzzEncontradas.length===0?"Sem buzzwords genéricas na headline.":`Termos genéricos encontrados na headline: ${buzzEncontradas.join(", ")}.`,
+        sugestao:"Troque adjetivos genéricos por cargos, áreas e ferramentas concretas."
+      },
+      {
+        id:"sobre_tamanho",area:"sobre",peso:10,
+        passou:about.length>=300,
+        mensagem:about.length>=300?`Seção Sobre com bom corpo (${about.length} caracteres).`:`Seção Sobre curta (${about.length}/300 caracteres mínimos).`,
+        sugestao:"Desenvolva um resumo de pelo menos 300 caracteres com contexto e entregas."
+      },
+      {
+        id:"sobre_metricas",area:"sobre",peso:10,
+        passou:LI_METRIC_RE.test(about),
+        mensagem:LI_METRIC_RE.test(about)?"Seção Sobre contém resultados com números/métricas.":"Seção Sobre sem métricas ou números de impacto.",
+        sugestao:"Adicione números reais (%, R$, prazos, volume de obras/projetos)."
+      },
+      {
+        id:"sobre_keywords",area:"sobre",peso:10,
+        passou:kws.length>0&&kwsNoSobre.length>=3,
+        mensagem:kws.length===0?"Carregue vagas para validar palavras-chave no Sobre.":(kwsNoSobre.length>=3?`${kwsNoSobre.length} palavras-chave do mercado encontradas no Sobre.`:`Poucas palavras-chave no Sobre (${kwsNoSobre.length}; meta: ≥3).`),
+        sugestao:"Incorpore termos técnicos das vagas que você domina no texto do Sobre."
+      },
+      {
+        id:"competencias_qtd",area:"competencias",peso:5,
+        passou:skills.length>=5,
+        mensagem:skills.length>=5?`${skills.length} competências mapeadas no perfil.`:`Poucas competências no perfil (${skills.length}; meta: ≥5).`,
+        sugestao:"Liste ao menos 5 competências técnicas reais no campo de competências."
+      },
+      {
+        id:"competencias_cobertura",area:"competencias",peso:10,
+        passou:kws.length>0&&(cobertas.length/kws.length)>=0.5,
+        mensagem:kws.length===0?"Carregue vagas para medir cobertura de competências.":`Cobertura de ${cobertas.length}/${kws.length} termos principais das vagas.`,
+        sugestao:"Verifique se faltou cadastrar alguma ferramenta que você já domina."
+      },
+      {
+        id:"experiencia_quantificada",area:"experiencia",peso:5,
+        passou:temExpComMetrica,
+        mensagem:temExpComMetrica?"Experiências incluem pelo menos 1 entrega quantificada.":"Nenhuma experiência com métrica/resultado numérico detectada.",
+        sugestao:"Inclua números reais nos bullets de experiência (ex.: redução de prazo, % de economia)."
+      },
+      {
+        id:"contato_completo",area:"extras",peso:5,
+        passou:Boolean((p?.linkedinUrl||"").trim()&&(p?.city||"").trim()),
+        mensagem:(p?.linkedinUrl||"").trim()&&(p?.city||"").trim()?"URL do LinkedIn e cidade preenchidas.":"Preencha URL do LinkedIn e cidade para contato completo.",
+        sugestao:"Informe a URL do seu perfil LinkedIn e sua cidade."
+      },
+      {
+        id:"extras",area:"extras",peso:5,
+        passou:Boolean((p?.certifications||"").trim()||(p?.languages||"").trim()),
+        mensagem:(p?.certifications||"").trim()||(p?.languages||"").trim()?"Certificações ou idiomas informados.":"Sem certificações nem idiomas informados.",
+        sugestao:"Adicione certificações relevantes ou idiomas no perfil."
+      }
+    ].map(c=>({...c,severidade:c.passou?"ok":(c.peso>=10?"critico":"atencao")}));
+
+    const score=checks.reduce((s,c)=>s+(c.passou?c.peso:0),0);
+    const nivel=score<40?"fraco":score<65?"medio":score<85?"bom":"forte";
+    const skillsFixar=[...skills].sort((a,b)=>{
+      const pa=kwsAll.find(k=>semAcento(k.termo)===semAcento(a))?.peso||0;
+      const pb=kwsAll.find(k=>semAcento(k.termo)===semAcento(b))?.peso||0;
+      return pb-pa;
+    }).slice(0,5);
+
+    return{
+      score,
+      nivel,
+      checks,
+      sugestoes:{
+        headlines:sugerirHeadlines(p,kws),
+        sobre:sugerirSobre(p,kws),
+        competencias:{
+          fixarTop5:skillsFixar,
+          adicionar:kwsAll.filter(k=>!k.noPerfil).map(k=>k.termo).slice(0,10),
+          jaCobertas:kwsAll.filter(k=>k.noPerfil).map(k=>k.termo)
+        },
+        keywordsRecrutador:kwsAll.map(k=>k.termo).slice(0,15)
+      },
+      base:{
+        totalVagas:(vagasTop||[]).length,
+        idsVagas:(vagasTop||[]).map(v=>v.id),
+        geradoEm:new Date().toISOString()
+      }
+    };
+  }
+
+  let liOptimizerDelegated=false;
+  function desenharOtimizadorLinkedIn(vs){
+    const panel=$("li-optimizer-panel");
+    if(!panel)return;
+    if(!liOptimizerDelegated){
+      liOptimizerDelegated=true;
+      panel.addEventListener("click",e=>{
+        const btn=e.target.closest("[data-li-copy]");
+        if(!btn)return;
+        const pre=btn.closest(".li-suggest")?.querySelector(".li-copy-text");
+        if(pre)copiarTexto(pre.textContent||"","Sugestão do LinkedIn");
+      });
+    }
+
+    const vagasLista=Array.isArray(vs)&&vs.length?vs:(typeof visiveis==="function"?visiveis():[]);
+    const vagasTop=vagasLista.length?obterVagasTopAderencia(10):[];
+    const res=auditarPerfilLinkedIn(profile||{},vagasTop);
+    const clsNota=res.score>=85?"boa":res.score>=65?"possivel":"";
+
+    const baseEl=$("li-optimizer-base");
+    if(baseEl){
+      baseEl.textContent=vagasTop.length
+        ?`Comparado com ${vagasTop.length} vagas de maior aderência do painel.`
+        :"Carregue vagas para comparar com o mercado (auditoria básica ativa).";
+    }
+
+    const scoreEl=$("li-optimizer-score");
+    if(scoreEl){
+      scoreEl.innerHTML=`
+        <div class="regua-box" aria-label="Nota do perfil LinkedIn">
+          <div class="regua-num ${clsNota}">${res.score}<small>/100</small></div>
+          <div style="flex:1">
+            <div class="regua-bar ${clsNota}"><i style="width:${res.score}%"></i></div>
+            <p class="muted small" style="margin-top:6px">Nível atual: <strong>${escapeHtml(res.nivel)}</strong></p>
+          </div>
+        </div>
+      `;
+    }
+
+    const checklistEl=$("li-optimizer-checklist");
+    if(checklistEl){
+      checklistEl.innerHTML=res.checks.map(c=>`
+        <li class="li-check" data-sev="${escapeHtml(c.severidade)}">
+          <svg class="i" aria-hidden="true"><use href="#${c.passou?"i-check":"i-alert"}"/></svg>
+          <div>
+            <strong>${escapeHtml(c.mensagem)}</strong>
+            ${c.passou?"":`<div class="muted small">${escapeHtml(c.sugestao)}</div>`}
+          </div>
+        </li>
+      `).join("");
+    }
+
+    const hlEl=$("li-optimizer-headline");
+    if(hlEl){
+      hlEl.innerHTML=`<h3>Sugestões de Headline (3 opções)</h3>`+res.sugestoes.headlines.map((h,idx)=>`
+        <div class="li-suggest">
+          <pre class="li-copy-text">${escapeHtml(h)}</pre>
+          <div class="li-suggest-foot">
+            <span class="li-count">${h.length}/220 caracteres</span>
+            <button class="button button-secondary button-sm" type="button" data-li-copy="hl-${idx}">Copiar headline ${idx+1}</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    const aboutEl=$("li-optimizer-about");
+    if(aboutEl){
+      const s=res.sugestoes.sobre;
+      aboutEl.innerHTML=`
+        <h3>Sugestão de Sobre</h3>
+        <div class="li-suggest">
+          <pre class="li-copy-text">${escapeHtml(s)}</pre>
+          <div class="li-suggest-foot">
+            <span class="li-count">${s.length}/2600 caracteres</span>
+            <button class="button button-secondary button-sm" type="button" data-li-copy="about">Copiar Sobre</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const skillsEl=$("li-optimizer-skills");
+    if(skillsEl){
+      const {fixarTop5,adicionar}=res.sugestoes.competencias;
+      skillsEl.innerHTML=`
+        <h3>Competências estratégicas</h3>
+        ${fixarTop5.length?`<p class="muted small">Fixar no topo: ${fixarTop5.map(s=>`<span class="kw-chip match">${escapeHtml(s)}</span>`).join(" ")}</p>`:""}
+        ${adicionar.length?`<p class="muted small">Aparecem nas vagas (adicione só se você tem): ${adicionar.map(s=>`<span class="kw-chip">${escapeHtml(s)}</span>`).join(" ")}</p>`:""}
+      `;
+    }
+
+    const kwEl=$("li-optimizer-keywords");
+    if(kwEl){
+      const kwsRec=res.sugestoes.keywordsRecrutador;
+      kwEl.innerHTML=kwsRec.length
+        ?`<h3>Termos mais buscados por recrutadores</h3><div class="kw-list">${kwsRec.map(k=>`<span class="kw-chip">${escapeHtml(k)}</span>`).join("")}</div>`
+        :"";
+    }
+  }
+
+  function montarCurriculoATS(p,vaga){
+    const req=vaga?._req||calcularRequisitosDinamicos(vaga||{});
+    const kwResumo=gerarResumoPalavrasChave(vaga||{},req);
+    const usadas=kwResumo.noPerfil||[];
+    const ausentes=kwResumo.daVaga||[];
+    const termosVagaNorm=[...usadas,...ausentes].map(t=>semAcento(t));
+
+    const nome=(p?.name||"").trim()||"Profissional";
+    const contato=[p?.city,p?.contact,p?.phone,p?.linkedinUrl].map(x=>String(x||"").trim()).filter(Boolean);
+    const roles=listaAreasPerfil();
+    const cargoBase=(p?.targetRole||"").trim()||roles[0]||"";
+    const sen=SENIORITY_LABELS[p?.seniority]||"";
+    const titulo=[cargoBase,sen&&!semAcento(cargoBase).includes(semAcento(sen))?sen:""].filter(Boolean).join(" · ");
+
+    let resumo=String(p?.summary||"").trim();
+    const resumoNorm=semAcento(resumo);
+    const extrasResumo=usadas.filter(u=>!resumoNorm.includes(semAcento(u))).slice(0,4);
+    if(extrasResumo.length){
+      resumo=(resumo?resumo+" ":"")+`Domínio em ${extrasResumo.join(", ")}.`;
+    }
+
+    const skills=listaSkillsPerfil();
+    const usadasNorm=new Set(usadas.map(u=>semAcento(u)));
+    const competencias=[...skills].sort((a,b)=>(usadasNorm.has(semAcento(b))?1:0)-(usadasNorm.has(semAcento(a))?1:0)).slice(0,14);
+
+    const experiencias=parseExperiencias(p?.experiencesText).map(exp=>{
+      const bulletsOrd=[...(exp.bullets||[])].sort((a,b)=>{
+        const na=semAcento(a),nb=semAcento(b);
+        const ma=termosVagaNorm.filter(t=>na.includes(t)).length;
+        const mb=termosVagaNorm.filter(t=>nb.includes(t)).length;
+        return mb-ma;
+      });
+      return{...exp,bullets:bulletsOrd};
+    });
+
+    const formacao=parseFormacao(p?.educationText);
+    const certificacoes=String(p?.certifications||"").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
+    const idiomas=String(p?.languages||"").split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean);
+
+    return{
+      nome,
+      contato,
+      titulo,
+      resumo,
+      competencias,
+      experiencias,
+      formacao,
+      certificacoes,
+      idiomas,
+      keywordsVaga:{usadas,ausentes}
+    };
+  }
+
+  function renderCurriculoATSHtml(dados,densidade="normal"){
+    const expsHtml=(dados.experiencias||[]).map(exp=>`
+      <div class="ats-exp">
+        <h3>${escapeHtml(exp.titulo)}${exp.empresa?` — ${escapeHtml(exp.empresa)}`:""}</h3>
+        ${exp.periodo?`<p class="ats-meta">${escapeHtml(exp.periodo)}</p>`:""}
+        ${exp.bullets?.length?`<ul>${exp.bullets.map(b=>`<li>${escapeHtml(b)}</li>`).join("")}</ul>`:""}
+      </div>
+    `).join("");
+
+    const formHtml=(dados.formacao||[]).map(f=>`
+      <p>${escapeHtml([f.curso,f.instituicao,f.ano].filter(Boolean).join(" · "))}</p>
+    `).join("");
+
+    const extras=[];
+    if(dados.certificacoes?.length)extras.push(`Certificações: ${dados.certificacoes.join(", ")}`);
+    if(dados.idiomas?.length)extras.push(`Idiomas: ${dados.idiomas.join(", ")}`);
+
+    return`<article id="ats-sheet" class="ats-sheet" data-densidade="${escapeHtml(densidade)}">
+      <h1>${escapeHtml(dados.nome)}</h1>
+      ${dados.titulo?`<p class="ats-titulo">${escapeHtml(dados.titulo)}</p>`:""}
+      ${dados.contato?.length?`<p class="ats-contato">${dados.contato.map(escapeHtml).join(" | ")}</p>`:""}
+      ${dados.resumo?`<section><h2>Resumo</h2><p>${escapeHtml(dados.resumo)}</p></section>`:""}
+      ${dados.competencias?.length?`<section><h2>Competências</h2><p>${dados.competencias.map(escapeHtml).join(" · ")}</p></section>`:""}
+      ${dados.experiencias?.length?`<section><h2>Experiência</h2>${expsHtml}</section>`:""}
+      ${dados.formacao?.length?`<section><h2>Formação</h2>${formHtml}</section>`:""}
+      ${extras.length?`<section><h2>Certificações e Idiomas</h2><p>${escapeHtml(extras.join(" | "))}</p></section>`:""}
+    </article>`;
+  }
+
+  function _substituirSheetDOM(sheet,dados,densidade){
+    const tmp=document.createElement("div");
+    tmp.innerHTML=renderCurriculoATSHtml(dados,densidade);
+    const novo=tmp.firstElementChild;
+    sheet.dataset.densidade=densidade;
+    sheet.innerHTML=novo?novo.innerHTML:"";
+  }
+
+  function ajustarParaUmaPagina(sheet,dados,modoDensidade="auto"){
+    const limitePx=Math.floor(273*96/25.4*0.98);
+    const clone=JSON.parse(JSON.stringify(dados));
+    let densidade=modoDensidade==="auto"?"normal":modoDensidade;
+    const cortes=[];
+    _substituirSheetDOM(sheet,clone,densidade);
+
+    let maxBullets=99;
+    let passo=0;
+    for(let iter=0;iter<15;iter++){
+      const altura=sheet.scrollHeight;
+      if(altura<=limitePx){
+        return{densidade,cortes,alturaPx:altura,limitePx,cabe:true,dadosAjustados:clone};
+      }
+      if(modoDensidade==="auto"&&densidade==="normal"){
+        densidade="compacta";
+        _substituirSheetDOM(sheet,clone,densidade);
+        continue;
+      }
+      if(modoDensidade==="auto"&&densidade==="compacta"){
+        densidade="minima";
+        _substituirSheetDOM(sheet,clone,densidade);
+        continue;
+      }
+
+      if(passo===0){
+        maxBullets=4;
+        let cortou=false;
+        for(let i=clone.experiencias.length-1;i>=0;i--){
+          if(clone.experiencias[i].bullets.length>maxBullets){
+            clone.experiencias[i].bullets=clone.experiencias[i].bullets.slice(0,maxBullets);
+            cortou=true;
+          }
+        }
+        passo=1;
+        if(cortou){cortes.push("Bullets limitados a 4 por experiência");_substituirSheetDOM(sheet,clone,densidade);continue}
+      }
+      if(passo===1){
+        maxBullets=3;
+        let cortou=false;
+        for(let i=clone.experiencias.length-1;i>=0;i--){
+          if(clone.experiencias[i].bullets.length>maxBullets){
+            clone.experiencias[i].bullets=clone.experiencias[i].bullets.slice(0,maxBullets);
+            cortou=true;
+          }
+        }
+        passo=2;
+        if(cortou){cortes.push("Bullets limitados a 3 por experiência");_substituirSheetDOM(sheet,clone,densidade);continue}
+      }
+      if(passo===2){
+        maxBullets=2;
+        let cortou=false;
+        for(let i=clone.experiencias.length-1;i>=0;i--){
+          if(clone.experiencias[i].bullets.length>maxBullets){
+            clone.experiencias[i].bullets=clone.experiencias[i].bullets.slice(0,maxBullets);
+            cortou=true;
+          }
+        }
+        passo=3;
+        if(cortou){cortes.push("Bullets limitados a 2 por experiência");_substituirSheetDOM(sheet,clone,densidade);continue}
+      }
+      if(passo===3){
+        passo=4;
+        if(clone.experiencias.length>4){
+          const rem=clone.experiencias.slice(4).map(e=>e.titulo).join(", ");
+          clone.experiencias=clone.experiencias.slice(0,4);
+          cortes.push(`Removidas experiências mais antigas (${rem})`);
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      if(passo===4){
+        passo=5;
+        if(clone.experiencias.length>3){
+          const rem=clone.experiencias.slice(3).map(e=>e.titulo).join(", ");
+          clone.experiencias=clone.experiencias.slice(0,3);
+          cortes.push(`Experiências reduzidas para 3 (${rem} removida)`);
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      if(passo===5){
+        passo=6;
+        if(clone.competencias.length>10){
+          clone.competencias=clone.competencias.slice(0,10);
+          cortes.push("Competências reduzidas para 10");
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      if(passo===6){
+        passo=7;
+        if(clone.competencias.length>8){
+          clone.competencias=clone.competencias.slice(0,8);
+          cortes.push("Competências reduzidas para 8");
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      if(passo===7){
+        passo=8;
+        const frases=String(clone.resumo||"").split(/(?<=[.!?])\s+/).filter(Boolean);
+        if(frases.length>2){
+          clone.resumo=frases.slice(0,2).join(" ");
+          cortes.push("Resumo encurtado para 2 frases");
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      if(passo===8){
+        passo=9;
+        if(clone.formacao.length>1){
+          clone.formacao=clone.formacao.slice(0,1);
+          cortes.push("Formação limitada ao curso mais recente");
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      if(passo===9){
+        passo=10;
+        let encurtou=false;
+        for(const exp of clone.experiencias){
+          exp.bullets=exp.bullets.map(b=>{
+            if(b.length<=180)return b;
+            encurtou=true;
+            const c=b.slice(0,180);
+            const sp=c.lastIndexOf(" ");
+            return (sp>100?c.slice(0,sp):c).trim()+"…";
+          });
+        }
+        if(encurtou){
+          cortes.push("Bullets longos (>180 chars) abreviados");
+          _substituirSheetDOM(sheet,clone,densidade);
+          continue;
+        }
+      }
+      break;
+    }
+
+    const alturaFinal=sheet.scrollHeight;
+    return{densidade,cortes,alturaPx:alturaFinal,limitePx,cabe:alturaFinal<=limitePx,dadosAjustados:clone};
+  }
+
+  function copiarCurriculoTextoPuro(dados){
+    const linhas=[];
+    linhas.push(dados.nome||"Profissional");
+    if(dados.titulo)linhas.push(dados.titulo);
+    if(dados.contato?.length)linhas.push(dados.contato.join(" | "));
+    if(dados.resumo){linhas.push("","RESUMO",dados.resumo)}
+    if(dados.competencias?.length){linhas.push("","COMPETÊNCIAS",dados.competencias.join(" · "))}
+    if(dados.experiencias?.length){
+      linhas.push("","EXPERIÊNCIA");
+      for(const exp of dados.experiencias){
+        linhas.push(`${exp.titulo}${exp.empresa?` — ${exp.empresa}`:""}${exp.periodo?` (${exp.periodo})`:""}`);
+        for(const b of (exp.bullets||[]))linhas.push(`- ${b}`);
+      }
+    }
+    if(dados.formacao?.length){
+      linhas.push("","FORMAÇÃO");
+      for(const f of dados.formacao)linhas.push([f.curso,f.instituicao,f.ano].filter(Boolean).join(" · "));
+    }
+    const extras=[];
+    if(dados.certificacoes?.length)extras.push(`Certificações: ${dados.certificacoes.join(", ")}`);
+    if(dados.idiomas?.length)extras.push(`Idiomas: ${dados.idiomas.join(", ")}`);
+    if(extras.length){linhas.push("","CERTIFICAÇÕES E IDIOMAS",extras.join(" | "))}
+    return linhas.join("\n");
+  }
+
+  function imprimirCurriculoATS(vaga,dados,modoDensidade="auto"){
+    const sheet=$("ats-sheet");
+    if(!sheet)return;
+    ajustarParaUmaPagina(sheet,dados,modoDensidade);
+
+    let root=$("ats-print-root");
+    if(!root){
+      root=document.createElement("div");
+      root.id="ats-print-root";
+      root.setAttribute("aria-hidden","true");
+      document.body.appendChild(root);
+    }
+    root.innerHTML="";
+    root.appendChild(sheet.cloneNode(true));
+
+    const tituloOriginal=document.title;
+    const nomeLimpo=String(dados.nome||"Profissional").replace(/[\\/:*?"<>|]/g,"").trim();
+    const vagaLimpa=String(vaga?.titulo||"Vaga").replace(/[\\/:*?"<>|]/g,"").trim().slice(0,50);
+    document.title=`Curriculo - ${nomeLimpo} - ${vagaLimpa}`;
+    document.body.classList.add("printing-ats");
+
+    let limpo=false;
+    const limpar=()=>{
+      if(limpo)return;
+      limpo=true;
+      document.title=tituloOriginal;
+      document.body.classList.remove("printing-ats");
+      root.innerHTML="";
+      window.removeEventListener("afterprint",limpar);
+    };
+    window.addEventListener("afterprint",limpar);
+    try{
+      window.print();
+    }finally{
+      setTimeout(limpar,1200);
+    }
+  }
+
+  async function abrirModalCurriculoATS(vaga){
+    const prefs=lerUser("ats_prefs",{densidade:"auto"});
+    const modoInicial=prefs?.densidade||"auto";
+    const dados=montarCurriculoATS(profile||{},vaga);
+    const ausentes=dados.keywordsVaga?.ausentes||[];
+
+    abrirModalHtml(`
+      <div class="ats-modal">
+        <h2 id="modal-title">Currículo ATS (1 página A4) — ${escapeHtml(vaga?.titulo||"Vaga")}</h2>
+        <div class="ats-toolbar">
+          <label class="muted small" for="ats-density">Densidade
+            <select id="ats-density">
+              <option value="auto"${modoInicial==="auto"?" selected":""}>Automática</option>
+              <option value="normal"${modoInicial==="normal"?" selected":""}>Normal (10.5pt)</option>
+              <option value="compacta"${modoInicial==="compacta"?" selected":""}>Compacta (10pt)</option>
+              <option value="minima"${modoInicial==="minima"?" selected":""}>Mínima (9.5pt)</option>
+            </select>
+          </label>
+          <button class="button" type="button" id="ats-print">Imprimir / Salvar PDF</button>
+          <button class="button button-secondary" type="button" id="ats-copy-text">Copiar texto puro</button>
+          <p id="ats-fit-status" role="status" class="muted small"></p>
+        </div>
+        <div class="ats-preview">
+          <div class="ats-paper">
+            ${renderCurriculoATSHtml(dados,modoInicial==="auto"?"normal":modoInicial)}
+          </div>
+        </div>
+        ${ausentes.length?`
+          <div class="ats-gaps">
+            <strong>Termos da vaga ausentes no seu perfil (não incluídos no currículo):</strong>
+            <span>${ausentes.map(escapeHtml).join(", ")}</span>
+          </div>`:""}
+      </div>
+    `,true);
+
+    const back=$("modal-backdrop");
+    qs(".modal",back)?.classList.add("modal-wide");
+
+    if(document.fonts?.ready){
+      try{await document.fonts.ready}catch(_){}
+    }
+
+    let ultimoAjuste=null;
+    const atualizarEscalaMobile=()=>{
+      const preview=qs(".ats-preview",back);
+      const paper=qs(".ats-paper",back);
+      if(!preview||!paper)return;
+      if(isMobileViewport()){
+        const w=preview.clientWidth||window.innerWidth-32;
+        const escala=Math.min(1,Math.max(0.32,(w-16)/793.7));
+        paper.style.transform=`scale(${escala.toFixed(3)})`;
+        paper.style.transformOrigin="top left";
+      }else{
+        paper.style.transform="";
+        paper.style.transformOrigin="";
+      }
+    };
+
+    const recalcular=modo=>{
+      const sheet=$("ats-sheet");
+      const statusEl=$("ats-fit-status");
+      if(!sheet)return;
+      ultimoAjuste=ajustarParaUmaPagina(sheet,dados,modo);
+      const pct=Math.min(100,Math.round((ultimoAjuste.alturaPx/ultimoAjuste.limitePx)*100));
+      if(statusEl){
+        const baseMsg=ultimoAjuste.cabe
+          ?`Cabe em 1 página · ${pct}% da altura (densidade ${ultimoAjuste.densidade})`
+          :`Excede 1 página (${pct}% da altura)`;
+        statusEl.textContent=ultimoAjuste.cortes.length
+          ?`${baseMsg} · Ajustes: ${ultimoAjuste.cortes.join("; ")}`
+          :baseMsg;
+      }
+      atualizarEscalaMobile();
+    };
+
+    recalcular(modoInicial);
+
+    $("ats-density")?.addEventListener("change",e=>{
+      const modo=e.target.value||"auto";
+      gravarUser("ats_prefs",{densidade:modo});
+      recalcular(modo);
+    });
+    $("ats-print")?.addEventListener("click",()=>{
+      const modo=$("ats-density")?.value||"auto";
+      imprimirCurriculoATS(vaga,dados,modo);
+    });
+    $("ats-copy-text")?.addEventListener("click",()=>{
+      const fonte=ultimoAjuste?.dadosAjustados||dados;
+      copiarTexto(copiarCurriculoTextoPuro(fonte),"Currículo em texto puro");
+    });
   }
 
   // ==================== DIAGNÓSTICO DE FONTES & PROVA DE COBERTURA ====================
@@ -1965,6 +2749,8 @@
     const back=$("modal-backdrop");
     if(!back||back.classList.contains("hidden"))return;
     back.classList.add("hidden");
+    back.classList.remove("modal-wide");
+    qs(".modal",back)?.classList.remove("modal-wide");
     document.body.classList.remove("modal-open");
     if(lastModalTrigger&&lastModalTrigger.isConnected){
       const toFocus=lastModalTrigger;
@@ -2961,20 +3747,18 @@
   $("profile-form")?.addEventListener("submit",e=>{
     e.preventDefault();
     const fd=new FormData(e.target);
-    profile={
-      name:String(fd.get("name")||"Usuário").trim(),
-      city:String(fd.get("city")||"Salvador, BA").trim(),
-      regionCities:String(fd.get("regionCities")||"").trim(),
-      headline:String(fd.get("headline")||"").trim(),
-      roles:String(fd.get("roles")||"").trim(),
-      acceptRemote:fd.get("acceptRemote")==="on",
-      acceptHybrid:fd.get("acceptHybrid")==="on",
-      acceptOnsite:fd.get("acceptOnsite")==="on",
-      maxDays:Number(fd.get("maxDays")||14),
-      contact:String(fd.get("contact")||"").trim(),
-      skills:String(fd.get("skills")||"").trim(),
-      summary:String(fd.get("summary")||"").trim()
-    };
+    const camposDoForm={};
+    for(const k of CAMPOS_TEXTO_PERFIL){
+      if(!e.target.elements[k])continue;
+      if(k==="maxDays")camposDoForm[k]=Number(fd.get(k)||14);
+      else if(k==="name")camposDoForm[k]=String(fd.get(k)||"Usuário").trim()||"Usuário";
+      else if(k==="city")camposDoForm[k]=String(fd.get(k)||"Salvador, BA").trim()||"Salvador, BA";
+      else camposDoForm[k]=String(fd.get(k)||"").trim();
+    }
+    camposDoForm.acceptRemote=fd.get("acceptRemote")==="on";
+    camposDoForm.acceptHybrid=fd.get("acceptHybrid")==="on";
+    camposDoForm.acceptOnsite=fd.get("acceptOnsite")==="on";
+    profile={...profile,...camposDoForm};
     gravarUser("profiles",profile);
     if(sb&&usuario&&usuario.isSupabase){
       sb.from("perfis_usuarios").upsert({

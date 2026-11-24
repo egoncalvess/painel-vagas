@@ -629,6 +629,48 @@
               <label>E-mail ou LinkedIn (para assinatura)<input name="contact" placeholder="Ex.: linkedin.com/in/seu-perfil"></label>
               <label class="full">Competências e ferramentas no seu currículo (separadas por vírgula — recalculam os requisitos das vagas!)<textarea name="skills" rows="3" required placeholder="Ex.: MS Project, Power BI, SAP, Excel avançado, Orçamento e custos, CREA ativo, NR-10, SQL, Python"></textarea></label>
               <label class="full">Resumo profissional e experiências-chave<textarea name="summary" rows="4" placeholder="Descreva suas principais experiências e resultados reais para usar nas publicações e cartas de apresentação."></textarea></label>
+              <details class="full disclosure" id="profile-extra-fields">
+                <summary>Dados para currículo e LinkedIn (opcional) <svg class="i chev" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
+                <div class="disclosure-body form-grid">
+                  <label>Cargo-alvo principal
+                    <input name="targetRole" type="text" maxlength="80" placeholder="Ex.: Engenheiro de Planejamento">
+                  </label>
+                  <label>Senioridade
+                    <select name="seniority">
+                      <option value="">Não informar</option>
+                      <option value="junior">Júnior</option>
+                      <option value="pleno">Pleno</option>
+                      <option value="senior">Sênior</option>
+                      <option value="coordenacao">Coordenação</option>
+                      <option value="gerencia">Gerência</option>
+                    </select>
+                  </label>
+                  <label>Telefone / WhatsApp
+                    <input name="phone" type="tel" maxlength="30" placeholder="Ex.: (71) 99999-0000">
+                  </label>
+                  <label>URL do LinkedIn
+                    <input name="linkedinUrl" type="url" maxlength="120" placeholder="https://www.linkedin.com/in/seu-perfil">
+                  </label>
+                  <label class="full">Headline atual do LinkedIn (até 220 caracteres)
+                    <input name="linkedinHeadline" type="text" maxlength="220" placeholder="Ex.: Engenheiro de Planejamento | Obras & Manutenção | MS Project · Power BI · SAP">
+                  </label>
+                  <label class="full">Seção &ldquo;Sobre&rdquo; atual do LinkedIn (até 2600 caracteres)
+                    <textarea name="linkedinAbout" rows="4" maxlength="2600" placeholder="Cole seu texto Sobre do LinkedIn para auditoria de métricas, tamanho e palavras-chave."></textarea>
+                  </label>
+                  <label class="full">Experiências profissionais (Cargo | Empresa | Período + bullets com verbo e resultado)
+                    <textarea name="experiencesText" rows="8" maxlength="6000" placeholder="Engenheiro de Planejamento | Empresa X | 03/2021 – Atual&#10;- Reduzi o tempo de fechamento do cronograma em 30% integrando MS Project e Power BI&#10;- Controlei físico-financeiro de 12 contratos com curva S e EVM&#10;&#10;Analista de Planejamento | Empresa Y | 01/2019 – 02/2021&#10;- Padronizei relatórios semanais de manutenção no SAP PM"></textarea>
+                  </label>
+                  <label class="full">Formação acadêmica (Curso | Instituição | Ano, uma por linha)
+                    <textarea name="educationText" rows="3" maxlength="1000" placeholder="Engenharia Elétrica | UFBA | 2018&#10;Pós-graduação em Gestão de Projetos | FGV | 2020"></textarea>
+                  </label>
+                  <label>Certificações (separadas por vírgula)
+                    <input name="certifications" type="text" maxlength="400" placeholder="Ex.: PMP, CREA ativo, NR-10, Green Belt">
+                  </label>
+                  <label>Idiomas
+                    <input name="languages" type="text" maxlength="200" placeholder="Ex.: Inglês intermediário, Espanhol básico">
+                  </label>
+                </div>
+              </details>
               <div class="form-actions full">
                 <button class="button" type="submit"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg> Salvar perfil e recalcular vagas</button>
                 <span id="profile-saved" class="save-note" role="status" aria-live="polite"></span>
@@ -644,6 +686,21 @@
               </div>
             </div>
             <div id="profile-stories-list" class="profile-list"></div>
+          </section>
+
+          <section class="workspace-panel" id="li-optimizer-panel" aria-labelledby="li-optimizer-title">
+            <div class="panel-heading">
+              <div>
+                <h2 id="li-optimizer-title">Otimizador do LinkedIn</h2>
+                <p id="li-optimizer-base">Auditoria do seu perfil contra as vagas mais aderentes do painel.</p>
+              </div>
+            </div>
+            <div id="li-optimizer-score"></div>
+            <ul id="li-optimizer-checklist" class="li-checklist"></ul>
+            <div id="li-optimizer-headline" class="li-section"></div>
+            <div id="li-optimizer-about" class="li-section"></div>
+            <div id="li-optimizer-skills" class="li-section"></div>
+            <div id="li-optimizer-keywords" class="li-section"></div>
           </section>
         </div>
 
@@ -770,6 +827,8 @@
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="ats-print-root" aria-hidden="true"></div>
 
 <script src="radar-app.js"></script>
 </body>

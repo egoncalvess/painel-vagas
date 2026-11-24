@@ -615,3 +615,90 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;accent-color:var(-
 .admin-user-main{display:grid;gap:2px}
 .admin-user-main strong{font-size:13.5px;color:var(--text)}
 .admin-user-main span{font-size:12px;color:var(--text-2)}
+
+/* ---------- Otimizador do LinkedIn & Currículo ATS (1 página A4) ---------- */
+#li-optimizer-panel{display:grid;gap:16px}
+.li-checklist{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.li-check{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--subtle);font-size:13px}
+.li-check-main{display:flex;align-items:flex-start;gap:10px;min-width:0;flex:1}
+.li-check-main .i{margin-top:2px}
+.li-check-copy{display:grid;gap:2px;min-width:0}
+.li-check-copy strong{font-weight:600;color:var(--text)}
+.li-check-copy span,.li-check-sug{color:var(--text-2);font-size:12.5px}
+.li-check[data-sev="ok"]{border-color:var(--line);background:var(--subtle)}
+.li-check[data-sev="ok"] .i{color:var(--good)}
+.li-check[data-sev="atencao"]{border-color:var(--maybe);background:var(--maybe-soft)}
+.li-check[data-sev="atencao"] .i,.li-check[data-sev="atencao"] strong{color:var(--maybe)}
+.li-check[data-sev="critico"]{border-color:var(--bad);background:var(--bad-soft)}
+.li-check[data-sev="critico"] .i,.li-check[data-sev="critico"] strong{color:var(--bad)}
+.li-weight{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-3);white-space:nowrap}
+
+.li-section{display:grid;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+.li-section h3{font-size:14px;font-weight:600;color:var(--text)}
+.li-suggest-list{display:grid;gap:10px}
+.li-suggest{display:grid;gap:8px;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--subtle)}
+.li-suggest-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.li-suggest-head strong{font-size:12.5px;color:var(--text-2)}
+.li-count{font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-3)}
+pre.li-copy-text{margin:0;padding:10px 12px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:13px/1.5 var(--font);white-space:pre-wrap;word-break:break-word;user-select:text}
+.li-chip-group{display:flex;flex-wrap:wrap;gap:6px}
+.kw-chip.missing{border-style:dashed;color:var(--text-3)}
+
+/* Modal Largo e Preview do Currículo ATS */
+.modal.modal-wide,.center-modal .modal.modal-wide{width:min(980px,100%)}
+.ats-modal{display:grid;gap:14px}
+.ats-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--subtle)}
+.ats-toolbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ats-toolbar label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text)}
+.ats-toolbar select{min-height:36px;padding:4px 10px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-size:13px}
+#ats-fit-status{font-size:12.5px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--text-2);margin:0}
+#ats-fit-status.warn{color:var(--maybe)}
+.ats-gaps{padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--subtle);font-size:12.5px;color:var(--text-2);display:grid;gap:6px}
+.ats-gaps strong{color:var(--text);font-size:13px}
+
+.ats-preview{position:relative;display:flex;justify-content:center;align-items:flex-start;padding:16px;border-radius:10px;background:#d8deda;border:1px solid var(--line);overflow:hidden;min-height:320px}
+.ats-paper{position:relative;width:210mm;min-height:297mm;height:297mm;padding:12mm 14mm;box-sizing:border-box;background:#ffffff!important;color:#000000!important;box-shadow:0 1px 3px rgba(0,0,0,.15);overflow:hidden;transform-origin:top center;flex:none}
+.ats-paper::after{content:"";position:absolute;left:14mm;right:14mm;bottom:12mm;border-bottom:1px dashed #b3372c;pointer-events:none}
+
+/* Folha ATS 100% linear, uma coluna, sem variáveis de tema */
+#ats-sheet,.ats-sheet{display:block;width:182mm;max-width:100%;margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif!important;color:#000000!important;background:#ffffff!important;user-select:text!important;column-count:auto!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ats-sheet *{box-sizing:border-box;color:#000000!important;background:transparent!important;font-family:Arial,Helvetica,sans-serif!important;column-count:auto!important}
+.ats-sheet[data-densidade="normal"],.ats-sheet:not([data-densidade]){font-size:10.5pt;line-height:1.35}
+.ats-sheet[data-densidade="compacta"]{font-size:10pt;line-height:1.25}
+.ats-sheet[data-densidade="minima"]{font-size:9.5pt;line-height:1.18}
+
+.ats-sheet h1{font-size:16.5pt;line-height:1.2;font-weight:700;margin:0 0 3pt 0;letter-spacing:0;color:#000000!important}
+.ats-sheet[data-densidade="compacta"] h1{font-size:16pt}
+.ats-sheet[data-densidade="minima"] h1{font-size:15.5pt}
+.ats-sheet .ats-titulo{font-size:11pt;font-weight:700;margin:0 0 2pt 0}
+.ats-sheet .ats-contato{font-size:9.5pt;line-height:1.3;margin:0 0 6pt 0}
+.ats-sheet section,.ats-sheet .ats-sec{display:block;margin-top:8pt}
+.ats-sheet[data-densidade="compacta"] section,.ats-sheet[data-densidade="compacta"] .ats-sec{margin-top:6pt}
+.ats-sheet[data-densidade="minima"] section,.ats-sheet[data-densidade="minima"] .ats-sec{margin-top:4pt}
+.ats-sheet h2{font-size:11.5pt;line-height:1.25;font-weight:700;margin:0 0 3pt 0;padding-bottom:1.5pt;border-bottom:1px solid #000000;letter-spacing:.02em}
+.ats-sheet[data-densidade="compacta"] h2{font-size:11pt;margin-bottom:2.5pt}
+.ats-sheet[data-densidade="minima"] h2{font-size:10.5pt;margin-bottom:2pt}
+.ats-sheet h3,.ats-sheet .ats-exp-head{font-size:inherit;font-weight:700;margin:4pt 0 1.5pt 0}
+.ats-sheet p{margin:0 0 3pt 0}
+.ats-sheet ul{margin:1.5pt 0 4pt 0;padding-left:14pt;list-style:disc}
+.ats-sheet li{margin:0 0 1.5pt 0}
+
+@media (max-width:960px){
+  .modal.modal-wide,.center-modal .modal.modal-wide{width:100%}
+  .ats-toolbar{flex-direction:column;align-items:stretch}
+  .ats-toolbar-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ats-toolbar-actions .button{width:100%}
+  .ats-preview{padding:8px;justify-content:flex-start;overflow:hidden}
+  .ats-paper{transform-origin:top left}
+}
+
+#ats-print-root{display:none}
+@page{size:A4;margin:12mm 14mm}
+@media print{
+  html,body{background:#ffffff!important;color:#000000!important;margin:0!important;padding:0!important;overflow:visible!important}
+  body.printing-ats>*:not(#ats-print-root){display:none!important}
+  body.printing-ats #ats-print-root{display:block!important;margin:0!important;padding:0!important;background:#ffffff!important}
+  #ats-print-root .ats-sheet,#ats-print-root #ats-sheet{width:auto!important;max-width:none!important;box-shadow:none!important;color:#000000!important;background:#ffffff!important;margin:0!important;padding:0!important}
+  .ats-sheet h2,.ats-sheet li,.ats-sheet .ats-exp-item{break-inside:avoid;page-break-inside:avoid}
+  .ats-sheet h2,.ats-sheet h3{break-after:avoid;page-break-after:avoid}
+}
