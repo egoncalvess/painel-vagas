@@ -79,8 +79,36 @@ jobs:
             sleep 2
           done
           exit 1
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      # v5 não inclui arquivos iniciados por ponto; docs/ não tem nenhum (sem .nojekyll)
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: docs
-      - uses: actions/deploy-pages@v4
+
+  # Mesmo grupo "pages" do publicar.yml: uma publicação por vez, sem cancelar a que está em andamento.
+  # Fica num job separado para que uma publicação na fila nunca cancele a coleta.
+  publicar:
+    needs: coletar
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url || steps.deploy2.outputs.page_url || steps.deploy3.outputs.page_url }}
+    steps:
+      # Falha intermitente do GitHub ao achar o artefato ("No artifacts named github-pages"): tenta de novo
+      - id: deploy
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - if: steps.deploy.outcome == 'failure'
+        run: sleep 60
+      - id: deploy2
+        if: steps.deploy.outcome == 'failure'
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - if: steps.deploy.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        run: sleep 120
+      - id: deploy3
+        if: steps.deploy.outcome == 'failure' && steps.deploy2.outcome == 'failure'
+        uses: actions/deploy-pages@v5
