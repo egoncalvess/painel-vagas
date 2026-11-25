@@ -1,13 +1,13 @@
 {
- "atualizado_em": "2026-11-25T02:59+00:00",
+ "atualizado_em": "2026-11-25T05:44+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3789,
+   "lidas": 3735,
    "novas": 0,
    "ja_no_painel": 5,
-   "ja_vistas": 3779,
+   "ja_vistas": 3729,
    "descartes": {
-    "fora da área": 5
+    "fora da área": 1
    },
    "falhas": 0,
    "erros": [],
@@ -30,10 +30,8 @@
    "lidas": 270,
    "novas": 0,
    "ja_no_painel": 2,
-   "ja_vistas": 267,
-   "descartes": {
-    "fora da área": 1
-   },
+   "ja_vistas": 268,
+   "descartes": {},
    "falhas": 0,
    "erros": []
   },
@@ -47,20 +45,20 @@
    "erros": []
   },
   "Vagas.com.br": {
-   "lidas": 308,
+   "lidas": 305,
    "novas": 0,
    "ja_no_painel": 0,
-   "ja_vistas": 302,
+   "ja_vistas": 300,
    "descartes": {
-    "fora da área": 6
+    "fora da área": 5
    },
-   "falhas": 96,
+   "falhas": 94,
    "erros": [
-    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843939/analista-de-controle-e-gestao-pleno-industrial sem resposta",
-    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843941/analista-de-controle-e-gestao-pleno-corporativo sem resposta",
-    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843940/analista-de-planejamento-senior sem resposta"
+    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843402/engenheiro-de-orcamento-infraestrutura sem resposta",
+    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843166/coordenador-a-de-confiabilidade-e-automacao sem resposta",
+    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2842941/engenheiro-a-de-manutencao-e-instalacoes-prediais-senior sem resposta"
    ],
-   "fila_erros_pendentes": 37
+   "fila_erros_pendentes": 31
   },
   "Indeed": {
    "lidas": 0,
@@ -75,14 +73,13 @@
    ]
   },
   "Catho": {
-   "lidas": 285,
+   "lidas": 286,
    "novas": 0,
    "ja_no_painel": 4,
-   "ja_vistas": 269,
+   "ja_vistas": 277,
    "descartes": {
-    "fora da área": 6,
-    "Descartada (anúncio antigo)": 5,
-    "Descartada (fora do Brasil)": 1
+    "fora da área": 4,
+    "Descartada (formação)": 1
    },
    "falhas": 0,
    "erros": [],
@@ -126,36 +123,20 @@
    "erros": []
   },
   "LinkedIn": {
-   "lidas": 285,
+   "lidas": 228,
    "novas": 0,
-   "ja_no_painel": 13,
-   "ja_vistas": 271,
-   "descartes": {
-    "fora da área": 1
-   },
-   "falhas": 1,
+   "ja_no_painel": 11,
+   "ja_vistas": 217,
+   "descartes": {},
+   "falhas": 12,
    "erros": [
-    "LinkedIn PMO 2 sem resposta"
+    "LinkedIn engenheiro de planejamento 2 sem resposta",
+    "LinkedIn engenheiro de planejamento 3 sem resposta",
+    "LinkedIn analista de projetos 3 sem resposta"
    ]
   }
  },
  "fila_erros": [
-  {
-   "id": "erro-vagas-vaga-vagas-v2841006-engenheiro-a-de-contratos-jr",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de projetos",
-   "titulo": "Engenheiro(a) de Contratos Jr",
-   "empresa": "Confidencial",
-   "local": "Rio de Janeiro / RJ",
-   "link": "https://www.vagas.com.br/vagas/v2841006/engenheiro-a-de-contratos-jr",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 9,
-   "primeira_falha_em": "2026-11-18T23:42:05+00:00",
-   "ultima_tentativa_em": "2026-11-24T19:31:29+00:00",
-   "status_fila": "pendente"
-  },
   {
    "id": "erro-vagas-vaga-vagas-v2843179-supervisor-de-manutencao-a-miguel-pereira-rj-banco-de-talentos",
    "fonte": "Vagas.com.br",
@@ -413,38 +394,6 @@
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2842267-analista-de-planejamento-comercial-jr-vaga-afirmativa-para-pessoa",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "trainee engenharia",
-   "titulo": "Analista de Planejamento Comercial Jr - Vaga Afirmativa para Pessoas Pretas e Pardas",
-   "empresa": "FI GROUP",
-   "local": "São Paulo / SP",
-   "link": "https://www.vagas.com.br/vagas/v2842267/analista-de-planejamento-comercial-jr-vaga-afirmativa-para-pessoas-pretas-e-pardas",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 9,
-   "primeira_falha_em": "2026-11-19T00:25:37+00:00",
-   "ultima_tentativa_em": "2026-11-24T20:13:34+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2842266-analista-de-planejamento-comercial-jr",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "trainee engenharia",
-   "titulo": "Analista de Planejamento Comercial Jr",
-   "empresa": "FI GROUP",
-   "local": "Brasília / DF",
-   "link": "https://www.vagas.com.br/vagas/v2842266/analista-de-planejamento-comercial-jr",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 9,
-   "primeira_falha_em": "2026-11-19T00:26:38+00:00",
-   "ultima_tentativa_em": "2026-11-24T20:14:34+00:00",
-   "status_fila": "pendente"
-  },
-  {
    "id": "erro-vagas-vaga-vagas-v2843644-analista-de-produto-pleno-planejamento-de-producao",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
@@ -605,131 +554,83 @@
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2844400-assistente-de-pcm-planejamento-e-controle-da-manutencao",
+   "id": "erro-vagas-vaga-vagas-v2840486-eletricista-de-manutencao-pl",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
    "termo": "planejamento e controle",
-   "titulo": "Assistente de PCM (Planejamento e Controle da Manutenção)",
-   "empresa": "Zydus",
-   "local": "Rio de Janeiro / RJ",
-   "link": "https://www.vagas.com.br/vagas/v2844400/assistente-de-pcm-planejamento-e-controle-da-manutencao",
+   "titulo": "Eletricista de Manutenção Pl",
+   "empresa": "Dori Ferrara",
+   "local": "Rolândia / PR",
+   "link": "https://www.vagas.com.br/vagas/v2840486/eletricista-de-manutencao-pl",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:31:24+00:00",
-   "ultima_tentativa_em": "2026-11-25T01:43:38+00:00",
+   "tentativas": 3,
+   "primeira_falha_em": "2026-11-24T21:23:49+00:00",
+   "ultima_tentativa_em": "2026-11-25T04:12:28+00:00",
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2844371-tecnico-a-planejamento-manutencao-sr",
+   "id": "erro-vagas-vaga-vagas-v2844507-especialista-de-pcm-cabreuva-sp",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
    "termo": "planejamento e controle",
-   "titulo": "Técnico (a) Planejamento Manutenção Sr",
+   "titulo": "Especialista de PCM (cabreúva/Sp)",
    "empresa": "Confidencial",
-   "local": "Contagem / MG",
-   "link": "https://www.vagas.com.br/vagas/v2844371/tecnico-a-planejamento-manutencao-sr",
+   "local": "Cabreúva / SP",
+   "link": "https://www.vagas.com.br/vagas/v2844507/especialista-de-pcm-cabreuva-sp",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:32:24+00:00",
-   "ultima_tentativa_em": "2026-11-25T01:44:38+00:00",
+   "tentativas": 3,
+   "primeira_falha_em": "2026-11-24T21:24:49+00:00",
+   "ultima_tentativa_em": "2026-11-25T04:08:28+00:00",
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2844364-fiscal-planejamento-pl-v028049",
+   "id": "erro-vagas-vaga-vagas-v2844450-analista-controle-qualidade-senior",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
-   "termo": "planejamento e controle",
-   "titulo": "Fiscal Planejamento Pl  V028049",
-   "empresa": "Lyon Engenharia",
-   "local": "Parauapebas / PA",
-   "link": "https://www.vagas.com.br/vagas/v2844364/fiscal-planejamento-pl-v028049",
+   "termo": "analista de projetos",
+   "titulo": "Analista Controle Qualidade Senior",
+   "empresa": "União Química Farmacêutica Nacional",
+   "local": "Pouso Alegre / MG",
+   "link": "https://www.vagas.com.br/vagas/v2844450/analista-controle-qualidade-senior",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:33:24+00:00",
-   "ultima_tentativa_em": "2026-11-25T01:42:38+00:00",
+   "tentativas": 3,
+   "primeira_falha_em": "2026-11-24T21:26:55+00:00",
+   "ultima_tentativa_em": "2026-11-25T04:27:36+00:00",
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2844444-assistente-de-facilities-manutencao-civil-e-predial",
+   "id": "erro-vagas-vaga-vagas-v2844452-analista-controle-qualidade-junior",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
-   "termo": "planejamento e controle",
-   "titulo": "Assistente de Facilities – Manutenção Civil e Predial",
-   "empresa": "Zeentech",
-   "local": "Betim / MG",
-   "link": "https://www.vagas.com.br/vagas/v2844444/assistente-de-facilities-manutencao-civil-e-predial",
+   "termo": "analista de projetos",
+   "titulo": "Analista Controle Qualidade Junior",
+   "empresa": "União Química Farmacêutica Nacional",
+   "local": "Pouso Alegre / MG",
+   "link": "https://www.vagas.com.br/vagas/v2844452/analista-controle-qualidade-junior",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:34:24+00:00",
-   "ultima_tentativa_em": "2026-11-25T01:45:38+00:00",
+   "tentativas": 3,
+   "primeira_falha_em": "2026-11-24T21:27:55+00:00",
+   "ultima_tentativa_em": "2026-11-25T04:26:36+00:00",
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2844361-gerente-de-projetos",
+   "id": "erro-vagas-vaga-vagas-v2844491-supervisor-de-manutencao-utilidades",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
-   "termo": "PMO",
-   "titulo": "Gerente de Projetos",
-   "empresa": "The Adecco Group",
-   "local": "São Paulo / SP",
-   "link": "https://www.vagas.com.br/vagas/v2844361/gerente-de-projetos",
+   "termo": "coordenador de projetos",
+   "titulo": "Supervisor de Manutencao (Utilidades)",
+   "empresa": "União Química Farmacêutica Nacional",
+   "local": "Taboão da Serra / SP",
+   "link": "https://www.vagas.com.br/vagas/v2844491/supervisor-de-manutencao-utilidades",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:35:27+00:00",
-   "ultima_tentativa_em": "2026-11-25T01:52:41+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844424-supervisor-de-manutencao-automotiva",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "planejador",
-   "titulo": "Supervisor de Manutenção Automotiva",
-   "empresa": "Clealco",
-   "local": "Clementina / SP",
-   "link": "https://www.vagas.com.br/vagas/v2844424/supervisor-de-manutencao-automotiva",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:48:39+00:00",
-   "ultima_tentativa_em": "2026-11-25T02:10:51+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844131-coordenador-confiabilidade-e-engenharia-de-manutencao",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de projetos",
-   "titulo": "Coordenador Confiabilidade e Engenharia de Manutenção",
-   "empresa": "Porto Sudeste Brasil",
-   "local": "Itaguaí / RJ",
-   "link": "https://www.vagas.com.br/vagas/v2844131/coordenador-confiabilidade-e-engenharia-de-manutencao",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:49:45+00:00",
-   "ultima_tentativa_em": "2026-11-25T02:14:57+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844534-gerente-de-contrato",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "planejamento e controle",
-   "titulo": "Gerente de Contrato",
-   "empresa": "Confidencial",
-   "local": "São João de Meriti / RJ",
-   "link": "https://www.vagas.com.br/vagas/v2844534/gerente-de-contrato",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 2,
-   "primeira_falha_em": "2026-11-24T22:09:53+00:00",
-   "ultima_tentativa_em": "2026-11-25T01:46:38+00:00",
+   "tentativas": 3,
+   "primeira_falha_em": "2026-11-24T21:33:09+00:00",
+   "ultima_tentativa_em": "2026-11-25T04:47:53+00:00",
    "status_fila": "pendente"
   }
  ],
