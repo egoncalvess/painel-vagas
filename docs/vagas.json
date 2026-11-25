@@ -1,14 +1,13 @@
 {
- "atualizado_em": "2026-11-25T01:14+00:00",
+ "atualizado_em": "2026-11-25T02:59+00:00",
  "fontes": {
   "Gupy": {
-   "lidas": 3794,
+   "lidas": 3789,
    "novas": 0,
    "ja_no_painel": 5,
-   "ja_vistas": 3786,
+   "ja_vistas": 3779,
    "descartes": {
-    "Descartada (modalidade)": 2,
-    "fora da área": 1
+    "fora da área": 5
    },
    "falhas": 0,
    "erros": [],
@@ -39,33 +38,29 @@
    "erros": []
   },
   "Empregos.com.br": {
-   "lidas": 259,
+   "lidas": 254,
    "novas": 0,
    "ja_no_painel": 1,
-   "ja_vistas": 256,
-   "descartes": {
-    "fora da área": 2
-   },
+   "ja_vistas": 253,
+   "descartes": {},
    "falhas": 0,
    "erros": []
   },
   "Vagas.com.br": {
-   "lidas": 307,
+   "lidas": 308,
    "novas": 0,
    "ja_no_painel": 0,
    "ja_vistas": 302,
    "descartes": {
-    "Descartada (modalidade)": 3,
-    "Descartada (fora do Brasil)": 1,
-    "fora da área": 1
+    "fora da área": 6
    },
    "falhas": 96,
    "erros": [
-    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2842943/analista-de-planejamento-de-producao-e-atendimento-ao-cliente-pleno sem resposta",
-    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843822/engenheiro-obras sem resposta",
-    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843402/engenheiro-de-orcamento-infraestrutura sem resposta"
+    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843939/analista-de-controle-e-gestao-pleno-industrial sem resposta",
+    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843941/analista-de-controle-e-gestao-pleno-corporativo sem resposta",
+    "Vagas.com.br vaga https://www.vagas.com.br/vagas/v2843940/analista-de-planejamento-senior sem resposta"
    ],
-   "fila_erros_pendentes": 49
+   "fila_erros_pendentes": 37
   },
   "Indeed": {
    "lidas": 0,
@@ -80,15 +75,14 @@
    ]
   },
   "Catho": {
-   "lidas": 284,
-   "novas": 4,
-   "ja_no_painel": 0,
-   "ja_vistas": 37,
+   "lidas": 285,
+   "novas": 0,
+   "ja_no_painel": 4,
+   "ja_vistas": 269,
    "descartes": {
-    "fora da área": 91,
-    "Descartada (fora do Brasil)": 86,
-    "Descartada (anúncio antigo)": 63,
-    "Descartada (formação)": 3
+    "fora da área": 6,
+    "Descartada (anúncio antigo)": 5,
+    "Descartada (fora do Brasil)": 1
    },
    "falhas": 0,
    "erros": [],
@@ -132,17 +126,16 @@
    "erros": []
   },
   "LinkedIn": {
-   "lidas": 279,
+   "lidas": 285,
    "novas": 0,
-   "ja_no_painel": 12,
-   "ja_vistas": 263,
+   "ja_no_painel": 13,
+   "ja_vistas": 271,
    "descartes": {
-    "fora da área": 4
+    "fora da área": 1
    },
-   "falhas": 2,
+   "falhas": 1,
    "erros": [
-    "LinkedIn analista de custos 2 sem resposta",
-    "LinkedIn analista de custos 3 sem resposta"
+    "LinkedIn PMO 2 sem resposta"
    ]
   }
  },
@@ -209,22 +202,6 @@
    "tentativas": 9,
    "primeira_falha_em": "2026-11-18T23:51:17+00:00",
    "ultima_tentativa_em": "2026-11-24T19:40:30+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2842592-tecnica-o-especializada-o-manutencao-vaga-afirmativa-para-mulhere",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "projetos elétricos",
-   "titulo": "TÉCNICA(o) ESPECIALIZADA(o) Manutenção - Vaga Afirmativa para Mulheres",
-   "empresa": "Indústria Multinacional",
-   "local": "Canaã dos Carajás / PA",
-   "link": "https://www.vagas.com.br/vagas/v2842592/tecnica-o-especializada-o-manutencao-vaga-afirmativa-para-mulheres",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 9,
-   "primeira_falha_em": "2026-11-18T23:55:17+00:00",
-   "ultima_tentativa_em": "2026-11-24T19:44:31+00:00",
    "status_fila": "pendente"
   },
   {
@@ -638,9 +615,9 @@
    "link": "https://www.vagas.com.br/vagas/v2844400/assistente-de-pcm-planejamento-e-controle-da-manutencao",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:31:24+00:00",
-   "ultima_tentativa_em": "2026-11-24T23:50:21+00:00",
+   "ultima_tentativa_em": "2026-11-25T01:43:38+00:00",
    "status_fila": "pendente"
   },
   {
@@ -654,9 +631,9 @@
    "link": "https://www.vagas.com.br/vagas/v2844371/tecnico-a-planejamento-manutencao-sr",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:32:24+00:00",
-   "ultima_tentativa_em": "2026-11-24T23:51:21+00:00",
+   "ultima_tentativa_em": "2026-11-25T01:44:38+00:00",
    "status_fila": "pendente"
   },
   {
@@ -670,9 +647,9 @@
    "link": "https://www.vagas.com.br/vagas/v2844364/fiscal-planejamento-pl-v028049",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:33:24+00:00",
-   "ultima_tentativa_em": "2026-11-24T23:49:21+00:00",
+   "ultima_tentativa_em": "2026-11-25T01:42:38+00:00",
    "status_fila": "pendente"
   },
   {
@@ -686,9 +663,9 @@
    "link": "https://www.vagas.com.br/vagas/v2844444/assistente-de-facilities-manutencao-civil-e-predial",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:34:24+00:00",
-   "ultima_tentativa_em": "2026-11-24T23:54:21+00:00",
+   "ultima_tentativa_em": "2026-11-25T01:45:38+00:00",
    "status_fila": "pendente"
   },
   {
@@ -702,9 +679,9 @@
    "link": "https://www.vagas.com.br/vagas/v2844361/gerente-de-projetos",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:35:27+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:01:24+00:00",
+   "ultima_tentativa_em": "2026-11-25T01:52:41+00:00",
    "status_fila": "pendente"
   },
   {
@@ -718,9 +695,9 @@
    "link": "https://www.vagas.com.br/vagas/v2844424/supervisor-de-manutencao-automotiva",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:48:39+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:20:34+00:00",
+   "ultima_tentativa_em": "2026-11-25T02:10:51+00:00",
    "status_fila": "pendente"
   },
   {
@@ -734,201 +711,25 @@
    "link": "https://www.vagas.com.br/vagas/v2844131/coordenador-confiabilidade-e-engenharia-de-manutencao",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
-   "tentativas": 3,
+   "tentativas": 4,
    "primeira_falha_em": "2026-11-24T15:49:45+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:25:40+00:00",
+   "ultima_tentativa_em": "2026-11-25T02:14:57+00:00",
    "status_fila": "pendente"
   },
   {
-   "id": "erro-vagas-vaga-vagas-v2844367-eletricista",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "projetos elétricos",
-   "titulo": "Eletricista",
-   "empresa": "Expert Consultoria",
-   "local": "Jundiaí / SP",
-   "link": "https://www.vagas.com.br/vagas/v2844367/eletricista",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:50:56+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:36:53+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844405-analista-de-gestao-de-contratos-jr",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "gerente de contrato",
-   "titulo": "Analista de Gestão de Contratos Jr",
-   "empresa": "Clealco",
-   "local": "Clementina / SP",
-   "link": "https://www.vagas.com.br/vagas/v2844405/analista-de-gestao-de-contratos-jr",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 4,
-   "primeira_falha_em": "2026-11-24T15:53:00+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:44:57+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2840486-eletricista-de-manutencao-pl",
+   "id": "erro-vagas-vaga-vagas-v2844534-gerente-de-contrato",
    "fonte": "Vagas.com.br",
    "tipo": "vaga",
    "termo": "planejamento e controle",
-   "titulo": "Eletricista de Manutenção Pl",
-   "empresa": "Dori Ferrara",
-   "local": "Rolândia / PR",
-   "link": "https://www.vagas.com.br/vagas/v2840486/eletricista-de-manutencao-pl",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 2,
-   "primeira_falha_em": "2026-11-24T21:23:49+00:00",
-   "ultima_tentativa_em": "2026-11-24T23:52:21+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844507-especialista-de-pcm-cabreuva-sp",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "planejamento e controle",
-   "titulo": "Especialista de PCM (cabreúva/Sp)",
+   "titulo": "Gerente de Contrato",
    "empresa": "Confidencial",
-   "local": "Cabreúva / SP",
-   "link": "https://www.vagas.com.br/vagas/v2844507/especialista-de-pcm-cabreuva-sp",
+   "local": "São João de Meriti / RJ",
+   "link": "https://www.vagas.com.br/vagas/v2844534/gerente-de-contrato",
    "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
    "codigo_http": null,
    "tentativas": 2,
-   "primeira_falha_em": "2026-11-24T21:24:49+00:00",
-   "ultima_tentativa_em": "2026-11-24T23:53:21+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844450-analista-controle-qualidade-senior",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "analista de projetos",
-   "titulo": "Analista Controle Qualidade Senior",
-   "empresa": "União Química Farmacêutica Nacional",
-   "local": "Pouso Alegre / MG",
-   "link": "https://www.vagas.com.br/vagas/v2844450/analista-controle-qualidade-senior",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 2,
-   "primeira_falha_em": "2026-11-24T21:26:55+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:09:28+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844452-analista-controle-qualidade-junior",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "analista de projetos",
-   "titulo": "Analista Controle Qualidade Junior",
-   "empresa": "União Química Farmacêutica Nacional",
-   "local": "Pouso Alegre / MG",
-   "link": "https://www.vagas.com.br/vagas/v2844452/analista-controle-qualidade-junior",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 2,
-   "primeira_falha_em": "2026-11-24T21:27:55+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:08:27+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2844491-supervisor-de-manutencao-utilidades",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "coordenador de projetos",
-   "titulo": "Supervisor de Manutencao (Utilidades)",
-   "empresa": "União Química Farmacêutica Nacional",
-   "local": "Taboão da Serra / SP",
-   "link": "https://www.vagas.com.br/vagas/v2844491/supervisor-de-manutencao-utilidades",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 2,
-   "primeira_falha_em": "2026-11-24T21:33:09+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:29:43+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2843287-operador-de-equipamentos-ii",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de manutenção",
-   "titulo": "Operador de Equipamentos II",
-   "empresa": "Veolia",
-   "local": "Itu / SP",
-   "link": "https://www.vagas.com.br/vagas/v2843287/operador-de-equipamentos-ii",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 1,
-   "primeira_falha_em": "2026-11-25T00:48:58+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:48:58+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2841477-auxiliar-administrativo",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de manutenção",
-   "titulo": "Auxiliar Administrativo",
-   "empresa": "Veolia",
-   "local": "Itu / SP",
-   "link": "https://www.vagas.com.br/vagas/v2841477/auxiliar-administrativo",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 1,
-   "primeira_falha_em": "2026-11-25T00:49:59+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:49:59+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2841422-operador-de-equipamentos-i",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de manutenção",
-   "titulo": "Operador de Equipamentos I",
-   "empresa": "Veolia",
-   "local": "Itu / SP",
-   "link": "https://www.vagas.com.br/vagas/v2841422/operador-de-equipamentos-i",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 1,
-   "primeira_falha_em": "2026-11-25T00:50:59+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:50:59+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2840864-auxiliar-de-logistica-presencial-em-itupeva-sp-sem-experiencia",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de manutenção",
-   "titulo": "Auxiliar de Logística (Presencial em Itupeva - SP) - Sem experiência",
-   "empresa": "Mercado Livre",
-   "local": "Itupeva / SP",
-   "link": "https://www.vagas.com.br/vagas/v2840864/auxiliar-de-logistica-presencial-em-itupeva-sp-sem-experiencia",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 1,
-   "primeira_falha_em": "2026-11-25T00:51:59+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:51:59+00:00",
-   "status_fila": "pendente"
-  },
-  {
-   "id": "erro-vagas-vaga-vagas-v2833138-vendedor-interno",
-   "fonte": "Vagas.com.br",
-   "tipo": "vaga",
-   "termo": "engenheiro de manutenção",
-   "titulo": "Vendedor Interno",
-   "empresa": "COBRECOM",
-   "local": "Itu / SP",
-   "link": "https://www.vagas.com.br/vagas/v2833138/vendedor-interno",
-   "erro": "Falha ao consultar detalhe da vaga (sem resposta)",
-   "codigo_http": null,
-   "tentativas": 1,
-   "primeira_falha_em": "2026-11-25T00:52:59+00:00",
-   "ultima_tentativa_em": "2026-11-25T00:52:59+00:00",
+   "primeira_falha_em": "2026-11-24T22:09:53+00:00",
+   "ultima_tentativa_em": "2026-11-25T01:46:38+00:00",
    "status_fila": "pendente"
   }
  ],
@@ -1331,7 +1132,7 @@
    "link": "https://br.linkedin.com/jobs/view/job-for-full-time-employee-%0Aanalista-de-pcm-i%0Asalvador-ba%0Afull-time-employee-at-m-dias-branco-4488399539",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-17-nexdom-healthtech-analista-de-projetos",
@@ -1347,7 +1148,7 @@
    "link": "https://vempranexdom.gupy.io/job/eyJqb2JJZCI6MTI3OTM4MjMsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-16",
    "prazo": "2026-12-07",
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "tenho": [
      "MS Project"
@@ -1368,7 +1169,7 @@
    "link": "https://br.linkedin.com/jobs/view/planejador-a-de-manuten%C3%A7%C3%A3o-at-intermar%C3%ADtima-portos-e-log%C3%ADstica-s-a-4491411362",
    "publicada": "2026-11-17",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-18-metodo-grupo-especialista-de-obras-gestao-integrada",
@@ -1426,7 +1227,7 @@
    "link": "https://www.empregos.com.br/vaga/12034926/gerente-de-projetos-sera-um-diferencial-ter-conhecimento-fiscal-em-sao-paulo-sp",
    "publicada": "2026-11-17",
    "prazo": null,
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "tenho": [
      "MS Project",
@@ -1453,7 +1254,7 @@
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-at-logma-engenharia-4490892849",
    "publicada": "2026-11-18",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-18-priner-tecnico-de-planejamento",
@@ -1469,7 +1270,7 @@
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-planejamento-at-priner-4491871719",
    "publicada": "2026-11-18",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-18-priner-assistente-de-planejamento",
@@ -1485,7 +1286,7 @@
    "link": "https://br.linkedin.com/jobs/view/assistente-de-planejamento-at-priner-4491887087",
    "publicada": "2026-11-18",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-18-grupo-alves-da-cunha-coordenador-de-orcamento",
@@ -1501,7 +1302,7 @@
    "link": "https://br.linkedin.com/jobs/view/coordenador-de-or%C3%A7amento-at-grupo-alves-da-cunha-4490151590",
    "publicada": "2026-11-16",
    "prazo": null,
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -1522,7 +1323,7 @@
    "link": "https://br.linkedin.com/jobs/view/gerente-de-projetos-sap-s4hana-at-jobbol-4492046596",
    "publicada": "2026-11-18",
    "prazo": null,
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "tenho": [
      "SAP"
@@ -1543,7 +1344,7 @@
    "link": "https://cientecaceleradora.vagas.solides.com.br/vaga/954909",
    "publicada": "2026-11-17",
    "prazo": "2026-12-19",
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "conferir": [
      "Disponibilidade para viagens"
@@ -1564,7 +1365,7 @@
    "link": "https://br.linkedin.com/jobs/view/engenheiro-de-planejamento-senior-at-afry-4492719964",
    "publicada": "2026-11-19",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-20-abler-vagas-analista-de-implantacao-de-condominios",
@@ -1580,7 +1381,7 @@
    "link": "https://br.linkedin.com/jobs/view/analista-de-implanta%C3%A7%C3%A3o-de-condom%C3%ADnios-at-abler-vagas-4489745601",
    "publicada": "2026-11-16",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-22-tk-elevator-tecnico-a-em-manutencao-de-elevadores-pl",
@@ -1628,7 +1429,7 @@
    "link": "https://br.linkedin.com/jobs/view/banco-de-talentos-eletricista-de-linha-viva-transmiss%C3%A3o-i-ba-at-grupo-energisa-4493159304",
    "publicada": "2026-11-22",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-24-deroyque-it-e-consultoria-empr-gestor-de-projetos-de-telecom-remoto",
@@ -1644,7 +1445,7 @@
    "link": "https://deroyque.vagas.solides.com.br/vaga/956811",
    "publicada": "2026-11-23",
    "prazo": "2026-12-31",
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-24-jobbol-engenheiro-de-gestao-de-projetos-e-desem",
@@ -1660,7 +1461,7 @@
    "link": "https://br.linkedin.com/jobs/view/engenheiro-de-gest%C3%A3o-de-projetos-e-desempenho-bi-at-jobbol-4493667364",
    "publicada": "2026-11-23",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-24-kordsa-gestor-a-de-contratos",
@@ -1676,7 +1477,7 @@
    "link": "https://kordsa.gupy.io/job/eyJqb2JJZCI6MTI5MTc3NTMsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-24",
    "prazo": "2026-12-15",
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "tenho": [
      "SAP"
@@ -1697,7 +1498,7 @@
    "link": "https://autoglassadministrativo.gupy.io/job/eyJqb2JJZCI6MTI4OTk2MzgsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal",
    "publicada": "2026-11-24",
    "prazo": "2027-01-15",
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-24-priner-tecnico-de-acompanhamento-e-controle",
@@ -1713,7 +1514,7 @@
    "link": "https://br.linkedin.com/jobs/view/t%C3%A9cnico-de-acompanhamento-e-controle-at-priner-4494720436",
    "publicada": "2026-11-24",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-24-tqc-assistente-de-custos-e-orcamentos",
@@ -1729,7 +1530,7 @@
    "link": "https://br.linkedin.com/jobs/view/assistente-de-custos-e-or%C3%A7amentos-at-tqc-4489029321",
    "publicada": "2026-11-11",
    "prazo": null,
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "tenho": [
      "Orçamento e custos"
@@ -1750,7 +1551,7 @@
    "link": "https://www.catho.com.br/vagas/analista-de-processos-e-negocios-ii-planejamento-programacao-acompanhamento-e-controle-das-atividades-produtivas/39048886",
    "publicada": "2026-10-29",
    "prazo": null,
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "salario": {
      "min": 3000,
@@ -1774,7 +1575,7 @@
    "link": "https://www.catho.com.br/vagas/apontador-de-obras/39214258",
    "publicada": "2026-11-10",
    "prazo": null,
-   "visto_em": "2026-11-24",
+   "visto_em": "2026-11-25",
    "requisitos": {
     "salario": {
      "min": 2000,
@@ -1798,7 +1599,7 @@
    "link": "https://www.catho.com.br/vagas/analista-jr.-de-gestao-de-obras-fotovoltaicas/39308996",
    "publicada": "2026-11-17",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   },
   {
    "id": "2026-11-24-empresa-confidencial-coordenador-de-obras",
@@ -1814,7 +1615,7 @@
    "link": "https://www.catho.com.br/vagas/coordenador-de-obras/39340416",
    "publicada": "2026-11-19",
    "prazo": null,
-   "visto_em": "2026-11-24"
+   "visto_em": "2026-11-25"
   }
  ]
 }
